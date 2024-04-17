@@ -1,0 +1,18 @@
+// Taken from https://github.com/primer/css/tree/main/src/markdown
+.code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: var(--bgColor-neutral-muted, var(--color-neutral-muted));
+  border-radius: 6px;
+
+  br {
+    display: none;
+  }
+}
+
+.p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
