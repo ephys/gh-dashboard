@@ -5,7 +5,7 @@ type AlertProps = {
   // TODO
   title?: string;
   // TODO
-  type: 'tip';
+  type: 'tip' | 'error';
 };
 
 export function Alert(props: AlertProps) {

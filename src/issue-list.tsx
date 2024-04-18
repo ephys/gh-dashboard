@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
+import { Alert } from './alert.tsx';
 import { graphql } from './gql/index.ts';
 import { InlineCode } from './markdown.tsx';
 import { isLoadedUrql } from './urql/urql.utils.ts';
@@ -126,7 +127,7 @@ export function IssueList(props: IssueListProps) {
           rows={10}
         />
       ) : urqlSearch.error ? (
-        <Table.ErrorDialog title={urqlSearch.error.message} />
+        <Alert type="error" title="Error" description="Failed to load content" />
       ) : (
         <>
           <DataTable
@@ -137,7 +138,7 @@ export function IssueList(props: IssueListProps) {
           />
           <Table.Pagination
             aria-label={`Pagination for ${props.title}`}
-            totalCount={urqlSearch.data?.search.issueCount ?? 0}
+            totalCount={urqlSearch.data.search.issueCount ?? 0}
             pageSize={countPerPage}
             // defaultPageIndex={page - 1}
             onChange={onPageChange}

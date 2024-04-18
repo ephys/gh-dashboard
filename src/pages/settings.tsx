@@ -20,6 +20,7 @@ import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
 import type { ListColumn } from '../list.tsx';
 import { List } from '../list.tsx';
 import { InlineCode, P } from '../markdown.tsx';
+import { PatFormControl } from '../pat-form-control.tsx';
 import type { TabConfiguration } from '../use-app-configuration.ts';
 import { AppConfigurationSchema, useAppConfiguration } from '../use-app-configuration.ts';
 import { usePat } from '../use-pat.ts';
@@ -67,10 +68,7 @@ export function Settings() {
         <Heading>General Settings</Heading>
       </PageLayout.Header>
       <PageLayout.Content>
-        <FormControl>
-          <FormControl.Label>Personal Access Token</FormControl.Label>
-          <TextInput block monospace value={pat} onChange={onPatChange} type="password" />
-        </FormControl>
+        <PatFormControl value={pat} onChange={onPatChange} />
 
         <TabList />
 

@@ -3,12 +3,16 @@ import { Blankslate } from '@primer/react/drafts';
 import { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../alert.tsx';
+import { BlankPatState } from '../blank-pat-state.tsx';
 import { IssueList } from '../issue-list.tsx';
 import { useAppConfiguration } from '../use-app-configuration.ts';
+import { usePat } from '../use-pat.ts';
 import css from './dashboard.module.scss';
 
 export function Dashboard() {
   const [config] = useAppConfiguration();
+  const [pat] = usePat();
+
   const navigate = useNavigate();
   const { tabSlug } = useParams();
 
@@ -22,6 +26,10 @@ export function Dashboard() {
 
   const currentPage = config.tabs.find(tab => tab.slug === tabSlug);
   const hasContent = Boolean(currentPage?.components?.length);
+
+  if (!pat) {
+    return <BlankPatState />;
+  }
 
   return (
     <>
