@@ -17,6 +17,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
+import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import type { ListColumn } from '../list.tsx';
 import { List } from '../list.tsx';
 import { InlineCode, P } from '../markdown.tsx';
@@ -363,18 +364,13 @@ function DeleteTabDialog(props: EditTabActionProps) {
   }, [appConfiguration, onDismiss, index, setAppConfiguration]);
 
   return (
-    <Dialog isOpen onDismiss={onDismiss} aria-labelledby="header">
-      <Dialog.Header id="header">Delete Tab?</Dialog.Header>
-      <Box p={3}>
+    <DeletionConfirmationDialog
+      onDelete={onDelete}
+      onCancel={onDismiss}
+      title="Delete Tab?"
+      text={
         <P>You are about to delete the {inspect(tab.name)} tab. This action cannot be undone.</P>
-        <P>Are you sure you want to proceed?</P>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
-          <Button onClick={onDismiss}>Cancel</Button>
-          <Button variant="danger" onClick={onDelete}>
-            Delete
-          </Button>
-        </Box>
-      </Box>
-    </Dialog>
+      }
+    />
   );
 }

@@ -1,6 +1,6 @@
 import { PageLayout, UnderlineNav } from '@primer/react';
 import { Blankslate } from '@primer/react/drafts';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../alert.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
@@ -10,7 +10,7 @@ import { usePat } from '../use-pat.ts';
 import css from './dashboard.module.scss';
 
 export function Dashboard() {
-  const [config] = useAppConfiguration();
+  const [config, setConfig] = useAppConfiguration();
   const [pat] = usePat();
 
   const navigate = useNavigate();
@@ -27,25 +27,50 @@ export function Dashboard() {
   const currentPage = config.tabs.find(tab => tab.slug === tabSlug);
   const hasContent = Boolean(currentPage?.components?.length);
 
+  const onDeleteComponent = useCallback(
+    (index: number) => {
+      setConfig(oldConfig => {
+        return {
+          ...oldConfig,
+          tabs: oldConfig.tabs.map(tab => {
+            if (!(tab.slug === tabSlug && tab.components)) {
+              return tab;
+            }
+
+            return {
+              ...tab,
+              components: tab.components.toSpliced(index, 1),
+            };
+          }),
+        };
+      });
+    },
+    [setConfig, tabSlug],
+  );
+
   if (!pat) {
     return <BlankPatState />;
   }
 
   return (
     <>
-      {/* TODO: add an edit tabs action */}
-      <UnderlineNav aria-label="Search Tabs">
-        {config.tabs.map(tab => (
-          // TODO: Add badge for unread notifications
-          <UnderlineNav.Item
-            key={tab.slug}
-            as={Link}
-            to={`/d/${tab.slug}`}
-            aria-current={tab.slug === tabSlug ? 'page' : undefined}>
-            {tab.name}
-          </UnderlineNav.Item>
-        ))}
-      </UnderlineNav>
+      {config.tabs.length > 1 && (
+        <UnderlineNav
+          aria-label="Search Tabs"
+          // There seems to be a bug in UnderlineNav where it does not reflect added/removed tabs
+          key={config.tabs.length}>
+          {config.tabs.map(tab => (
+            // TODO: Add badge for unread notifications
+            <UnderlineNav.Item
+              key={tab.slug}
+              as={Link}
+              to={`/d/${tab.slug}`}
+              aria-current={tab.slug === tabSlug ? 'page' : undefined}>
+              {tab.name}
+            </UnderlineNav.Item>
+          ))}
+        </UnderlineNav>
+      )}
 
       <PageLayout containerWidth={hasContent ? 'large' : 'medium'}>
         <PageLayout.Content>
@@ -60,11 +85,9 @@ export function Dashboard() {
 
                 return (
                   <IssueList
-                    key={component.query}
-                    query={component.query}
-                    title={component.name}
-                    description={component.description}
-                    countPerPage={component.countPerPage}
+                    key={index + component.query}
+                    list={component}
+                    onDelete={() => onDeleteComponent(index)}
                   />
                 );
               })}

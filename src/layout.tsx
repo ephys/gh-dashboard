@@ -1,5 +1,5 @@
-import { MarkGithubIcon } from '@primer/octicons-react';
-import { Header, Octicon } from '@primer/react';
+import { GearIcon, MarkGithubIcon } from '@primer/octicons-react';
+import { Header, IconButton, Octicon } from '@primer/react';
 import type { PropsWithChildren } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -24,10 +24,8 @@ export function Layout(props: PropsWithChildren) {
             <span>Dashboard</span>
           </Header.Link>
         </Header.Item>
-        <Header.Item>
-          <Header.Link to="/settings" as={Link}>
-            Settings
-          </Header.Link>
+        <Header.Item sx={{ marginRight: 0 }}>
+          <IconButton as={Link} to="/settings" aria-label="Settings" icon={GearIcon} />
         </Header.Item>
       </Header>
       {props.children}

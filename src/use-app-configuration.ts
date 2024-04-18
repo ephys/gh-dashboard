@@ -60,11 +60,11 @@ const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
             'is:pr is:open draft:false review-requested:@me -reviewed-by:@me sort:created-asc -author:@me',
         },
       ],
-      name: 'Reviews',
+      name: '✅ Reviews',
       slug: 'reviews',
     },
     {
-      name: 'Pull Requests',
+      name: '🔀 Pull Requests',
       slug: 'pull-requests',
       components: [
         {
@@ -84,7 +84,7 @@ or it will include pull requests from all repositories you have access to.`,
       ],
     },
     {
-      name: 'Issues',
+      name: '📝 Issues',
       slug: 'issues',
       components: [
         {

@@ -2,15 +2,16 @@ import { KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-rea
 import { ActionList, ActionMenu, Link as PrimerLink, Text } from '@primer/react';
 import type { Column } from '@primer/react/drafts';
 import { DataTable, Table } from '@primer/react/drafts';
-import type { Nullish } from '@sequelize/utils';
-import type { ReactNode } from 'react';
+import { inspect } from '@sequelize/utils';
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import { Alert } from './alert.tsx';
+import { DeletionConfirmationDialog } from './deletion-confirmation-dialog.tsx';
 import { graphql } from './gql/index.ts';
-import { InlineCode } from './markdown.tsx';
+import { InlineCode, P } from './markdown.tsx';
 import { isLoadedUrql } from './urql/urql.utils.ts';
+import type { SearchConfiguration } from './use-app-configuration.ts';
 
 const searchQuery = graphql(/* GraphQL */ `
   query searchIssuesAndPullRequests($query: String!, $first: Int!, $after: String!) {
@@ -53,15 +54,14 @@ const columns: Array<Column<SearchResult>> = [
 ];
 
 export interface IssueListProps {
-  countPerPage?: number;
-  description?: string | Nullish;
-  query: string;
-  title: ReactNode;
+  list: SearchConfiguration;
+  onDelete(this: void): void;
 }
 
-export function IssueList(props: IssueListProps) {
-  const countPerPage = props.countPerPage ?? 10;
+export function IssueList({ list, onDelete }: IssueListProps) {
+  const countPerPage = list.countPerPage ?? 10;
   const [page, setPage] = useState(0);
+  const [openModalId, setOpenModalId] = useState<'edit' | 'delete' | ''>('');
 
   const after = useMemo(() => {
     return page > 0 ? btoa(`cursor:${page * countPerPage}`) : '';
@@ -70,7 +70,7 @@ export function IssueList(props: IssueListProps) {
   const [urqlSearch] = useQuery({
     query: searchQuery,
     variables: {
-      query: props.query,
+      query: list.query,
       first: countPerPage,
       after,
     },
@@ -82,20 +82,23 @@ export function IssueList(props: IssueListProps) {
     setPage(data.pageIndex);
   }, []);
 
-  // TODO: refresh button
+  const closeModal = useCallback(() => {
+    setOpenModalId('');
+  }, []);
+
   return (
     <Table.Container>
       <Table.Title as="h2" id="repositories">
-        {props.title}
+        {list.name}
       </Table.Title>
       <Table.Subtitle as="p" id="repositories-subtitle">
-        {props.description && (
+        {list.description && (
           <Text as="p" sx={{ margin: 0 }}>
-            {props.description}
+            {list.description}
           </Text>
         )}
         <Text as="p" sx={{ margin: 0 }}>
-          <InlineCode>{props.query}</InlineCode>
+          <InlineCode>{list.query}</InlineCode>
         </Text>
       </Table.Subtitle>
 
@@ -103,13 +106,13 @@ export function IssueList(props: IssueListProps) {
         <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
           <ActionMenu.Overlay width="auto">
             <ActionList>
-              <ActionList.LinkItem href="/">
+              <ActionList.Item onClick={() => setOpenModalId('edit')}>
                 Edit
                 <ActionList.LeadingVisual>
                   <PencilIcon />
                 </ActionList.LeadingVisual>
-              </ActionList.LinkItem>
-              <ActionList.Item onSelect={() => alert('Archived items clicked')} variant="danger">
+              </ActionList.Item>
+              <ActionList.Item onSelect={() => setOpenModalId('delete')} variant="danger">
                 Delete List
                 <ActionList.LeadingVisual>
                   <TrashIcon />
@@ -137,14 +140,40 @@ export function IssueList(props: IssueListProps) {
             columns={columns}
           />
           <Table.Pagination
-            aria-label={`Pagination for ${props.title}`}
-            totalCount={urqlSearch.data.search.issueCount ?? 0}
+            aria-label={`Pagination for ${list.name}`}
+            totalCount={urqlSearch.data.search.issueCount}
             pageSize={countPerPage}
-            // defaultPageIndex={page - 1}
             onChange={onPageChange}
           />
         </>
       )}
+      {openModalId === 'delete' && (
+        <DeleteListDialog onClose={closeModal} onDelete={onDelete} list={list} />
+      )}
     </Table.Container>
+  );
+}
+
+interface DeleteListDialogProps {
+  list: SearchConfiguration;
+  onClose(this: void): void;
+  onDelete(this: void): void;
+}
+
+function DeleteListDialog({ list, onClose, onDelete: propsOnDelete }: DeleteListDialogProps) {
+  const onDelete = useCallback(() => {
+    propsOnDelete();
+    onClose();
+  }, [propsOnDelete, onClose]);
+
+  return (
+    <DeletionConfirmationDialog
+      onDelete={onDelete}
+      onCancel={onClose}
+      title="Delete List?"
+      text={
+        <P>You are about to delete the {inspect(list.name)} list. This action cannot be undone.</P>
+      }
+    />
   );
 }

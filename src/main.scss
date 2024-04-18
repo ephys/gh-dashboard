@@ -23,3 +23,7 @@
 :root {
   background-color: var(--bgColor-default);
 }
+
+[class^='Header-sc']:not(:has(~ nav)) {
+  border-bottom: 1px var(--borderColor-muted, var(--color-border-muted, #21262d)) solid;
+}
