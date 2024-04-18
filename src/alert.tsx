@@ -10,7 +10,7 @@ type AlertProps = {
 
 export function Alert(props: AlertProps) {
   return (
-    <div>
+    <div className="markdown-body">
       <ReactMarkdown>{props.description}</ReactMarkdown>
     </div>
   );

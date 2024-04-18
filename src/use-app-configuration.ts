@@ -78,8 +78,8 @@ const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
 - Available PRs: \`is:open is:pr -author:@me draft:false archived:false sort:created-asc\`
 - Draft PRs: \`is:open draft:true archived:false sort:created-asc\`
 
-Both of these queries require specifying the list of repositories you want to search in using the \`repo:\` filter,
-or it will include pull requests from all repositories you have access to.`,
+These queries require specifying the list of repositories you want to search in using the \`repo:\`, \`user:\` or \`org:\` filters,
+or they will include pull requests from all repositories you have access to.`,
         },
       ],
     },
@@ -95,13 +95,13 @@ or it will include pull requests from all repositories you have access to.`,
           type: 'tip',
           description: `Consider adding the following queries to this tab:
 
-- Popular Issues: \`is:open is:issue archived:false sort:reactions-+1-desc\`
-  Lists all open issues sorted by the 👍 reaction to indicate popularity.
-- Open Issues: \`is:open is:issue archived:false sort:created-desc\`
-  Lists all open issues you have not interacted with yet, sorted by newest.
+- Popular Issues: \`is:open is:issue archived:false sort:reactions-+1-desc\`  
+  _Lists all open issues sorted by the 👍 reaction to indicate popularity._
+- Open Issues: \`is:open is:issue archived:false sort:created-desc\`  
+  _Lists all open issues you have not interacted with yet, sorted by newest._
 
-These queries require specifying the list of repositories you want to search in using the \`repo:\` filter,
-or it will include pull requests from all repositories you have access to.`,
+These queries require specifying the list of repositories you want to search in using the \`repo:\`, \`user:\` or \`org:\` filters,
+or they will include issues from all repositories you have access to.`,
         },
       ],
     },
