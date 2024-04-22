@@ -6,8 +6,8 @@ export interface MarkdownProps {
 
 export function Markdown(props: MarkdownProps) {
   return (
-    <div className="markdown-body">
+    <span className="markdown-body">
       <ReactMarkdown>{props.children}</ReactMarkdown>
-    </div>
+    </span>
   );
 }

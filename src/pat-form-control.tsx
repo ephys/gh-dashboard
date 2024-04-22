@@ -10,13 +10,13 @@ export interface PatFormControlProps {
 
 export function PatFormControl({ sx, ...passDown }: PatFormControlProps) {
   return (
-    <FormControl sx={sx}>
+    <FormControl sx={sx} required>
       <FormControl.Label>Personal Access Token</FormControl.Label>
       <FormControl.Caption>
         Your PAT is exclusively used to interact with the GitHub API. It is stored in your browser's
         local storage.
       </FormControl.Caption>
-      <TextInput {...passDown} block monospace type="password" name="pat" required />
+      <TextInput {...passDown} block monospace type="password" name="pat" />
     </FormControl>
   );
 }

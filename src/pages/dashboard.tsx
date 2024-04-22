@@ -3,9 +3,9 @@ import { Blankslate } from '@primer/react/drafts';
 import { useCallback, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../alert.tsx';
+import { useAppConfiguration } from '../app-configuration.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
 import { IssueList } from '../issue-list.tsx';
-import { useAppConfiguration } from '../use-app-configuration.ts';
 import { usePat } from '../use-pat.ts';
 import css from './dashboard.module.scss';
 

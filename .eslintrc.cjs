@@ -6,13 +6,13 @@ module.exports = {
     '@ephys/eslint-config-typescript/browser',
   ],
   ignorePatterns: ['dist', 'src/gql/*'],
-  plugins: ['react-refresh'],
-  rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-  },
+  // plugins: ['react-refresh'],
+  // rules: {
+  //   'react-refresh/only-export-components': [
+  //     'warn',
+  //     { allowConstantExport: true },
+  //   ],
+  // },
   overrides: [
     {
       files: ['vite.config.ts', 'codegen.ts'],

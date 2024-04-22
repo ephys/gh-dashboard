@@ -1,4 +1,6 @@
 import { freezeDeep } from '@sequelize/utils';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { z } from 'zod';
 import type { StorageSetValue } from './use-storage.ts';
 import { useLocalStorage } from './use-storage.ts';
@@ -105,7 +107,6 @@ or they will include pull requests from all repositories you have access to.`,
           query: 'is:open is:issue assignee:@me archived:false sort:reactions-+1-desc',
         },
         {
-          countPerPage: 10,
           description: `Consider adding the following queries to this tab:
 
 - Popular Issues: \`is:open is:issue archived:false sort:reactions-+1-desc\`  
@@ -122,14 +123,31 @@ or they will include issues from all repositories you have access to.`,
   ],
 });
 
-export function useAppConfiguration(): [AppConfiguration, StorageSetValue<AppConfiguration>] {
+type AppConfigContextValue = readonly [AppConfiguration, StorageSetValue<AppConfiguration>];
+
+const AppConfigurationContext = createContext<AppConfigContextValue>([
+  DEFAULT_CONFIGURATION,
+  () => {},
+] as const);
+
+export function AppConfigurationProvider({ children }: { children: ReactNode }) {
   const out = useLocalStorage<AppConfiguration>('app-configuration', DEFAULT_CONFIGURATION);
 
-  const parsed = AppConfigurationSchema.safeParse(out[0]);
+  const context = useMemo(() => {
+    const parsed = AppConfigurationSchema.safeParse(out[0]);
 
-  if (!parsed.success) {
-    return [DEFAULT_CONFIGURATION, out[1]] as const;
-  }
+    if (!parsed.success) {
+      return [DEFAULT_CONFIGURATION, out[1]] as const;
+    }
 
-  return [parsed.data, out[1]];
+    return [parsed.data, out[1]] as const;
+  }, [out]);
+
+  return (
+    <AppConfigurationContext.Provider value={context}>{children}</AppConfigurationContext.Provider>
+  );
+}
+
+export function useAppConfiguration(): AppConfigContextValue {
+  return useContext(AppConfigurationContext);
 }

@@ -16,6 +16,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import { Alert } from './alert.tsx';
+import type { SearchConfiguration } from './app-configuration.tsx';
 import { DeletionConfirmationDialog } from './deletion-confirmation-dialog.tsx';
 import type { SearchIssuesAndPullRequestsQuery } from './gql/graphql.ts';
 import { PullRequestReviewState } from './gql/graphql.ts';
@@ -29,7 +30,6 @@ import { Markdown } from './markdown.tsx';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewAvatar } from './review-avatar.tsx';
 import { isLoadedUrql } from './urql/urql.utils.ts';
-import type { SearchConfiguration } from './use-app-configuration.ts';
 import { composedComparator } from './utils/composed-comparator.ts';
 
 const searchQuery = graphql(/* GraphQL */ `
@@ -150,7 +150,7 @@ const columns: Array<Column<SearchResult>> = [
           data-unread={String(!data.isReadByViewer)}>
           <IssueIcon issue={data} sx={{ marginTop: 1 }} />
           <Box sx={{ marginLeft: 2 }}>
-            <Text as={P} sx={{ fontSize: 'var(--text-body-size-large)' }}>
+            <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
               <PrimerLink href={data.url} className={css.titleLink}>
                 <Markdown>{data.title}</Markdown>
               </PrimerLink>
@@ -162,11 +162,12 @@ const columns: Array<Column<SearchResult>> = [
                 fontSize: 'var(--text-body-size-small)',
                 fontWeight: 'var(--base-text-weight-normal)',
               }}>
-              #{data.number} opened <RelativeTime datetime={data.createdAt} /> by{' '}
-              <InlineUser user={data.author} />
+              #{data.number} opened
+              {/* @ts-expect-error -- RelativeTime is badly typed */}
+              <RelativeTime datetime={data.createdAt} /> by <InlineUser user={data.author!} />
             </Text>
             {Boolean(labels?.length) && (
-              <LabelGroup sx={{ marginTop: 1 }}>
+              <LabelGroup sx={{ mt: 1 }}>
                 {labels!.map(label => (
                   <IssueLabel key={label!.id} hexColor={`#${label!.color}`} name={label!.name} />
                 ))}
@@ -272,7 +273,7 @@ const columns: Array<Column<SearchResult>> = [
       if (pendingReview && !reviews.some(review => review.key === pendingReview.author!.login)) {
         reviews.push({
           key: pendingReview.author!.login,
-          reviewer: pendingReview.author,
+          reviewer: pendingReview.author!,
           state: null,
           pending: true,
           requested: false,
@@ -340,7 +341,7 @@ export function IssueList({ list, onDelete }: IssueListProps) {
       <Table.Title as="h2" id="repositories">
         {list.name}
       </Table.Title>
-      <Table.Subtitle as="p" id="repositories-subtitle">
+      <Table.Subtitle id="repositories-subtitle">
         {list.description && (
           <Text as="p" sx={{ margin: 0 }}>
             {list.description}

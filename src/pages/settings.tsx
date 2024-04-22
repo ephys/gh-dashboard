@@ -18,17 +18,17 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
+import type { TabConfiguration } from '../app-configuration.tsx';
+import {
+  AppConfigurationSchema,
+  UserNameStyle,
+  useAppConfiguration,
+} from '../app-configuration.tsx';
 import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import type { ListColumn } from '../list.tsx';
 import { List } from '../list.tsx';
 import { InlineCode, P } from '../markdown-components.tsx';
 import { PatFormControl } from '../pat-form-control.tsx';
-import type { TabConfiguration } from '../use-app-configuration.ts';
-import {
-  AppConfigurationSchema,
-  UserNameStyle,
-  useAppConfiguration,
-} from '../use-app-configuration.ts';
 import { usePat } from '../use-pat.ts';
 import { getFormValue, getFormValues } from '../utils/get-form-values.ts';
 
@@ -90,7 +90,7 @@ export function Settings() {
       <PageLayout.Content>
         <PatFormControl value={pat} onChange={onPatChange} />
 
-        <FormControl sx={{ marginTop: 3 }}>
+        <FormControl sx={{ mt: 3 }}>
           <FormControl.Label>User Name Display</FormControl.Label>
           <Select block onChange={onUserNameStyleChange} value={appConfiguration.userNameStyle}>
             <Select.Option value={UserNameStyle.login}>Username</Select.Option>
@@ -112,7 +112,7 @@ export function Settings() {
         <TabList />
 
         <form onSubmit={onAppConfigurationChange}>
-          <FormControl sx={{ marginTop: 3 }}>
+          <FormControl sx={{ mt: 3 }}>
             <FormControl.Label>App Configuration</FormControl.Label>
             <Textarea
               block
@@ -271,9 +271,9 @@ function NewTabDialog({ onDismiss }: NewTabActionProps) {
     <Dialog isOpen onDismiss={onDismiss} aria-labelledby="header">
       <Dialog.Header id="header">New Tab</Dialog.Header>
       <Box p={3} as="form" onSubmit={onSubmit}>
-        <FormControl>
+        <FormControl required>
           <FormControl.Label>Name</FormControl.Label>
-          <TextInput block name="name" minLength={1} required />
+          <TextInput block name="name" minLength={1} />
         </FormControl>
 
         <FormControl sx={{ marginTop: 2 }}>
@@ -289,7 +289,6 @@ function NewTabDialog({ onDismiss }: NewTabActionProps) {
             name="slug"
             pattern="^[a-z0-9\-]+$"
             minLength={1}
-            required
           />
         </FormControl>
 
@@ -356,12 +355,12 @@ function EditTabDialog(props: EditTabActionProps) {
     <Dialog isOpen onDismiss={onDismiss} aria-labelledby="header">
       <Dialog.Header id="header">Edit: {tab.name}</Dialog.Header>
       <Box p={3} as="form" onSubmit={onSubmit}>
-        <FormControl>
+        <FormControl required>
           <FormControl.Label>Name</FormControl.Label>
-          <TextInput block defaultValue={tab.name} name="name" minLength={1} required />
+          <TextInput block defaultValue={tab.name} name="name" minLength={1} />
         </FormControl>
 
-        <FormControl sx={{ marginTop: 2 }}>
+        <FormControl sx={{ marginTop: 2 }} required>
           <FormControl.Label>Path</FormControl.Label>
           <FormControl.Caption>
             The URL pathname that leads to this tab. Accepts only numbers, dashes and lowercase
@@ -375,7 +374,6 @@ function EditTabDialog(props: EditTabActionProps) {
             name="slug"
             pattern="^[a-z0-9\-]+$"
             minLength={1}
-            required
           />
         </FormControl>
 

@@ -10,7 +10,7 @@ import {
 import type { OcticonProps } from '@primer/react';
 import { Octicon } from '@primer/react';
 import type { FragmentType } from './gql/fragment-masking.ts';
-import { useFragment } from './gql/fragment-masking.ts';
+import { getFragmentData } from './gql/fragment-masking.ts';
 import { IssueState, IssueStateReason, PullRequestState } from './gql/graphql.ts';
 import { graphql } from './gql/index.ts';
 
@@ -33,7 +33,7 @@ interface IssueIconProps {
 }
 
 export function IssueIcon(props: IssueIconProps) {
-  const issue = useFragment(IssueIconFragment, props.issue);
+  const issue = getFragmentData(IssueIconFragment, props.issue);
 
   switch (issue.__typename) {
     case 'Issue':
