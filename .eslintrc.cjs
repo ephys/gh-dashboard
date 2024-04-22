@@ -12,7 +12,6 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    'react/jsx-curly-newline': 'off',
   },
   overrides: [
     {

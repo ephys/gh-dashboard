@@ -194,7 +194,7 @@ const columns: Array<Column<SearchResult>> = [
       const requestedReviews = data.reviewRequests?.nodes ?? EMPTY_ARRAY;
 
       if (data.latestOpinionatedReviews?.nodes) {
-        for (const review of data.latestOpinionatedReviews?.nodes) {
+        for (const review of data.latestOpinionatedReviews.nodes) {
           if (!review?.author || review.state === PullRequestReviewState.Dismissed) {
             continue;
           }
@@ -243,7 +243,7 @@ const columns: Array<Column<SearchResult>> = [
               return (
                 requestedReviewer &&
                 'login' in requestedReviewer &&
-                requestedReviewer.login === author.login
+                requestedReviewer.login === reviewer.login
               );
             }),
           });
