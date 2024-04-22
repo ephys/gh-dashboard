@@ -17,8 +17,8 @@ export type Alert = z.infer<typeof FlashSchema>;
 
 const SearchConfigurationSchema = z
   .object({
-    countPerPage: z.number().default(10),
-    description: z.string().min(1).optional(),
+    countPerPage: z.number().min(1).default(10),
+    description: z.string().optional(),
     name: z.string(),
     query: z.string(),
   })
@@ -28,10 +28,7 @@ export type SearchConfiguration = z.infer<typeof SearchConfigurationSchema>;
 
 const TabConfigurationSchema = z
   .object({
-    components: z
-      .array(z.union([SearchConfigurationSchema, FlashSchema]))
-      .default([])
-      .optional(),
+    components: z.array(z.union([SearchConfigurationSchema, FlashSchema])).default([]),
     name: z.string().min(1),
     slug: z.string().min(1),
   })
@@ -137,6 +134,8 @@ export function AppConfigurationProvider({ children }: { children: ReactNode }) 
     const parsed = AppConfigurationSchema.safeParse(out[0]);
 
     if (!parsed.success) {
+      console.error(parsed.error);
+
       return [DEFAULT_CONFIGURATION, out[1]] as const;
     }
 

@@ -19,7 +19,7 @@ export function DeletionConfirmationDialog({
   const headerId = useId();
 
   return (
-    <Dialog isOpen onDismiss={onDelete} aria-labelledby={headerId}>
+    <Dialog isOpen onDismiss={onCancel} aria-labelledby={headerId}>
       <Dialog.Header id={headerId}>{title}</Dialog.Header>
       <Box p={3}>
         {text}

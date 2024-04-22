@@ -3,17 +3,23 @@ import {
   ActionList,
   ActionMenu,
   Box,
+  Button,
+  Dialog,
   Flash,
+  FormControl,
   LabelGroup,
   Link as PrimerLink,
   RelativeTime,
   Text,
+  TextInput,
+  Textarea,
 } from '@primer/react';
 import type { Column } from '@primer/react/drafts';
 import { DataTable, Table } from '@primer/react/drafts';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { EMPTY_ARRAY, basicComparator, inspect } from '@sequelize/utils';
-import { useCallback, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import type { SearchConfiguration } from './app-configuration.tsx';
@@ -31,6 +37,7 @@ import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewAvatar } from './review-avatar.tsx';
 import { isLoadedUrql } from './urql/urql.utils.ts';
 import { composedComparator } from './utils/composed-comparator.ts';
+import { getFormValues } from './utils/get-form-values.ts';
 
 const searchQuery = graphql(/* GraphQL */ `
   query searchIssuesAndPullRequests($query: String!, $first: Int!, $after: String!) {
@@ -81,7 +88,7 @@ const searchQuery = graphql(/* GraphQL */ `
             }
           }
           # Used to display reviews that block/approve
-          latestOpinionatedReviews(first: 10) {
+          latestOpinionatedReviews(first: 10, writersOnly: true) {
             nodes {
               author {
                 login
@@ -105,6 +112,7 @@ const searchQuery = graphql(/* GraphQL */ `
           # We have to load latestOpinionatedReviews on top of this, because comment reviews shadow opinionated reviews
           commentReviews: latestReviews(first: 10) {
             nodes {
+              authorCanPushToRepository
               author {
                 login
                 ...ReviewAvatarUser
@@ -227,6 +235,10 @@ const columns: Array<Column<SearchResult>> = [
             continue;
           }
 
+          if (!review.authorCanPushToRepository) {
+            continue;
+          }
+
           const reviewer = review.author;
 
           if (reviews.some(existingReview => reviewer.login === existingReview.key)) {
@@ -306,9 +318,10 @@ const columns: Array<Column<SearchResult>> = [
 export interface IssueListProps {
   list: SearchConfiguration;
   onDelete(this: void): void;
+  onUpdate(this: void, list: SearchConfiguration): void;
 }
 
-export function IssueList({ list, onDelete }: IssueListProps) {
+export function IssueList({ list, onDelete, onUpdate }: IssueListProps) {
   const countPerPage = list.countPerPage;
   const [page, setPage] = useState(0);
   const [openModalId, setOpenModalId] = useState<'edit' | 'delete' | ''>('');
@@ -416,9 +429,11 @@ export function IssueList({ list, onDelete }: IssueListProps) {
           )}
         </>
       )}
-      {openModalId === 'delete' && (
+      {openModalId === 'delete' ? (
         <DeleteListDialog onClose={closeModal} onDelete={onDelete} list={list} />
-      )}
+      ) : openModalId === 'edit' ? (
+        <EditListDialog onClose={closeModal} onUpdate={onUpdate} list={list} />
+      ) : null}
     </Table.Container>
   );
 }
@@ -444,5 +459,68 @@ function DeleteListDialog({ list, onClose, onDelete: propsOnDelete }: DeleteList
         <P>You are about to delete the {inspect(list.name)} list. This action cannot be undone.</P>
       }
     />
+  );
+}
+
+interface EditListDialogProps {
+  list: SearchConfiguration;
+  onClose(this: void): void;
+  onUpdate(this: void, list: SearchConfiguration): void;
+}
+
+function EditListDialog({ list, onClose, onUpdate }: EditListDialogProps) {
+  const headerId = useId();
+
+  const onSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      const data = getFormValues(event.currentTarget);
+
+      onUpdate(data as SearchConfiguration);
+      onClose();
+    },
+    [onClose, onUpdate],
+  );
+
+  return (
+    <Dialog isOpen onDismiss={onClose} aria-labelledby={headerId}>
+      <Dialog.Header id={headerId}>Edit List</Dialog.Header>
+      <Box p={3} as="form" onSubmit={onSubmit}>
+        <FormControl required>
+          <FormControl.Label>Name</FormControl.Label>
+          <TextInput block type="text" name="name" defaultValue={list.name} />
+        </FormControl>
+
+        <FormControl required sx={{ marginTop: 2 }}>
+          <FormControl.Label>Description</FormControl.Label>
+          <TextInput block type="text" name="description" defaultValue={list.description} />
+        </FormControl>
+
+        <FormControl required sx={{ marginTop: 2 }}>
+          <FormControl.Label>Query</FormControl.Label>
+          <Textarea block name="query" defaultValue={list.query} />
+        </FormControl>
+
+        <FormControl required sx={{ marginTop: 2 }}>
+          <FormControl.Label>Results per page</FormControl.Label>
+          <TextInput
+            block
+            type="number"
+            step="1"
+            name="countPerPage"
+            defaultValue={list.countPerPage}
+            min="1"
+          />
+        </FormControl>
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" type="submit">
+            Save
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
   );
 }

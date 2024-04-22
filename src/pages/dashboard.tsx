@@ -2,7 +2,7 @@ import { PageLayout, UnderlineNav } from '@primer/react';
 import { Blankslate } from '@primer/react/drafts';
 import { useCallback, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAppConfiguration } from '../app-configuration.tsx';
+import { useAppConfiguration, type SearchConfiguration } from '../app-configuration.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
 import { FlashBlock } from '../flash-block.tsx';
 import { IssueList } from '../issue-list.tsx';
@@ -25,7 +25,7 @@ export function Dashboard() {
   }, [config.tabs, tabSlug, navigate]);
 
   const currentPage = config.tabs.find(tab => tab.slug === tabSlug);
-  const hasContent = Boolean(currentPage?.components?.length);
+  const hasContent = Boolean(currentPage?.components.length);
 
   const onDeleteComponent = useCallback(
     (index: number) => {
@@ -33,13 +33,34 @@ export function Dashboard() {
         return {
           ...oldConfig,
           tabs: oldConfig.tabs.map(tab => {
-            if (!(tab.slug === tabSlug && tab.components)) {
+            if (tab.slug !== tabSlug) {
               return tab;
             }
 
             return {
               ...tab,
               components: tab.components.toSpliced(index, 1),
+            };
+          }),
+        };
+      });
+    },
+    [setConfig, tabSlug],
+  );
+
+  const onUpdateComponent = useCallback(
+    (index: number, newList: SearchConfiguration) => {
+      setConfig(oldConfig => {
+        return {
+          ...oldConfig,
+          tabs: oldConfig.tabs.map(tab => {
+            if (tab.slug !== tabSlug) {
+              return tab;
+            }
+
+            return {
+              ...tab,
+              components: tab.components.toSpliced(index, 1, newList),
             };
           }),
         };
@@ -76,7 +97,7 @@ export function Dashboard() {
         <PageLayout.Content>
           {hasContent ? (
             <div className={css.lists}>
-              {currentPage?.components?.map((component, index) => {
+              {currentPage?.components.map((component, index) => {
                 if ('variant' in component) {
                   return (
                     <FlashBlock
@@ -92,6 +113,7 @@ export function Dashboard() {
                     key={index + component.query}
                     list={component}
                     onDelete={() => onDeleteComponent(index)}
+                    onUpdate={newList => onUpdateComponent(index, newList)}
                   />
                 );
               })}
