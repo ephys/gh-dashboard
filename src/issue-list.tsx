@@ -3,6 +3,7 @@ import {
   ActionList,
   ActionMenu,
   Box,
+  Flash,
   LabelGroup,
   Link as PrimerLink,
   RelativeTime,
@@ -15,7 +16,6 @@ import { EMPTY_ARRAY, basicComparator, inspect } from '@sequelize/utils';
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
-import { Alert } from './alert.tsx';
 import type { SearchConfiguration } from './app-configuration.tsx';
 import { DeletionConfirmationDialog } from './deletion-confirmation-dialog.tsx';
 import type { SearchIssuesAndPullRequestsQuery } from './gql/graphql.ts';
@@ -380,7 +380,7 @@ export function IssueList({ list, onDelete }: IssueListProps) {
           rows={10}
         />
       ) : urqlSearch.error ? (
-        <Alert type="error" title="Error" description="Failed to load content" />
+        <Flash variant="danger">Failed to load content</Flash>
       ) : (
         <>
           {urqlSearch.data.search.issueCount > 0 ? (

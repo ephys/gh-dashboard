@@ -2,18 +2,18 @@ import { freezeDeep } from '@sequelize/utils';
 import type { ReactNode } from 'react';
 import { createContext, useContext, useMemo } from 'react';
 import { z } from 'zod';
+import { AlertVariant } from './flash-block.tsx';
 import type { StorageSetValue } from './use-storage.ts';
 import { useLocalStorage } from './use-storage.ts';
 
-const AlertSchema = z
+const FlashSchema = z
   .object({
-    description: z.string(),
-    title: z.string().optional(),
-    type: z.literal('tip'),
+    markdown: z.string(),
+    variant: z.nativeEnum(AlertVariant),
   })
   .strict();
 
-export type Alert = z.infer<typeof AlertSchema>;
+export type Alert = z.infer<typeof FlashSchema>;
 
 const SearchConfigurationSchema = z
   .object({
@@ -29,7 +29,7 @@ export type SearchConfiguration = z.infer<typeof SearchConfigurationSchema>;
 const TabConfigurationSchema = z
   .object({
     components: z
-      .array(z.union([SearchConfigurationSchema, AlertSchema]))
+      .array(z.union([SearchConfigurationSchema, FlashSchema]))
       .default([])
       .optional(),
     name: z.string().min(1),
@@ -86,15 +86,15 @@ const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
           query: 'is:open is:pr author:@me archived:false sort:created-asc',
         },
         {
-          type: 'tip',
-          description: `Consider adding the following queries to this tab:
+          variant: AlertVariant.info,
+          markdown: `Consider adding the following queries to this tab:
 
 - Available PRs: \`is:open is:pr -author:@me draft:false archived:false sort:created-asc\`
 - Draft PRs: \`is:open draft:true archived:false sort:created-asc\`
 
 These queries require specifying the list of repositories you want to search in using the \`repo:\`, \`user:\` or \`org:\` filters,
 or they will include pull requests from all repositories you have access to.`,
-        },
+        } satisfies Alert,
       ],
     },
     {
@@ -107,7 +107,7 @@ or they will include pull requests from all repositories you have access to.`,
           query: 'is:open is:issue assignee:@me archived:false sort:reactions-+1-desc',
         },
         {
-          description: `Consider adding the following queries to this tab:
+          markdown: `Consider adding the following queries to this tab:
 
 - Popular Issues: \`is:open is:issue archived:false sort:reactions-+1-desc\`  
   _Lists all open issues sorted by the 👍 reaction to indicate popularity._
@@ -116,7 +116,7 @@ or they will include pull requests from all repositories you have access to.`,
 
 These queries require specifying the list of repositories you want to search in using the \`repo:\`, \`user:\` or \`org:\` filters,
 or they will include issues from all repositories you have access to.`,
-          type: 'tip',
+          variant: AlertVariant.info,
         },
       ],
     },
