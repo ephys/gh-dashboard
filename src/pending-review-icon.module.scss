@@ -1,0 +1,31 @@
+.requestedReview, .pendingReview {
+  height: 8px;
+  width: 8px;
+  --background: var(--fgColor-attention);
+  background: var(--background);
+  border-radius: 50%;
+}
+
+.pendingReview {
+  --pulse-color: var(--background);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    // TODO: enable once relative color syntax is widely supported
+    //box-shadow: 0 0 0 0 rgb(from var(--pulse-color) r g b / 0.7);
+    box-shadow: 0 0 0 0 rgb(210 153 34 / 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px transparent;
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}

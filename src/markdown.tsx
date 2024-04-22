@@ -1,10 +1,13 @@
-import type { PropsWithChildren } from 'react';
-import css from './markdown.module.scss';
+import ReactMarkdown from 'react-markdown';
 
-export function InlineCode(props: PropsWithChildren) {
-  return <code className={css.code}>{props.children}</code>;
+export interface MarkdownProps {
+  children: string;
 }
 
-export function P(props: PropsWithChildren) {
-  return <p className={css.p}>{props.children}</p>;
+export function Markdown(props: MarkdownProps) {
+  return (
+    <div className="markdown-body">
+      <ReactMarkdown>{props.children}</ReactMarkdown>
+    </div>
+  );
 }

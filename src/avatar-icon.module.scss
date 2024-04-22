@@ -1,0 +1,19 @@
+.group {
+  position: relative;
+  display: flex;
+}
+
+.topIcon,.bottomIcon {
+  position: absolute;
+  right: 0;
+}
+
+.topIcon {
+  top: 0;
+  transform: translate(0, 0)
+}
+
+.bottomIcon {
+  bottom: 0;
+  transform: translate(25%, 25%)
+}

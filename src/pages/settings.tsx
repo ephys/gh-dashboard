@@ -9,6 +9,7 @@ import {
   Heading,
   PageLayout,
   Link as PrimerLink,
+  Select,
   TextInput,
   Textarea,
 } from '@primer/react';
@@ -20,10 +21,14 @@ import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
 import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import type { ListColumn } from '../list.tsx';
 import { List } from '../list.tsx';
-import { InlineCode, P } from '../markdown.tsx';
+import { InlineCode, P } from '../markdown-components.tsx';
 import { PatFormControl } from '../pat-form-control.tsx';
 import type { TabConfiguration } from '../use-app-configuration.ts';
-import { AppConfigurationSchema, useAppConfiguration } from '../use-app-configuration.ts';
+import {
+  AppConfigurationSchema,
+  UserNameStyle,
+  useAppConfiguration,
+} from '../use-app-configuration.ts';
 import { usePat } from '../use-pat.ts';
 import { getFormValue, getFormValues } from '../utils/get-form-values.ts';
 
@@ -63,6 +68,20 @@ export function Settings() {
     [setAppConfiguration],
   );
 
+  const onUserNameStyleChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const value = event.currentTarget.value;
+
+      setAppConfiguration(oldConfig => {
+        return {
+          ...oldConfig,
+          userNameStyle: value as UserNameStyle,
+        };
+      });
+    },
+    [setAppConfiguration],
+  );
+
   return (
     <PageLayout containerWidth="medium">
       <PageLayout.Header>
@@ -70,6 +89,25 @@ export function Settings() {
       </PageLayout.Header>
       <PageLayout.Content>
         <PatFormControl value={pat} onChange={onPatChange} />
+
+        <FormControl sx={{ marginTop: 3 }}>
+          <FormControl.Label>User Name Display</FormControl.Label>
+          <Select block onChange={onUserNameStyleChange} value={appConfiguration.userNameStyle}>
+            <Select.Option value={UserNameStyle.login}>Username</Select.Option>
+            <Select.Option value={UserNameStyle.name}>Name</Select.Option>
+            <Select.Option value={UserNameStyle.full}>Name + Username</Select.Option>
+          </Select>
+          <FormControl.Caption>
+            <span role="img" aria-label="Caution">
+              ⚠️
+            </span>{' '}
+            Names are not unique. Not displaying the username makes it possible for users to
+            impersonate other users.
+            <br />
+            Consider only enabling this if your repositories do not accept contribution from users
+            outside of your organization.
+          </FormControl.Caption>
+        </FormControl>
 
         <TabList />
 

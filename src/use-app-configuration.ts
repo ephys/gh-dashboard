@@ -1,5 +1,6 @@
 import { freezeDeep } from '@sequelize/utils';
 import { z } from 'zod';
+import type { StorageSetValue } from './use-storage.ts';
 import { useLocalStorage } from './use-storage.ts';
 
 const AlertSchema = z
@@ -14,7 +15,7 @@ export type Alert = z.infer<typeof AlertSchema>;
 
 const SearchConfigurationSchema = z
   .object({
-    countPerPage: z.number().default(10).optional(),
+    countPerPage: z.number().default(10),
     description: z.string().min(1).optional(),
     name: z.string(),
     query: z.string(),
@@ -36,8 +37,15 @@ const TabConfigurationSchema = z
 
 export type TabConfiguration = z.infer<typeof TabConfigurationSchema>;
 
+export enum UserNameStyle {
+  login = 'login',
+  name = 'name',
+  full = 'full',
+}
+
 export const AppConfigurationSchema = z
   .object({
+    userNameStyle: z.nativeEnum(UserNameStyle).default(UserNameStyle.login),
     tabs: z.array(TabConfigurationSchema).min(1),
   })
   .strict();
@@ -45,16 +53,19 @@ export const AppConfigurationSchema = z
 export type AppConfiguration = z.infer<typeof AppConfigurationSchema>;
 
 const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
+  userNameStyle: UserNameStyle.login,
   tabs: [
     {
       components: [
         {
+          countPerPage: 10,
           description: 'PRs that you already reviewed and are waiting for a re-review',
           name: '🔁✅ To Re-review',
           query:
             'is:pr is:open draft:false user-review-requested:@me reviewed-by:@me sort:created-asc',
         },
         {
+          countPerPage: 10,
           name: '✅ To Review',
           query:
             'is:pr is:open draft:false review-requested:@me -reviewed-by:@me sort:created-asc -author:@me',
@@ -68,6 +79,7 @@ const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
       slug: 'pull-requests',
       components: [
         {
+          countPerPage: 10,
           name: 'My PRs',
           query: 'is:open is:pr author:@me archived:false sort:created-asc',
         },
@@ -88,11 +100,12 @@ or they will include pull requests from all repositories you have access to.`,
       slug: 'issues',
       components: [
         {
+          countPerPage: 10,
           name: 'Assigned Issues',
           query: 'is:open is:issue assignee:@me archived:false sort:reactions-+1-desc',
         },
         {
-          type: 'tip',
+          countPerPage: 10,
           description: `Consider adding the following queries to this tab:
 
 - Popular Issues: \`is:open is:issue archived:false sort:reactions-+1-desc\`  
@@ -102,18 +115,21 @@ or they will include pull requests from all repositories you have access to.`,
 
 These queries require specifying the list of repositories you want to search in using the \`repo:\`, \`user:\` or \`org:\` filters,
 or they will include issues from all repositories you have access to.`,
+          type: 'tip',
         },
       ],
     },
   ],
 });
 
-export function useAppConfiguration() {
+export function useAppConfiguration(): [AppConfiguration, StorageSetValue<AppConfiguration>] {
   const out = useLocalStorage<AppConfiguration>('app-configuration', DEFAULT_CONFIGURATION);
 
-  if (!AppConfigurationSchema.safeParse(out[0]).success) {
+  const parsed = AppConfigurationSchema.safeParse(out[0]);
+
+  if (!parsed.success) {
     return [DEFAULT_CONFIGURATION, out[1]] as const;
   }
 
-  return out;
+  return [parsed.data, out[1]];
 }

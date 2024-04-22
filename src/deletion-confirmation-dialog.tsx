@@ -1,7 +1,7 @@
 import { Box, Button, Dialog } from '@primer/react';
 import type { ReactNode } from 'react';
 import { useId } from 'react';
-import { P } from './markdown.tsx';
+import { P } from './markdown-components.tsx';
 
 export interface DeletionConfirmationDialogProps {
   onCancel(this: void): void;

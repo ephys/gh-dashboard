@@ -27,3 +27,7 @@
 [class^='Header-sc']:not(:has(~ nav)) {
   border-bottom: 1px var(--borderColor-muted, var(--color-border-muted, #21262d)) solid;
 }
+
+.TableCell:has([data-unread="true"]) {
+  box-shadow: 2px 0 0 var(--borderColor-accent-emphasis) inset;
+}
