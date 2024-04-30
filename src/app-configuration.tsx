@@ -15,7 +15,7 @@ const FlashSchema = z
 
 export type Alert = z.infer<typeof FlashSchema>;
 
-const SearchConfigurationSchema = z
+const GitHubSearchConfigurationSchema = z
   .object({
     countPerPage: z.number().min(1).default(10),
     description: z.string().optional(),
@@ -24,11 +24,27 @@ const SearchConfigurationSchema = z
   })
   .strict();
 
-export type SearchConfiguration = z.infer<typeof SearchConfigurationSchema>;
+export type GitHubSearchConfiguration = z.infer<typeof GitHubSearchConfigurationSchema>;
+
+const DevOpsPullRequestsConfigurationSchema = z.object({
+  description: z.string().optional(),
+  name: z.string(),
+  organization: z.string().min(1),
+});
+
+export type DevOpsPullRequestsConfiguration = z.infer<typeof DevOpsPullRequestsConfigurationSchema>;
 
 const TabConfigurationSchema = z
   .object({
-    components: z.array(z.union([SearchConfigurationSchema, FlashSchema])).default([]),
+    components: z
+      .array(
+        z.union([
+          GitHubSearchConfigurationSchema,
+          DevOpsPullRequestsConfigurationSchema,
+          FlashSchema,
+        ]),
+      )
+      .default([]),
     name: z.string().min(1),
     slug: z.string().min(1),
   })

@@ -25,22 +25,32 @@ import {
   useAppConfiguration,
 } from '../app-configuration.tsx';
 import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
+import { DevOpsPatFormControl } from '../devops-pat-form-control.tsx';
+import { GithubPatFormControl } from '../github-pat-form-control.tsx';
 import type { ListColumn } from '../list.tsx';
 import { List } from '../list.tsx';
 import { InlineCode, P } from '../markdown-components.tsx';
-import { PatFormControl } from '../pat-form-control.tsx';
-import { usePat } from '../use-pat.ts';
+import { useDevOpsPat } from '../use-devops-pat.tsx';
+import { useGithubPat } from '../use-github-pat.ts';
 import { getFormValue, getFormValues } from '../utils/get-form-values.ts';
 
 export function Settings() {
-  const [pat, setPat] = usePat();
+  const [githubPat, setGithubPat] = useGithubPat();
+  const [devOpsPat, setDevOpsPat] = useDevOpsPat();
   const [appConfiguration, setAppConfiguration] = useAppConfiguration();
 
-  const onPatChange = useCallback(
+  const onGithubPatChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setPat(event.currentTarget.value);
+      setGithubPat(event.currentTarget.value);
     },
-    [setPat],
+    [setGithubPat],
+  );
+
+  const onDevOpsPatChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setDevOpsPat(event.currentTarget.value);
+    },
+    [setDevOpsPat],
   );
 
   const configurationAsJson = useMemo(
@@ -88,7 +98,8 @@ export function Settings() {
         <Heading>General Settings</Heading>
       </PageLayout.Header>
       <PageLayout.Content>
-        <PatFormControl value={pat} onChange={onPatChange} />
+        <GithubPatFormControl value={githubPat} onChange={onGithubPatChange} />
+        <DevOpsPatFormControl value={devOpsPat} onChange={onDevOpsPatChange} sx={{ mt: 3 }} />
 
         <FormControl sx={{ mt: 3 }}>
           <FormControl.Label>User Name Display</FormControl.Label>
@@ -258,6 +269,7 @@ function NewTabDialog({ onDismiss }: NewTabActionProps) {
           {
             name: values.name,
             slug: values.slug,
+            components: [],
           },
         ],
       });

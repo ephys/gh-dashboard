@@ -1,19 +1,24 @@
 import { CheckIcon, DotFillIcon, EyeIcon, XIcon } from '@primer/octicons-react';
 import { Box, Octicon } from '@primer/react';
 import type { ComponentType } from 'react';
-import { PullRequestReviewState } from './gql/graphql.ts';
 
-export type DisplayablePullRequestReviewState = Exclude<
-  PullRequestReviewState,
-  PullRequestReviewState.Dismissed
->;
+export enum ReviewState {
+  Approved = 'Approved',
+  ChangesRequested = 'ChangesRequested',
+  // GitHub-specific
+  Commented = 'Commented',
+  // GitHub-specific
+  Pending = 'Pending',
+  // DevOps-specific
+  Rejected = 'Rejected',
+}
 
 interface ReviewStateIconProps {
-  state: DisplayablePullRequestReviewState;
+  state: ReviewState;
 }
 
 const ICONS: Record<
-  DisplayablePullRequestReviewState,
+  ReviewState,
   {
     bgColor?: string;
     fgColor?: string;
@@ -21,24 +26,29 @@ const ICONS: Record<
     iconSize: number;
   }
 > = {
-  [PullRequestReviewState.Approved]: {
+  [ReviewState.Approved]: {
     bgColor: 'success.emphasis',
     icon: CheckIcon,
     iconSize: 12,
   },
-  [PullRequestReviewState.ChangesRequested]: {
+  [ReviewState.ChangesRequested]: {
     bgColor: 'danger.emphasis',
     icon: XIcon,
     iconSize: 8,
   },
-  [PullRequestReviewState.Commented]: {
+  [ReviewState.Commented]: {
     bgColor: 'var(--timelineBadge-bgColor)',
     fgColor: 'var(--fgColor-muted)',
     icon: EyeIcon,
     iconSize: 12,
   },
-  [PullRequestReviewState.Pending]: {
+  [ReviewState.Pending]: {
     fgColor: 'attention.emphasis',
+    icon: DotFillIcon,
+    iconSize: 16,
+  },
+  [ReviewState.Rejected]: {
+    fgColor: 'black',
     icon: DotFillIcon,
     iconSize: 16,
   },

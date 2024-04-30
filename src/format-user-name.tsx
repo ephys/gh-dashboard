@@ -1,30 +1,15 @@
-import type { ResultOf } from '@graphql-typed-document-node/core';
 import { UserNameStyle } from './app-configuration.tsx';
-import type { FragmentType } from './gql/index.ts';
-import { getFragmentData, graphql } from './gql/index.ts';
 
-export const FormatUserFragment = graphql(/* GraphQL */ `
-  fragment FormatUser on Actor {
-    login
-    ... on User {
-      name
-    }
-  }
-`);
+export function formatUserName(params: {
+  displayName: string;
+  style: UserNameStyle;
+  username: string;
+}) {
+  const { displayName, style, username } = params;
 
-export function formatUserName(
-  userFragment: FragmentType<typeof FormatUserFragment>,
-  style: UserNameStyle,
-) {
-  const user = getFragmentData(FormatUserFragment, userFragment);
-
-  return style === UserNameStyle.login || !('name' in user) || !user.name
-    ? formatLogin(user)
+  return style === UserNameStyle.login || !displayName
+    ? username
     : style === UserNameStyle.name
-      ? user.name
-      : `${user.name} (${formatLogin(user)})`;
-}
-
-function formatLogin(user: ResultOf<typeof FormatUserFragment>) {
-  return user.__typename === 'Bot' ? `app/${user.login}` : user.login;
+      ? displayName
+      : `${displayName} (${username})`;
 }

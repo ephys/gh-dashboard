@@ -3,7 +3,7 @@ import css from './issue-label.module.scss';
 import { parseHexColor } from './utils/parse-hex-color.ts';
 import { rgbToHsl } from './utils/rgb-to-hsl.ts';
 
-interface IssueLabelProps {
+export interface IssueLabelProps {
   hexColor: string;
   name: string;
 }

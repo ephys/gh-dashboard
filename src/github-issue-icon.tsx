@@ -27,12 +27,12 @@ export const IssueIconFragment = graphql(/* GraphQL */ `
   }
 `);
 
-interface IssueIconProps {
+interface GithubIssueIconProps {
   issue: FragmentType<typeof IssueIconFragment>;
   sx: OcticonProps['sx'];
 }
 
-export function IssueIcon(props: IssueIconProps) {
+export function GithubIssueIcon(props: GithubIssueIconProps) {
   const issue = getFragmentData(IssueIconFragment, props.issue);
 
   switch (issue.__typename) {

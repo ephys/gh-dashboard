@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { AppConfigurationProvider } from './app-configuration.tsx';
+import { DevopsAvatarProvider } from './devops-avatar-provider.tsx';
 import { Layout } from './layout.tsx';
 import './main.scss';
 import { Dashboard } from './pages/dashboard.tsx';
@@ -13,20 +14,22 @@ ReactDOM.createRoot(document.querySelector('#root')!).render(
   <React.StrictMode>
     <AppConfigurationProvider>
       <UrqlProvider>
-        <ThemeProvider colorMode="dark" nightScheme="dark" dayScheme="light">
-          <RootThemeSync />
-          <BaseStyles>
-            <HashRouter>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/d/:tabSlug" element={<Dashboard />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
-              </Layout>
-            </HashRouter>
-          </BaseStyles>
-        </ThemeProvider>
+        <DevopsAvatarProvider>
+          <ThemeProvider colorMode="dark" nightScheme="dark" dayScheme="light">
+            <RootThemeSync />
+            <BaseStyles>
+              <HashRouter>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/d/:tabSlug" element={<Dashboard />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Routes>
+                </Layout>
+              </HashRouter>
+            </BaseStyles>
+          </ThemeProvider>
+        </DevopsAvatarProvider>
       </UrqlProvider>
     </AppConfigurationProvider>
   </React.StrictMode>,

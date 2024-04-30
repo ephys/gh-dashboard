@@ -1,17 +1,21 @@
-import { PageLayout, UnderlineNav } from '@primer/react';
+import { Flash, PageLayout, Link as PrimerLink, UnderlineNav } from '@primer/react';
 import { Blankslate } from '@primer/react/drafts';
+import { isNotNullish, upcast } from '@sequelize/utils';
 import { useCallback, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAppConfiguration, type SearchConfiguration } from '../app-configuration.tsx';
+import { useAppConfiguration, type GitHubSearchConfiguration } from '../app-configuration.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
+import { DevopsPullRequests } from '../devops-pull-requests.tsx';
 import { FlashBlock } from '../flash-block.tsx';
-import { IssueList } from '../issue-list.tsx';
-import { usePat } from '../use-pat.ts';
+import { GithubIssueList } from '../github-issue-list.tsx';
+import { useDevOpsPat } from '../use-devops-pat.tsx';
+import { useGithubPat } from '../use-github-pat.ts';
 import css from './dashboard.module.scss';
 
 export function Dashboard() {
   const [config, setConfig] = useAppConfiguration();
-  const [pat] = usePat();
+  const [githubPat] = useGithubPat();
+  const [devOpsPat] = useDevOpsPat();
 
   const navigate = useNavigate();
   const { tabSlug } = useParams();
@@ -25,7 +29,6 @@ export function Dashboard() {
   }, [config.tabs, tabSlug, navigate]);
 
   const currentPage = config.tabs.find(tab => tab.slug === tabSlug);
-  const hasContent = Boolean(currentPage?.components.length);
 
   const onDeleteComponent = useCallback(
     (index: number) => {
@@ -49,7 +52,7 @@ export function Dashboard() {
   );
 
   const onUpdateComponent = useCallback(
-    (index: number, newList: SearchConfiguration) => {
+    (index: number, newList: GitHubSearchConfiguration) => {
       setConfig(oldConfig => {
         return {
           ...oldConfig,
@@ -69,9 +72,47 @@ export function Dashboard() {
     [setConfig, tabSlug],
   );
 
-  if (!pat) {
+  if (!githubPat && !devOpsPat) {
     return <BlankPatState />;
   }
+
+  let hasHiddenDevOpsComponents = upcast<boolean>(false);
+  let hasHiddenGitHubComponents = upcast<boolean>(false);
+
+  const displayedComponents = currentPage?.components
+    .map((component, index) => {
+      if ('variant' in component) {
+        return <FlashBlock key={index} variant={component.variant} markdown={component.markdown} />;
+      }
+
+      if ('organization' in component) {
+        if (!devOpsPat) {
+          hasHiddenDevOpsComponents = true;
+
+          return null;
+        }
+
+        return <DevopsPullRequests key={index + component.organization} config={component} />;
+      }
+
+      if (!githubPat) {
+        hasHiddenGitHubComponents = true;
+
+        return null;
+      }
+
+      return (
+        <GithubIssueList
+          key={index + component.query}
+          list={component}
+          onDelete={() => onDeleteComponent(index)}
+          onUpdate={newList => onUpdateComponent(index, newList)}
+        />
+      );
+    })
+    .filter(isNotNullish);
+
+  const hasContent = Boolean(displayedComponents?.length);
 
   return (
     <>
@@ -94,30 +135,33 @@ export function Dashboard() {
       )}
 
       <PageLayout containerWidth={hasContent ? 'large' : 'medium'}>
+        {/* TODO: add action to remove blocks */}
         <PageLayout.Content>
-          {hasContent ? (
-            <div className={css.lists}>
-              {currentPage?.components.map((component, index) => {
-                if ('variant' in component) {
-                  return (
-                    <FlashBlock
-                      key={index}
-                      variant={component.variant}
-                      markdown={component.markdown}
-                    />
-                  );
-                }
+          {hasHiddenGitHubComponents && (
+            <Flash variant="warning" sx={{ marginBottom: 2 }}>
+              The GitHub blocks on this page have been hidden because you do not have a GitHub PAT.
+              Go to{' '}
+              <PrimerLink as={Link} to="/settings">
+                the settings page
+              </PrimerLink>{' '}
+              to configure your GitHub PAT, or remove the GitHub blocks from this page.
+            </Flash>
+          )}
 
-                return (
-                  <IssueList
-                    key={index + component.query}
-                    list={component}
-                    onDelete={() => onDeleteComponent(index)}
-                    onUpdate={newList => onUpdateComponent(index, newList)}
-                  />
-                );
-              })}
-            </div>
+          {/* TODO: add action to remove blocks */}
+          {hasHiddenDevOpsComponents && (
+            <Flash variant="warning" sx={{ marginBottom: 2 }}>
+              The Azure DevOps blocks on this page have been hidden because you do not have a DevOps
+              PAT. Go to{' '}
+              <PrimerLink as={Link} to="/settings">
+                the settings page
+              </PrimerLink>{' '}
+              to configure your Azure DevOps PAT, or remove the Azure DevOps blocks from this page.
+            </Flash>
+          )}
+
+          {hasContent ? (
+            <div className={css.lists}>{displayedComponents}</div>
           ) : (
             <Blankslate>
               <Blankslate.Heading>Add your first block</Blankslate.Heading>

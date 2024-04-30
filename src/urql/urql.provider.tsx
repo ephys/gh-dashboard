@@ -1,10 +1,10 @@
 import type { PropsWithChildren } from 'react';
 import { useMemo } from 'react';
 import { Client, Provider, cacheExchange, fetchExchange } from 'urql';
-import { usePat } from '../use-pat.ts';
+import { useGithubPat } from '../use-github-pat.ts';
 
 export function UrqlProvider(props: PropsWithChildren) {
-  const [pat] = usePat();
+  const [pat] = useGithubPat();
 
   const client = useMemo(() => {
     return new Client({
