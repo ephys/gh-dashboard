@@ -274,6 +274,9 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
       }
 
       const failedChecks: FailedCheck[] = [];
+      const hasChecks = Boolean(
+        node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes?.length,
+      );
       if (node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes) {
         const checks = node.statusCheckRollup.contexts.nodes;
 
@@ -313,14 +316,14 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
           };
         }),
         checkStatus:
-          node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state
+          node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
             ? undefined
-            : node.statusCheckRollup.state === StatusState.Error ||
-                node.statusCheckRollup.state === StatusState.Failure
-              ? CheckStatus.failure
-              : node.statusCheckRollup.state === StatusState.Success
+            : node.statusCheckRollup.state === StatusState.Pending ||
+                node.statusCheckRollup.state === StatusState.Expected
+              ? CheckStatus.pending
+              : failedChecks.length === 0
                 ? CheckStatus.success
-                : CheckStatus.pending,
+                : CheckStatus.failure,
         number: `#${node.number}`,
         reviews,
         title: node.title,
