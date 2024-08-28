@@ -277,6 +277,8 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
       const hasChecks = Boolean(
         node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes?.length,
       );
+
+      let hasPendingChecks = false;
       if (node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes) {
         const checks = node.statusCheckRollup.contexts.nodes;
 
@@ -290,6 +292,10 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
             continue;
           }
 
+          if (!check.conclusion) {
+            hasPendingChecks = true;
+          }
+
           if (
             check.conclusion === CheckConclusionState.Failure ||
             check.conclusion === CheckConclusionState.TimedOut ||
@@ -301,6 +307,10 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
             });
           }
         }
+      }
+
+      if (node.number === 414) {
+        console.log(hasPendingChecks);
       }
 
       return {
@@ -319,7 +329,8 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
           node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
             ? undefined
             : node.statusCheckRollup.state === StatusState.Pending ||
-                node.statusCheckRollup.state === StatusState.Expected
+                node.statusCheckRollup.state === StatusState.Expected ||
+                hasPendingChecks
               ? CheckStatus.pending
               : failedChecks.length === 0
                 ? CheckStatus.success
