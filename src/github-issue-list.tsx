@@ -8,11 +8,14 @@ import type { GitHubSearchConfiguration } from './app-configuration.tsx';
 import { DeletionConfirmationDialog } from './deletion-confirmation-dialog.tsx';
 import { getGitHubInlineUser } from './github-inline-user.tsx';
 import { GithubIssueIcon } from './github-issue-icon.tsx';
-import type { SearchIssuesAndPullRequestsQuery } from './gql/graphql.ts';
-import { PullRequestReviewState } from './gql/graphql.ts';
+import {
+  CheckConclusionState,
+  PullRequestReviewState,
+  StatusState,
+  type SearchIssuesAndPullRequestsQuery,
+} from './gql/graphql.ts';
 import { graphql } from './gql/index.ts';
-import type { IssueListItem } from './issue-list.tsx';
-import { IssueList } from './issue-list.tsx';
+import { CheckStatus, IssueList, type FailedCheck, type IssueListItem } from './issue-list.tsx';
 import { InlineCode, P } from './markdown-components.tsx';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewState } from './review-state-icon.tsx';
@@ -53,6 +56,19 @@ const searchQuery = graphql(/* GraphQL */ `
           isReadByViewer
           url
           number
+          statusCheckRollup {
+            state
+            contexts(first: 100) {
+              nodes {
+                __typename
+                ... on CheckRun {
+                  conclusion
+                  name
+                  detailsUrl
+                }
+              }
+            }
+          }
           # Used to display users that have been requested for review,
           reviewRequests(first: 10) {
             nodes {
@@ -257,22 +273,59 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         }
       }
 
+      const failedChecks: FailedCheck[] = [];
+      if (node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes) {
+        const checks = node.statusCheckRollup.contexts.nodes;
+
+        for (const check of checks) {
+          if (!check) {
+            continue;
+          }
+
+          if (check.__typename !== 'CheckRun') {
+            console.error(`Unknown check type ${check.__typename}`);
+            continue;
+          }
+
+          if (
+            check.conclusion === CheckConclusionState.Failure ||
+            check.conclusion === CheckConclusionState.TimedOut ||
+            check.conclusion === CheckConclusionState.StartupFailure
+          ) {
+            failedChecks.push({
+              name: check.name,
+              url: check.detailsUrl,
+            });
+          }
+        }
+      }
+
       return {
-        id: node.id,
-        title: node.title,
-        url: node.url,
-        unread: !node.isReadByViewer,
-        icon: <GithubIssueIcon issue={node} sx={{ marginTop: 1 }} />,
-        number: `#${node.number}`,
         createdAt: node.createdAt,
         createdBy: getGitHubInlineUser(node.author!),
-        reviews,
+        failedChecks,
+        icon: <GithubIssueIcon issue={node} sx={{ marginTop: 1 }} />,
+        id: node.id,
         labels: node.labels!.nodes!.map(label => {
           return {
             name: label!.name,
             hexColor: `#${label!.color}`,
           };
         }),
+        checkStatus:
+          node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state
+            ? undefined
+            : node.statusCheckRollup.state === StatusState.Error ||
+                node.statusCheckRollup.state === StatusState.Failure
+              ? CheckStatus.failure
+              : node.statusCheckRollup.state === StatusState.Success
+                ? CheckStatus.success
+                : CheckStatus.pending,
+        number: `#${node.number}`,
+        reviews,
+        title: node.title,
+        unread: !node.isReadByViewer,
+        url: node.url,
       };
     });
   }, [nodes]);

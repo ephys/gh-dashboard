@@ -1,13 +1,15 @@
-import { KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-react';
+import { KebabHorizontalIcon, PencilIcon, TrashIcon, XIcon } from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
   Box,
   Flash,
   LabelGroup,
+  Octicon,
   Link as PrimerLink,
   RelativeTime,
   Text,
+  Tooltip,
 } from '@primer/react';
 import { DataTable, Table, type Column } from '@primer/react/drafts';
 import { basicComparator } from '@sequelize/utils';
@@ -20,13 +22,28 @@ import type { IssueLabelProps } from './issue-label.tsx';
 import { IssueLabel } from './issue-label.tsx';
 import { P } from './markdown-components.tsx';
 import { Markdown } from './markdown.tsx';
+import { PendingReviewIcon } from './pending-review-icon.js';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewAvatar } from './review-avatar.tsx';
+import { ReviewState, ReviewStateIcon } from './review-state-icon.js';
 import { composedComparator } from './utils/composed-comparator.ts';
 
+export interface FailedCheck {
+  name: string;
+  url: string;
+}
+
+export enum CheckStatus {
+  success = 'success',
+  failure = 'failure',
+  pending = 'pending',
+}
+
 export interface IssueListItem {
+  checkStatus?: CheckStatus | undefined;
   createdAt: string;
   createdBy: InlineUserProps;
+  failedChecks?: readonly FailedCheck[];
   icon: ReactNode;
   id: string;
   labels: IssueLabelProps[];
@@ -43,11 +60,35 @@ const COLUMNS: Array<Column<IssueListItem>> = [
     id: 'main',
     width: 'auto',
     renderCell: data => {
-      const labels = data.labels;
+      const { labels, failedChecks } = data;
 
       return (
         <Box sx={{ display: 'flex', alignItems: 'start' }} data-unread={String(data.unread)}>
-          {data.icon}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+              gap: '6px',
+            }}>
+            {data.icon}
+            {data.checkStatus === CheckStatus.failure ? (
+              <Tooltip text="Some checks failed" direction="ne">
+                <ReviewStateIcon state={ReviewState.ChangesRequested} />
+              </Tooltip>
+            ) : data.checkStatus === CheckStatus.success ? (
+              <Tooltip text="All checks passed" direction="ne">
+                <ReviewStateIcon state={ReviewState.Approved} />
+              </Tooltip>
+            ) : data.checkStatus === CheckStatus.pending ? (
+              <Tooltip text="Checks are running" direction="ne">
+                <Box sx={{ height: '16px', alignItems: 'center', display: 'flex' }}>
+                  <PendingReviewIcon inProgress={false} />
+                </Box>
+              </Tooltip>
+            ) : null}
+          </Box>
+
           <Box sx={{ marginLeft: 2 }}>
             <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
               <PrimerLink href={data.url} className={css.titleLink}>
@@ -70,6 +111,19 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                   <IssueLabel {...label} key={label.name} />
                 ))}
               </LabelGroup>
+            )}
+            {Boolean(failedChecks?.length) && (
+              <Box sx={{ mt: 2, alignItems: 'center', display: 'flex' }}>
+                <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
+                <span>
+                  Failed checks:{' '}
+                  {failedChecks?.map((check, i) => (
+                    <PrimerLink key={i} href={check.url} className={css.titleLink}>
+                      {check.name}
+                    </PrimerLink>
+                  ))}
+                </span>
+              </Box>
             )}
           </Box>
         </Box>
