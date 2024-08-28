@@ -309,10 +309,6 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         }
       }
 
-      if (node.number === 414) {
-        console.log(hasPendingChecks);
-      }
-
       return {
         createdAt: node.createdAt,
         createdBy: getGitHubInlineUser(node.author!),
