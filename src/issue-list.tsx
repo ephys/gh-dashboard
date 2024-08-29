@@ -27,6 +27,7 @@ import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewAvatar } from './review-avatar.tsx';
 import { ReviewState, ReviewStateIcon } from './review-state-icon.js';
 import { composedComparator } from './utils/composed-comparator.ts';
+import { intersperse } from './utils/intersperse.js';
 
 export interface FailedCheck {
   name: string;
@@ -117,11 +118,14 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
                 <span>
                   Failed checks:{' '}
-                  {failedChecks?.map((check, i) => (
-                    <PrimerLink key={i} href={check.url} className={css.titleLink}>
-                      {check.name}
-                    </PrimerLink>
-                  ))}
+                  {intersperse(
+                    failedChecks!.map((check, i) => (
+                      <PrimerLink key={i} href={check.url} className={css.titleLink}>
+                        {check.name}
+                      </PrimerLink>
+                    )),
+                    ', ',
+                  )}
                 </span>
               </Box>
             )}
