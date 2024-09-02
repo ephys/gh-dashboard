@@ -7,6 +7,7 @@ import { useAppConfiguration, type GitHubSearchConfiguration } from '../app-conf
 import { BlankPatState } from '../blank-pat-state.tsx';
 import { DevopsPullRequests } from '../devops-pull-requests.tsx';
 import { FlashBlock } from '../flash-block.tsx';
+import { GithubBranches } from '../github-branches.js';
 import { GithubIssueList } from '../github-issue-list.tsx';
 import { useDevOpsPat } from '../use-devops-pat.tsx';
 import { useGithubPat } from '../use-github-pat.ts';
@@ -93,6 +94,10 @@ export function Dashboard() {
         }
 
         return <DevopsPullRequests key={index + component.organization} config={component} />;
+      }
+
+      if ('type' in component) {
+        return <GithubBranches key={index} config={component} />;
       }
 
       if (!githubPat) {

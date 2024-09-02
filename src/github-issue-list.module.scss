@@ -1,7 +1,9 @@
 .titleLink {
   text-decoration: none !important;
 
+  font: inherit;
+
   &:not(:hover) {
-    color: var(--fgColor-default);
+    color: inherit;
   }
 }

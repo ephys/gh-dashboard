@@ -49,6 +49,10 @@ export interface IssueListItem {
   id: string;
   labels: IssueLabelProps[];
   number: string;
+  repository?: {
+    name: string;
+    url: string;
+  };
   reviews: readonly ReviewAvatarProps[];
   title: string;
   unread: boolean;
@@ -78,9 +82,7 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 <ReviewStateIcon state={ReviewState.ChangesRequested} />
               </Tooltip>
             ) : data.checkStatus === CheckStatus.success ? (
-              <Tooltip text="All checks passed" direction="ne">
-                <ReviewStateIcon state={ReviewState.Approved} />
-              </Tooltip>
+              <Tooltip text="All checks passed" direction="ne" />
             ) : data.checkStatus === CheckStatus.pending ? (
               <Tooltip text="Checks are running" direction="ne">
                 <Box sx={{ height: '16px', alignItems: 'center', display: 'flex' }}>
@@ -91,7 +93,9 @@ const COLUMNS: Array<Column<IssueListItem>> = [
           </Box>
 
           <Box sx={{ marginLeft: 2 }}>
-            <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
+            <Text
+              as="div"
+              sx={{ fontSize: 'var(--text-body-size-large)', display: 'flex', gap: 1 }}>
               <PrimerLink href={data.url} className={css.titleLink}>
                 <Markdown>{data.title}</Markdown>
               </PrimerLink>
@@ -103,7 +107,17 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 fontSize: 'var(--text-body-size-small)',
                 fontWeight: 'var(--base-text-weight-normal)',
               }}>
-              {data.number} opened {/* @ts-expect-error -- RelativeTime is badly typed */}
+              <span>
+                {data.repository && (
+                  <>
+                    <PrimerLink href={data.repository.url} className={css.titleLink}>
+                      {data.repository.name}
+                    </PrimerLink>{' '}
+                  </>
+                )}
+                {data.number}
+              </span>{' '}
+              opened {/* @ts-expect-error -- RelativeTime is badly typed */}
               <RelativeTime datetime={data.createdAt} /> by <InlineUser {...data.createdBy} />
             </Text>
             {Boolean(labels.length) && (

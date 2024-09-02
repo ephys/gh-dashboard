@@ -49,6 +49,12 @@ const searchQuery = graphql(/* GraphQL */ `
             }
           }
         }
+        ... on RepositoryNode {
+          repository {
+            url
+            nameWithOwner
+          }
+        }
         ... on PullRequest {
           id
           prState: state
@@ -310,6 +316,16 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
       }
 
       return {
+        checkStatus:
+          node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
+            ? undefined
+            : node.statusCheckRollup.state === StatusState.Pending ||
+                node.statusCheckRollup.state === StatusState.Expected ||
+                hasPendingChecks
+              ? CheckStatus.pending
+              : failedChecks.length === 0
+                ? CheckStatus.success
+                : CheckStatus.failure,
         createdAt: node.createdAt,
         createdBy: getGitHubInlineUser(node.author!),
         failedChecks,
@@ -321,17 +337,11 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
             hexColor: `#${label!.color}`,
           };
         }),
-        checkStatus:
-          node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
-            ? undefined
-            : node.statusCheckRollup.state === StatusState.Pending ||
-                node.statusCheckRollup.state === StatusState.Expected ||
-                hasPendingChecks
-              ? CheckStatus.pending
-              : failedChecks.length === 0
-                ? CheckStatus.success
-                : CheckStatus.failure,
         number: `#${node.number}`,
+        repository: {
+          name: node.repository.nameWithOwner,
+          url: node.repository.url,
+        },
         reviews,
         title: node.title,
         unread: !node.isReadByViewer,

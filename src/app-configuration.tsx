@@ -34,11 +34,29 @@ const DevOpsPullRequestsConfigurationSchema = z.object({
 
 export type DevOpsPullRequestsConfiguration = z.infer<typeof DevOpsPullRequestsConfigurationSchema>;
 
+const GitHubBranchesConfigurationSchema = z.object({
+  branch: z.string().optional(),
+  onlyNoPr: z.boolean().optional(),
+  repositories: z
+    .array(
+      z
+        .string()
+        .min(1)
+        .regex(/[A-Za-z0-9_.-]+/),
+    )
+    .nonempty(),
+  name: z.string().optional(),
+  type: z.literal('gh-branches'),
+});
+
+export type GitHubBranchesConfiguration = z.infer<typeof GitHubBranchesConfigurationSchema>;
+
 const TabConfigurationSchema = z
   .object({
     components: z
       .array(
         z.union([
+          GitHubBranchesConfigurationSchema,
           GitHubSearchConfigurationSchema,
           DevOpsPullRequestsConfigurationSchema,
           FlashSchema,
