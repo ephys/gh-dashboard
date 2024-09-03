@@ -82,7 +82,9 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 <ReviewStateIcon state={ReviewState.ChangesRequested} />
               </Tooltip>
             ) : data.checkStatus === CheckStatus.success ? (
-              <Tooltip text="All checks passed" direction="ne" />
+              <Tooltip text="All checks passed" direction="ne">
+                <ReviewStateIcon state={ReviewState.Approved} />
+              </Tooltip>
             ) : data.checkStatus === CheckStatus.pending ? (
               <Tooltip text="Checks are running" direction="ne">
                 <Box sx={{ height: '16px', alignItems: 'center', display: 'flex' }}>
