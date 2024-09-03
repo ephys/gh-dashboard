@@ -337,7 +337,7 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         createdBy: getGitHubInlineUser(node.author!),
         mergedAt: node.__typename === 'PullRequest' ? node.mergedAt : undefined,
         autoMerge:
-          node.__typename === 'PullRequest' && node.autoMergeRequest
+          node.__typename === 'PullRequest' && node.autoMergeRequest && !node.mergedAt
             ? {
                 by: getGitHubInlineUser(node.autoMergeRequest.enabledBy!),
                 at: node.autoMergeRequest.enabledAt,
