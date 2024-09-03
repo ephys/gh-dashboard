@@ -15,6 +15,8 @@ import { DataTable, Table, type Column } from '@primer/react/drafts';
 import { basicComparator } from '@sequelize/utils';
 import type { ReactNode } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
+import { UserNameStyle } from './app-configuration.js';
+import { formatUserName } from './format-user-name.js';
 import css from './github-issue-list.module.scss';
 import type { InlineUserProps } from './inline-user.tsx';
 import { InlineUser } from './inline-user.tsx';
@@ -104,19 +106,27 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 </PrimerLink>
               </Text>
               {data.autoMerge && (
-                <Text
-                  as="p"
-                  sx={{
-                    margin: 0,
-                    borderColor: 'done.fg',
-                    borderStyle: 'solid',
-                    borderWidth: 1,
-                    color: 'done.fg',
-                    borderRadius: 1,
-                    padding: '0 4px',
-                  }}>
-                  Auto-merge
-                </Text>
+                <Tooltip
+                  text={`Auto-merge enabled by ${formatUserName({
+                    style: UserNameStyle.login,
+                    displayName: data.autoMerge.by.displayName,
+                    username: data.autoMerge.by.username,
+                  })}`}
+                  direction="n">
+                  <Text
+                    as="p"
+                    sx={{
+                      margin: 0,
+                      borderColor: 'done.fg',
+                      borderStyle: 'solid',
+                      borderWidth: 1,
+                      color: 'done.fg',
+                      borderRadius: 1,
+                      padding: '0 4px',
+                    }}>
+                    Auto-merge
+                  </Text>
+                </Tooltip>
               )}
             </Box>
             <Text
