@@ -62,6 +62,13 @@ const searchQuery = graphql(/* GraphQL */ `
           isReadByViewer
           url
           number
+          mergedAt
+          autoMergeRequest {
+            enabledAt
+            enabledBy {
+              ...InlineUser
+            }
+          }
           statusCheckRollup {
             state
             contexts(first: 100) {
@@ -328,6 +335,14 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
                 : CheckStatus.failure,
         createdAt: node.createdAt,
         createdBy: getGitHubInlineUser(node.author!),
+        mergedAt: node.__typename === 'PullRequest' ? node.mergedAt : undefined,
+        autoMerge:
+          node.__typename === 'PullRequest' && node.autoMergeRequest
+            ? {
+                by: getGitHubInlineUser(node.autoMergeRequest.enabledBy!),
+                at: node.autoMergeRequest.enabledAt,
+              }
+            : undefined,
         failedChecks,
         icon: <GithubIssueIcon issue={node} sx={{ marginTop: 1 }} />,
         id: node.id,

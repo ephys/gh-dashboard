@@ -41,6 +41,7 @@ export enum CheckStatus {
 }
 
 export interface IssueListItem {
+  autoMerge?: { at: string; by: InlineUserProps } | undefined;
   checkStatus?: CheckStatus | undefined;
   createdAt: string;
   createdBy: InlineUserProps;
@@ -48,6 +49,7 @@ export interface IssueListItem {
   icon: ReactNode;
   id: string;
   labels: IssueLabelProps[];
+  mergedAt?: string | undefined;
   number: string;
   repository?: {
     name: string;
@@ -95,13 +97,28 @@ const COLUMNS: Array<Column<IssueListItem>> = [
           </Box>
 
           <Box sx={{ marginLeft: 2 }}>
-            <Text
-              as="div"
-              sx={{ fontSize: 'var(--text-body-size-large)', display: 'flex', gap: 1 }}>
-              <PrimerLink href={data.url} className={css.titleLink}>
-                <Markdown>{data.title}</Markdown>
-              </PrimerLink>
-            </Text>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
+                <PrimerLink href={data.url} className={css.titleLink}>
+                  <Markdown>{data.title}</Markdown>
+                </PrimerLink>
+              </Text>
+              {data.autoMerge && (
+                <Text
+                  as="p"
+                  sx={{
+                    margin: 0,
+                    borderColor: 'done.fg',
+                    borderStyle: 'solid',
+                    borderWidth: 1,
+                    color: 'done.fg',
+                    borderRadius: 1,
+                    padding: '0 4px',
+                  }}>
+                  Auto-merge
+                </Text>
+              )}
+            </Box>
             <Text
               as={P}
               sx={{
