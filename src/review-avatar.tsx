@@ -30,7 +30,7 @@ export function ReviewAvatar(props: ReviewAvatarProps) {
             : state === ReviewState.Commented
               ? `Commented by ${formattedUserName}`
               : state === ReviewState.Approved
-                ? `Approved by ${formattedUserName}`
+                ? `Approved by ${formattedUserName}${props.blockingCommentCount ? `, with ${props.blockingCommentCount} unresolved threads` : ''}`
                 : state === ReviewState.ChangesRequested
                   ? `Changes requested by ${formattedUserName}`
                   : state === ReviewState.Rejected
