@@ -1,10 +1,13 @@
 import { Box, Button, Dialog, FormControl, Text, Textarea, TextInput } from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { EMPTY_ARRAY, inspect } from '@sequelize/utils';
-import type { FormEvent } from 'react';
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from 'urql';
-import type { GitHubSearchConfiguration } from './app-configuration.tsx';
+import {
+  PrAuthorStyle,
+  useAppConfiguration,
+  type GitHubSearchConfiguration,
+} from './app-configuration.tsx';
 import { DeletionConfirmationDialog } from './deletion-confirmation-dialog.tsx';
 import { getGitHubInlineUser } from './github-inline-user.tsx';
 import { GithubIssueIcon } from './github-issue-icon.tsx';
@@ -15,6 +18,7 @@ import {
   type SearchIssuesAndPullRequestsQuery,
 } from './gql/graphql.ts';
 import { graphql } from './gql/index.ts';
+import type { InlineUserProps } from './inline-user.js';
 import { CheckStatus, IssueList, type FailedCheck, type IssueListItem } from './issue-list.tsx';
 import { InlineCode, P } from './markdown-components.tsx';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
@@ -39,6 +43,13 @@ const searchQuery = graphql(/* GraphQL */ `
             ...InlineUser
           }
           createdAt
+        }
+        ... on Assignable {
+          assignees(first: 100) {
+            nodes {
+              ...InlineUser
+            }
+          }
         }
         ... on Labelable {
           labels(first: 100) {
@@ -67,6 +78,21 @@ const searchQuery = graphql(/* GraphQL */ `
             enabledAt
             enabledBy {
               ...InlineUser
+            }
+          }
+          comments(first: 1) {
+            totalCount
+          }
+          reviewThreads(first: 100) {
+            nodes {
+              isCollapsed
+              comments(first: 1) {
+                nodes {
+                  author {
+                    login
+                  }
+                }
+              }
             }
           }
           statusCheckRollup {
@@ -138,6 +164,9 @@ const searchQuery = graphql(/* GraphQL */ `
           title
           url
           number
+          comments(first: 1) {
+            totalCount
+          }
         }
         ...IssueIcon
       }
@@ -156,6 +185,8 @@ export interface IssueListProps {
 }
 
 export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
+  const [appConfiguration] = useAppConfiguration();
+
   const countPerPage = list.countPerPage;
   const [page, setPage] = useState(0);
 
@@ -188,7 +219,7 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         throw new Error('Unexpected data returned by graphql search endpoint');
       }
 
-      const reviews: ReviewAvatarProps[] = [];
+      const reviews = new Map<string, ReviewAvatarProps>();
 
       if (node.__typename === 'PullRequest') {
         const pendingReview = node.pendingReviews?.nodes?.[0];
@@ -202,7 +233,7 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
 
             const author = review.author;
 
-            reviews.push({
+            reviews.set(author.login, {
               reviewer: getGitHubInlineUser(author),
               state: mapGitHubReviewState(review.state),
               pending: pendingReview?.author?.login === author.login,
@@ -232,13 +263,11 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
 
             const reviewer = review.author;
 
-            if (
-              reviews.some(existingReview => reviewer.login === existingReview.reviewer.username)
-            ) {
+            if (reviews.has(reviewer.login)) {
               continue;
             }
 
-            reviews.push({
+            reviews.set(reviewer.login, {
               reviewer: getGitHubInlineUser(reviewer),
               state: mapGitHubReviewState(review.state),
               pending: pendingReview?.author?.login === reviewer.login,
@@ -261,11 +290,11 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
             continue;
           }
 
-          if (reviews.some(review => review.reviewer.username === reviewer.login)) {
+          if (reviews.has(reviewer.login)) {
             continue;
           }
 
-          reviews.push({
+          reviews.set(reviewer.login, {
             reviewer: getGitHubInlineUser(reviewer),
             state: null,
             pending: pendingReview?.author?.login === reviewer.login,
@@ -273,16 +302,36 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
           });
         }
 
-        if (
-          pendingReview &&
-          !reviews.some(review => review.reviewer.username === pendingReview.author!.login)
-        ) {
-          reviews.push({
-            reviewer: getGitHubInlineUser(pendingReview.author!),
+        const pendingReviewAuthor = pendingReview?.author;
+        if (pendingReviewAuthor && !reviews.has(pendingReviewAuthor.login)) {
+          reviews.set(pendingReviewAuthor.login, {
+            reviewer: getGitHubInlineUser(pendingReviewAuthor),
             state: null,
             pending: true,
             requested: false,
           });
+        }
+
+        const reviewThreads = node.reviewThreads.nodes;
+        if (reviewThreads?.length) {
+          for (const reviewThread of reviewThreads) {
+            if (!reviewThread || reviewThread.isCollapsed) {
+              continue;
+            }
+
+            const threadAuthor = reviewThread.comments.nodes?.[0]?.author?.login;
+            if (!threadAuthor) {
+              continue;
+            }
+
+            const review = reviews.get(threadAuthor);
+            if (!review) {
+              continue;
+            }
+
+            review.blockingCommentCount ??= 0;
+            review.blockingCommentCount++;
+          }
         }
       }
 
@@ -322,7 +371,34 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         }
       }
 
+      let authors: InlineUserProps[];
+
+      if (
+        node.__typename !== 'PullRequest' ||
+        !node.assignees.nodes?.length ||
+        appConfiguration.prAuthorStyle === PrAuthorStyle.creator
+      ) {
+        authors = [getGitHubInlineUser(node.author!)];
+      } else if (appConfiguration.prAuthorStyle === PrAuthorStyle.assignees) {
+        authors = node.assignees.nodes.map(getGitHubInlineUser);
+      } else {
+        const creator = getGitHubInlineUser(node.author!);
+        authors = node.assignees.nodes.map(getGitHubInlineUser);
+
+        if (!authors.some(author => author.username === creator.username)) {
+          authors.push(creator);
+        }
+      }
+
       return {
+        authors,
+        autoMerge:
+          node.__typename === 'PullRequest' && node.autoMergeRequest && !node.mergedAt
+            ? {
+                by: getGitHubInlineUser(node.autoMergeRequest.enabledBy!),
+                at: node.autoMergeRequest.enabledAt,
+              }
+            : undefined,
         checkStatus:
           node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
             ? undefined
@@ -333,16 +409,8 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
               : failedChecks.length === 0
                 ? CheckStatus.success
                 : CheckStatus.failure,
+        commentCount: node.comments.totalCount,
         createdAt: node.createdAt,
-        createdBy: getGitHubInlineUser(node.author!),
-        mergedAt: node.__typename === 'PullRequest' ? node.mergedAt : undefined,
-        autoMerge:
-          node.__typename === 'PullRequest' && node.autoMergeRequest && !node.mergedAt
-            ? {
-                by: getGitHubInlineUser(node.autoMergeRequest.enabledBy!),
-                at: node.autoMergeRequest.enabledAt,
-              }
-            : undefined,
         failedChecks,
         icon: <GithubIssueIcon issue={node} sx={{ marginTop: 1 }} />,
         id: node.id,
@@ -352,18 +420,19 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
             hexColor: `#${label!.color}`,
           };
         }),
+        mergedAt: node.__typename === 'PullRequest' ? node.mergedAt : undefined,
         number: `#${node.number}`,
         repository: {
           name: node.repository.nameWithOwner,
           url: node.repository.url,
         },
-        reviews,
+        reviews: [...reviews.values()],
         title: node.title,
         unread: !node.isReadByViewer,
         url: node.url,
       };
     });
-  }, [nodes]);
+  }, [appConfiguration.prAuthorStyle, nodes]);
 
   return (
     <>

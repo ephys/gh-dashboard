@@ -1,4 +1,10 @@
-import { KebabHorizontalIcon, PencilIcon, TrashIcon, XIcon } from '@primer/octicons-react';
+import {
+  CommentIcon,
+  KebabHorizontalIcon,
+  PencilIcon,
+  TrashIcon,
+  XIcon,
+} from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
@@ -43,10 +49,11 @@ export enum CheckStatus {
 }
 
 export interface IssueListItem {
+  authors: InlineUserProps[];
   autoMerge?: { at: string; by: InlineUserProps } | undefined;
   checkStatus?: CheckStatus | undefined;
+  commentCount?: number;
   createdAt: string;
-  createdBy: InlineUserProps;
   failedChecks?: readonly FailedCheck[];
   icon: ReactNode;
   id: string;
@@ -148,7 +155,11 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 {data.number}
               </span>{' '}
               opened {/* @ts-expect-error -- RelativeTime is badly typed */}
-              <RelativeTime datetime={data.createdAt} /> by <InlineUser {...data.createdBy} />
+              <RelativeTime datetime={data.createdAt} /> by{' '}
+              {intersperse(
+                data.authors.map(author => <InlineUser key={author.username} {...author} />),
+                ', ',
+              )}
             </Text>
             {Boolean(labels.length) && (
               <LabelGroup sx={{ mt: 1 }}>
@@ -186,6 +197,11 @@ const COLUMNS: Array<Column<IssueListItem>> = [
     align: 'end',
     renderCell: data => {
       const reviews = data.reviews;
+      const commentCount = data.commentCount;
+
+      if (!reviews.length && !commentCount) {
+        return;
+      }
 
       const stringCompareFn = basicComparator();
       const sortedReviews = reviews.toSorted(
@@ -195,12 +211,23 @@ const COLUMNS: Array<Column<IssueListItem>> = [
         ),
       );
 
-      if (!reviews.length) {
-        return;
-      }
-
       return (
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          {commentCount ? (
+            <Tooltip text={`${commentCount} non-review comments`}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  color: 'fg.muted',
+                  marginRight: 2,
+                }}>
+                <Octicon icon={CommentIcon} />
+                {commentCount}
+              </Box>
+            </Tooltip>
+          ) : null}
           {sortedReviews.map(review => {
             return <ReviewAvatar {...review} key={review.reviewer.username} />;
           })}

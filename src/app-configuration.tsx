@@ -76,9 +76,28 @@ export enum UserNameStyle {
   full = 'full',
 }
 
+export enum PrAuthorStyle {
+  /**
+   * Ignores contributors
+   */
+  creator = 'creator',
+
+  /**
+   * Makes the assignees list override the author if not empty.
+   * Falls back to creator if empty.
+   */
+  assignees = 'assignees',
+
+  /**
+   * Displays the contributors & the creator, even if the author is not in the contributor list
+   */
+  all = 'all',
+}
+
 export const AppConfigurationSchema = z
   .object({
     userNameStyle: z.nativeEnum(UserNameStyle).default(UserNameStyle.login),
+    prAuthorStyle: z.nativeEnum(PrAuthorStyle).default(PrAuthorStyle.assignees),
     tabs: z.array(TabConfigurationSchema).min(1),
   })
   .strict();
@@ -87,6 +106,7 @@ export type AppConfiguration = z.infer<typeof AppConfigurationSchema>;
 
 const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
   userNameStyle: UserNameStyle.login,
+  prAuthorStyle: PrAuthorStyle.assignees,
   tabs: [
     {
       components: [

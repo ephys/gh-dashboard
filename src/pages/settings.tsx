@@ -18,11 +18,12 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
-import type { TabConfiguration } from '../app-configuration.tsx';
 import {
   AppConfigurationSchema,
+  PrAuthorStyle,
   UserNameStyle,
   useAppConfiguration,
+  type TabConfiguration,
 } from '../app-configuration.tsx';
 import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import { DevOpsPatFormControl } from '../devops-pat-form-control.tsx';
@@ -92,6 +93,20 @@ export function Settings() {
     [setAppConfiguration],
   );
 
+  const onAuthorsStyleChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const value = event.currentTarget.value;
+
+      setAppConfiguration(oldConfig => {
+        return {
+          ...oldConfig,
+          prAuthorStyle: value as PrAuthorStyle,
+        };
+      });
+    },
+    [setAppConfiguration],
+  );
+
   return (
     <PageLayout containerWidth="medium">
       <PageLayout.Header>
@@ -118,6 +133,15 @@ export function Settings() {
             Consider only enabling this if your repositories do not accept contribution from users
             outside of your organization.
           </FormControl.Caption>
+        </FormControl>
+
+        <FormControl sx={{ mt: 3 }}>
+          <FormControl.Label>PR authors display</FormControl.Label>
+          <Select block onChange={onAuthorsStyleChange} value={appConfiguration.prAuthorStyle}>
+            <Select.Option value={PrAuthorStyle.creator}>Person that created the PR</Select.Option>
+            <Select.Option value={PrAuthorStyle.assignees}>Assignees</Select.Option>
+            <Select.Option value={PrAuthorStyle.all}>Creator + Assignees</Select.Option>
+          </Select>
         </FormControl>
 
         <TabList />

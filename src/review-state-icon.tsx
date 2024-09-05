@@ -14,6 +14,7 @@ export enum ReviewState {
 }
 
 interface ReviewStateIconProps {
+  blockingCommentCount?: number;
   state: ReviewState;
 }
 
@@ -28,6 +29,7 @@ const ICONS: Record<
 > = {
   [ReviewState.Approved]: {
     bgColor: 'success.emphasis',
+    fgColor: 'black',
     icon: CheckIcon,
     iconSize: 12,
   },
@@ -57,6 +59,17 @@ const ICONS: Record<
 export function ReviewStateIcon(props: ReviewStateIconProps) {
   const iconData = ICONS[props.state];
 
+  const icon =
+    !props.blockingCommentCount ||
+    props.state === 'Rejected' ||
+    props.state === 'ChangesRequested' ? (
+      <Octicon icon={iconData.icon} size={iconData.iconSize} />
+    ) : props.blockingCommentCount > 9 ? (
+      '9+'
+    ) : (
+      props.blockingCommentCount
+    );
+
   return (
     <Box
       sx={{
@@ -68,8 +81,9 @@ export function ReviewStateIcon(props: ReviewStateIconProps) {
         justifyContent: 'center',
         padding: 1,
         size: 16,
+        fontSize: '10px',
       }}>
-      <Octicon icon={iconData.icon} size={iconData.iconSize} />
+      {icon}
     </Box>
   );
 }

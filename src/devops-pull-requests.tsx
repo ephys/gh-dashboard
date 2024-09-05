@@ -103,13 +103,15 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
 
     return data.value.map(pullRequest => {
       return {
-        createdBy: {
-          displayName: pullRequest.createdBy.displayName,
-          username: pullRequest.createdBy.uniqueName,
-          isBot: false,
-          avatarUrl:
-            getDevOpsAvatar(pullRequest.createdBy.imageUrl) ?? pullRequest.createdBy.imageUrl,
-        },
+        authors: [
+          {
+            displayName: pullRequest.createdBy.displayName,
+            username: pullRequest.createdBy.uniqueName,
+            isBot: false,
+            avatarUrl:
+              getDevOpsAvatar(pullRequest.createdBy.imageUrl) ?? pullRequest.createdBy.imageUrl,
+          },
+        ],
         url: getWebPrUrl(pullRequest.url),
         id: String(pullRequest.pullRequestId),
         createdAt: pullRequest.creationDate,
@@ -141,7 +143,7 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
         title: pullRequest.title,
         labels: [],
         unread: false,
-      };
+      } satisfies IssueListItem;
     });
   }, [data?.value, getDevOpsAvatar]);
 

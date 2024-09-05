@@ -7,6 +7,7 @@ import { PendingReviewIcon } from './pending-review-icon.tsx';
 import { ReviewState, ReviewStateIcon } from './review-state-icon.tsx';
 
 export interface ReviewAvatarProps {
+  blockingCommentCount?: number;
   pending: boolean;
   requested: boolean;
   reviewer: InlineUserProps;
@@ -40,7 +41,11 @@ export function ReviewAvatar(props: ReviewAvatarProps) {
       <AvatarIcon
         avatar={<Avatar src={reviewer.avatarUrl} size={32} />}
         topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
-        bottomIcon={state ? <ReviewStateIcon state={state} /> : null}
+        bottomIcon={
+          state ? (
+            <ReviewStateIcon state={state} blockingCommentCount={props.blockingCommentCount} />
+          ) : null
+        }
       />
     </Tooltip>
   );
