@@ -13,15 +13,16 @@ import type { Column } from '@primer/react/lib-esm/DataTable/column.js';
 import type { UniqueRow } from '@primer/react/lib/DataTable/row.js';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { useId } from 'react';
-import { useQuery } from 'urql';
 import { ActionMenuIconButton } from './action-menu-icon-button.js';
 import type { GitHubBranchesConfiguration } from './app-configuration.js';
 import { GitHubInlineUser } from './github-inline-user.js';
 import { GithubIssueIcon } from './github-issue-icon.js';
 import type { RefFragment, SearchBranchesQuery } from './gql/graphql.js';
 import { getFragmentData, graphql } from './gql/index.js';
+import { useUrqlQuery } from './utils/custom-use-query.js';
+import { useOnGlobalRefresh } from './utils/use-on-global-refresh.js';
 
-const RefFragment = graphql(/* GraphQL */ `
+const RefFragmentSchema = graphql(/* GraphQL */ `
   fragment Ref on Ref {
     name
     target {
@@ -70,8 +71,8 @@ type SearchResult = MakeNonNullish<MakeNonNullish<SearchBranchesQuery['search'][
 
 type RefRow = RefFragment &
   UniqueRow & {
-    url: string;
     createPrUrl: string;
+    url: string;
   };
 
 const COLUMNS: Array<Column<RefRow>> = [
@@ -131,7 +132,7 @@ const COLUMNS: Array<Column<RefRow>> = [
 ];
 
 export function GithubBranches({ config }: { config: GitHubBranchesConfiguration }) {
-  const [urqlSearch] = useQuery({
+  const [urqlSearch, refresh] = useUrqlQuery({
     query: searchQuery,
     variables: {
       repoCount: config.repositories.length,
@@ -139,6 +140,8 @@ export function GithubBranches({ config }: { config: GitHubBranchesConfiguration
       branch: config.branch ?? '',
     },
   });
+
+  useOnGlobalRefresh(refresh);
 
   const error = urqlSearch.error;
   const nodes = (urqlSearch.data?.search.nodes ?? []) as SearchResult[];
@@ -158,7 +161,7 @@ export function GithubBranches({ config }: { config: GitHubBranchesConfiguration
 
     const refs = repo.refs.nodes
       .filter(wrappedRefFragment => {
-        const ref = getFragmentData(RefFragment, wrappedRefFragment);
+        const ref = getFragmentData(RefFragmentSchema, wrappedRefFragment);
 
         if (!ref) {
           return false;
@@ -171,7 +174,7 @@ export function GithubBranches({ config }: { config: GitHubBranchesConfiguration
         return true;
       })
       .map(wrappedRefFragment => {
-        const ref = getFragmentData(RefFragment, wrappedRefFragment)!;
+        const ref = getFragmentData(RefFragmentSchema, wrappedRefFragment)!;
 
         return {
           ...ref,
