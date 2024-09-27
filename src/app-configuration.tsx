@@ -18,7 +18,10 @@ export type Alert = z.infer<typeof FlashSchema>;
 const GitHubSearchConfigurationSchema = z
   .object({
     countPerPage: z.number().min(1).default(10),
+    defaultRepository: z.string().optional(),
     description: z.string().optional(),
+    hideBranchNames: z.boolean().optional(),
+    hidePrNumbers: z.boolean().optional(),
     name: z.string(),
     query: z.string(),
   })

@@ -1,4 +1,13 @@
-import { Box, Button, Dialog, FormControl, Text, Textarea, TextInput } from '@primer/react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  FormControl,
+  Text,
+  Textarea,
+  TextInput,
+} from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { EMPTY_ARRAY, inspect } from '@sequelize/utils';
 import { useCallback, useId, useMemo, useState, type FormEvent } from 'react';
@@ -442,12 +451,15 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         countPerPage={countPerPage}
         error={error}
         totalCount={totalCount}
+        defaultRepository={list.defaultRepository}
         loaded={isLoadedUrql(urqlSearch)}
         onOpenModal={setOpenModalId}
         onPageChange={setPage}
         name={list.name}
         issues={issues}
         description={list.description}
+        hideNumbers={list.hidePrNumbers}
+        hideBranchNames={list.hideBranchNames}
         subtitle={
           <Text as="p" sx={{ margin: 0 }}>
             <InlineCode>{list.query}</InlineCode>
@@ -519,9 +531,13 @@ function EditListDialog({ list, onClose, onUpdate }: EditListDialogProps) {
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      const data = getFormValues(event.currentTarget);
+      const { showBranchNames, showPrNumbers, ...data } = getFormValues(event.currentTarget);
 
-      onUpdate(data as GitHubSearchConfiguration);
+      onUpdate({
+        ...data,
+        hidePrNumbers: !showPrNumbers,
+        hideBranchNames: !showBranchNames,
+      } as GitHubSearchConfiguration);
       onClose();
     },
     [onClose, onUpdate],
@@ -536,7 +552,7 @@ function EditListDialog({ list, onClose, onUpdate }: EditListDialogProps) {
           <TextInput block type="text" name="name" defaultValue={list.name} />
         </FormControl>
 
-        <FormControl required sx={{ marginTop: 2 }}>
+        <FormControl sx={{ marginTop: 2 }}>
           <FormControl.Label>Description</FormControl.Label>
           <TextInput block type="text" name="description" defaultValue={list.description} />
         </FormControl>
@@ -557,6 +573,22 @@ function EditListDialog({ list, onClose, onUpdate }: EditListDialogProps) {
             min="1"
           />
         </FormControl>
+
+        <FormControl sx={{ marginTop: 2 }}>
+          <FormControl.Label>Default repository</FormControl.Label>
+          <TextInput block name="defaultRepository" defaultValue={list.defaultRepository} />
+        </FormControl>
+
+        <Box sx={{ marginTop: 2 }}>
+          <FormControl>
+            <Checkbox value="showBranchNames" defaultChecked={!list.hideBranchNames} />
+            <FormControl.Label>Show branch names</FormControl.Label>
+          </FormControl>
+          <FormControl>
+            <Checkbox value="showPrNumbers" defaultChecked={!list.hidePrNumbers} />
+            <FormControl.Label>Show PR numbers</FormControl.Label>
+          </FormControl>
+        </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
           <Button onClick={onClose}>Cancel</Button>

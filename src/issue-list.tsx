@@ -19,7 +19,7 @@ import {
 } from '@primer/react';
 import { DataTable, Table, type Column } from '@primer/react/drafts';
 import { basicComparator } from '@sequelize/utils';
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import { UserNameStyle } from './app-configuration.js';
 import { BranchButton } from './branch-button.js';
@@ -72,182 +72,13 @@ export interface IssueListItem {
   url: string;
 }
 
-const COLUMNS: Array<Column<IssueListItem>> = [
-  {
-    header: 'Results',
-    id: 'main',
-    width: 'auto',
-    renderCell: data => {
-      const { labels, failedChecks } = data;
-
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'start' }} data-unread={String(data.unread)}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              flexDirection: 'column',
-              gap: '6px',
-            }}>
-            {data.icon}
-            {data.checkStatus === CheckStatus.failure ? (
-              <Tooltip text="Some checks failed" direction="ne">
-                <ReviewStateIcon state={ReviewState.ChangesRequested} />
-              </Tooltip>
-            ) : data.checkStatus === CheckStatus.success ? (
-              <Tooltip text="All checks passed" direction="ne">
-                <ReviewStateIcon state={ReviewState.Approved} />
-              </Tooltip>
-            ) : data.checkStatus === CheckStatus.pending ? (
-              <Tooltip text="Checks are running" direction="ne">
-                <Box sx={{ height: '16px', alignItems: 'center', display: 'flex' }}>
-                  <PendingReviewIcon inProgress={false} />
-                </Box>
-              </Tooltip>
-            ) : null}
-          </Box>
-
-          <Box sx={{ marginLeft: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
-                <PrimerLink href={data.url} className={css.titleLink}>
-                  <Markdown>{data.title}</Markdown>
-                </PrimerLink>
-              </Text>
-              {data.autoMerge && (
-                <Tooltip
-                  text={`Auto-merge enabled by ${formatUserName({
-                    style: UserNameStyle.login,
-                    displayName: data.autoMerge.by.displayName,
-                    username: data.autoMerge.by.username,
-                  })}`}
-                  direction="n">
-                  <Text
-                    as="p"
-                    sx={{
-                      margin: 0,
-                      borderColor: 'done.fg',
-                      borderStyle: 'solid',
-                      borderWidth: 1,
-                      color: 'done.fg',
-                      borderRadius: 1,
-                      padding: '0 4px',
-                      wordBreak: 'keep-all',
-                    }}>
-                    Auto-merge
-                  </Text>
-                </Tooltip>
-              )}
-            </Box>
-            <Text
-              as={P}
-              sx={{
-                color: 'fg.muted',
-                fontSize: 'var(--text-body-size-small)',
-                fontWeight: 'var(--base-text-weight-normal)',
-              }}>
-              <span>
-                {data.repository && (
-                  <>
-                    <PrimerLink href={data.repository.url} className={css.titleLink}>
-                      {data.repository.name}
-                    </PrimerLink>{' '}
-                  </>
-                )}
-                {data.number}
-              </span>{' '}
-              {data.branchName && (
-                <>
-                  <BranchButton>{data.branchName}</BranchButton>{' '}
-                </>
-              )}
-              opened {/* @ts-expect-error -- RelativeTime is badly typed */}
-              <RelativeTime datetime={data.createdAt} /> by{' '}
-              {intersperse(
-                data.authors.map(author => <InlineUser key={author.username} {...author} />),
-                ', ',
-              )}
-            </Text>
-            {Boolean(labels.length) && (
-              <LabelGroup sx={{ mt: 1 }}>
-                {labels.map(label => (
-                  <IssueLabel {...label} key={label.name} />
-                ))}
-              </LabelGroup>
-            )}
-            {Boolean(failedChecks?.length) && (
-              <Box sx={{ mt: 2, alignItems: 'center', display: 'flex' }}>
-                <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
-                <span>
-                  {intersperse(
-                    failedChecks!.slice(0, 3).map((check, i) => (
-                      <PrimerLink key={i} href={check.url} className={css.titleLink}>
-                        {check.name}
-                      </PrimerLink>
-                    )),
-                    ', ',
-                  )}
-                  {failedChecks!.length > 3 && <>, and {failedChecks!.length - 3} more…</>}
-                </span>
-              </Box>
-            )}
-          </Box>
-        </Box>
-      );
-    },
-    rowHeader: true,
-  },
-  {
-    header: '',
-    id: 'reviews',
-    width: 'auto',
-    align: 'end',
-    renderCell: data => {
-      const reviews = data.reviews;
-      const commentCount = data.commentCount;
-
-      if (!reviews.length && !commentCount) {
-        return;
-      }
-
-      const stringCompareFn = basicComparator();
-      const sortedReviews = reviews.toSorted(
-        composedComparator(
-          (a, b) => stringCompareFn(a.state, b.state),
-          (a, b) => stringCompareFn(a.reviewer.username, b.reviewer.username),
-        ),
-      );
-
-      return (
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          {commentCount ? (
-            <Tooltip text={`${commentCount} non-review comments`}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  color: 'fg.muted',
-                  marginRight: 2,
-                }}>
-                <Octicon icon={CommentIcon} />
-                {commentCount}
-              </Box>
-            </Tooltip>
-          ) : null}
-          {sortedReviews.map(review => {
-            return <ReviewAvatar {...review} key={review.reviewer.username} />;
-          })}
-        </Box>
-      );
-    },
-  },
-];
-
 interface IssueListProps {
   countPerPage: number;
+  defaultRepository?: string;
   description: ReactNode;
   error: unknown;
+  hideBranchNames?: boolean;
+  hideNumbers?: boolean;
   issues: readonly IssueListItem[];
   loaded: boolean;
   name: ReactNode;
@@ -261,7 +92,187 @@ interface IssueListProps {
 }
 
 export function IssueList(props: IssueListProps) {
-  const { onOpenModal, totalCount, countPerPage, issues } = props;
+  const {
+    onOpenModal,
+    totalCount,
+    countPerPage,
+    issues,
+    defaultRepository,
+    hideNumbers,
+    hideBranchNames,
+  } = props;
+
+  const COLUMNS: Array<Column<IssueListItem>> = useMemo(() => {
+    return [
+      {
+        header: 'Results',
+        id: 'main',
+        width: 'auto',
+        renderCell: data => {
+          const { labels, failedChecks } = data;
+
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'start' }} data-unread={String(data.unread)}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexDirection: 'column',
+                  gap: '6px',
+                }}>
+                {data.icon}
+                {data.checkStatus === CheckStatus.failure ? (
+                  <Tooltip text="Some checks failed" direction="ne">
+                    <ReviewStateIcon state={ReviewState.ChangesRequested} />
+                  </Tooltip>
+                ) : data.checkStatus === CheckStatus.success ? (
+                  <Tooltip text="All checks passed" direction="ne">
+                    <ReviewStateIcon state={ReviewState.Approved} />
+                  </Tooltip>
+                ) : data.checkStatus === CheckStatus.pending ? (
+                  <Tooltip text="Checks are running" direction="ne">
+                    <Box sx={{ height: '16px', alignItems: 'center', display: 'flex' }}>
+                      <PendingReviewIcon inProgress={false} />
+                    </Box>
+                  </Tooltip>
+                ) : null}
+              </Box>
+
+              <Box sx={{ marginLeft: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
+                    <PrimerLink href={data.url} className={css.titleLink}>
+                      <Markdown>{data.title}</Markdown>
+                    </PrimerLink>
+                  </Text>
+                  {data.autoMerge && (
+                    <Tooltip
+                      text={`Auto-merge enabled by ${formatUserName({
+                        style: UserNameStyle.login,
+                        displayName: data.autoMerge.by.displayName,
+                        username: data.autoMerge.by.username,
+                      })}`}
+                      direction="n">
+                      <Text
+                        as="p"
+                        sx={{
+                          margin: 0,
+                          borderColor: 'done.fg',
+                          borderStyle: 'solid',
+                          borderWidth: 1,
+                          color: 'done.fg',
+                          borderRadius: 1,
+                          padding: '0 4px',
+                          wordBreak: 'keep-all',
+                        }}>
+                        Auto-merge
+                      </Text>
+                    </Tooltip>
+                  )}
+                </Box>
+                <Text
+                  as={P}
+                  sx={{
+                    color: 'fg.muted',
+                    fontSize: 'var(--text-body-size-small)',
+                    fontWeight: 'var(--base-text-weight-normal)',
+                  }}>
+                  {data.repository && data.repository.name !== defaultRepository && (
+                    <>
+                      <PrimerLink href={data.repository.url} className={css.titleLink}>
+                        {data.repository.name}
+                      </PrimerLink>{' '}
+                    </>
+                  )}
+                  {!hideNumbers && <>{data.number} </>}
+                  {!hideBranchNames && data.branchName && (
+                    <>
+                      <BranchButton>{data.branchName}</BranchButton>{' '}
+                    </>
+                  )}
+                  opened {/* @ts-expect-error -- RelativeTime is badly typed */}
+                  <RelativeTime datetime={data.createdAt} /> by{' '}
+                  {intersperse(
+                    data.authors.map(author => <InlineUser key={author.username} {...author} />),
+                    ', ',
+                  )}
+                </Text>
+                {Boolean(labels.length) && (
+                  <LabelGroup sx={{ mt: 1 }}>
+                    {labels.map(label => (
+                      <IssueLabel {...label} key={label.name} />
+                    ))}
+                  </LabelGroup>
+                )}
+                {Boolean(failedChecks?.length) && (
+                  <Box sx={{ mt: 2, alignItems: 'center', display: 'flex' }}>
+                    <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
+                    <span>
+                      {intersperse(
+                        failedChecks!.slice(0, 3).map((check, i) => (
+                          <PrimerLink key={i} href={check.url} className={css.titleLink}>
+                            {check.name}
+                          </PrimerLink>
+                        )),
+                        ', ',
+                      )}
+                      {failedChecks!.length > 3 && <>, and {failedChecks!.length - 3} more…</>}
+                    </span>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          );
+        },
+        rowHeader: true,
+      },
+      {
+        header: '',
+        id: 'reviews',
+        width: 'auto',
+        align: 'end',
+        renderCell: data => {
+          const reviews = data.reviews;
+          const commentCount = data.commentCount;
+
+          if (!reviews.length && !commentCount) {
+            return;
+          }
+
+          const stringCompareFn = basicComparator();
+          const sortedReviews = reviews.toSorted(
+            composedComparator(
+              (a, b) => stringCompareFn(a.state, b.state),
+              (a, b) => stringCompareFn(a.reviewer.username, b.reviewer.username),
+            ),
+          );
+
+          return (
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              {commentCount ? (
+                <Tooltip text={`${commentCount} non-review comments`}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      color: 'fg.muted',
+                      marginRight: 2,
+                    }}>
+                    <Octicon icon={CommentIcon} />
+                    {commentCount}
+                  </Box>
+                </Tooltip>
+              ) : null}
+              {sortedReviews.map(review => {
+                return <ReviewAvatar {...review} key={review.reviewer.username} />;
+              })}
+            </Box>
+          );
+        },
+      },
+    ];
+  }, [defaultRepository, hideBranchNames, hideNumbers]);
 
   return (
     <Table.Container>

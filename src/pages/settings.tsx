@@ -14,6 +14,7 @@ import {
   Textarea,
 } from '@primer/react';
 import { inspect, isString } from '@sequelize/utils';
+import { useSnackbar } from 'notistack';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -59,6 +60,8 @@ export function Settings() {
     [appConfiguration],
   );
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const onAppConfigurationChange = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -66,17 +69,24 @@ export function Settings() {
       const newConfigurationJson = getFormValue(event.currentTarget, 'app-configuration');
       isString.assert(newConfigurationJson);
 
-      const newConfiguration = JSON.parse(newConfigurationJson);
+      let newConfiguration;
+      try {
+        newConfiguration = JSON.parse(newConfigurationJson);
+      } catch {
+        enqueueSnackbar('Configuration is not valid JSON', { variant: 'error' });
+
+        return;
+      }
+
       if (!AppConfigurationSchema.safeParse(newConfiguration).success) {
-        // TODO: better error handling
-        alert('Invalid configuration');
+        enqueueSnackbar('Invalid configuration', { variant: 'error' });
 
         return;
       }
 
       setAppConfiguration(newConfiguration);
     },
-    [setAppConfiguration],
+    [enqueueSnackbar, setAppConfiguration],
   );
 
   const onUserNameStyleChange = useCallback(
