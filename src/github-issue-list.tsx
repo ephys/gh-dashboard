@@ -70,6 +70,7 @@ const searchQuery = graphql(/* GraphQL */ `
           id
           prState: state
           title
+          headRefName
           isReadByViewer
           url
           number
@@ -399,6 +400,7 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
                 at: node.autoMergeRequest.enabledAt,
               }
             : undefined,
+        branchName: node.__typename === 'PullRequest' ? node.headRefName : undefined,
         checkStatus:
           node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
             ? undefined

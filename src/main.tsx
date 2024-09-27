@@ -1,4 +1,5 @@
 import { BaseStyles, ThemeProvider, useTheme } from '@primer/react';
+import { SnackbarProvider } from 'notistack';
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter, Route, Routes } from 'react-router-dom';
@@ -18,15 +19,17 @@ ReactDOM.createRoot(document.querySelector('#root')!).render(
           <ThemeProvider colorMode="dark" nightScheme="dark" dayScheme="light">
             <RootThemeSync />
             <BaseStyles>
-              <HashRouter>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/d/:tabSlug" element={<Dashboard />} />
-                    <Route path="/settings" element={<Settings />} />
-                  </Routes>
-                </Layout>
-              </HashRouter>
+              <SnackbarProvider dense>
+                <HashRouter>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/d/:tabSlug" element={<Dashboard />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </Layout>
+                </HashRouter>
+              </SnackbarProvider>
             </BaseStyles>
           </ThemeProvider>
         </DevopsAvatarProvider>

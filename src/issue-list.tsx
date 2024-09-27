@@ -22,6 +22,7 @@ import { basicComparator } from '@sequelize/utils';
 import type { ReactNode } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import { UserNameStyle } from './app-configuration.js';
+import { BranchButton } from './branch-button.js';
 import { formatUserName } from './format-user-name.js';
 import css from './github-issue-list.module.scss';
 import type { InlineUserProps } from './inline-user.tsx';
@@ -51,6 +52,7 @@ export enum CheckStatus {
 export interface IssueListItem {
   authors: InlineUserProps[];
   autoMerge?: { at: string; by: InlineUserProps } | undefined;
+  branchName?: string;
   checkStatus?: CheckStatus | undefined;
   commentCount?: number;
   createdAt: string;
@@ -154,6 +156,11 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 )}
                 {data.number}
               </span>{' '}
+              {data.branchName && (
+                <>
+                  <BranchButton>{data.branchName}</BranchButton>{' '}
+                </>
+              )}
               opened {/* @ts-expect-error -- RelativeTime is badly typed */}
               <RelativeTime datetime={data.createdAt} /> by{' '}
               {intersperse(
