@@ -576,6 +576,9 @@ function EditListDialog({ list, onClose, onUpdate }: EditListDialogProps) {
 
         <FormControl sx={{ marginTop: 2 }}>
           <FormControl.Label>Default repository</FormControl.Label>
+          <FormControl.Caption>
+            PRs from this repository will not display their repository name.
+          </FormControl.Caption>
           <TextInput block name="defaultRepository" defaultValue={list.defaultRepository} />
         </FormControl>
 
