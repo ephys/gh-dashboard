@@ -179,7 +179,6 @@ const COLUMNS: Array<Column<IssueListItem>> = [
               <Box sx={{ mt: 2, alignItems: 'center', display: 'flex' }}>
                 <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
                 <span>
-                  Failed checks:{' '}
                   {intersperse(
                     failedChecks!.map((check, i) => (
                       <PrimerLink key={i} href={check.url} className={css.titleLink}>
