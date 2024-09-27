@@ -180,13 +180,14 @@ const COLUMNS: Array<Column<IssueListItem>> = [
                 <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
                 <span>
                   {intersperse(
-                    failedChecks!.map((check, i) => (
+                    failedChecks!.slice(0, 3).map((check, i) => (
                       <PrimerLink key={i} href={check.url} className={css.titleLink}>
                         {check.name}
                       </PrimerLink>
                     )),
                     ', ',
                   )}
+                  {failedChecks!.length > 3 && <>, and {failedChecks!.length - 3} more…</>}
                 </span>
               </Box>
             )}
