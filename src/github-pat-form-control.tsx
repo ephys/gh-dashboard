@@ -15,7 +15,7 @@ export function GithubPatFormControl({ sx, ...passDown }: GithubPatFormControlPr
       <FormControl.Caption>
         Your PAT is exclusively used to interact with the GitHub API. It is stored in your browser's
         local storage.{' '}
-        <Link href="https://github.com/settings/tokens/new?description=Dashboard&scopes=repo,public_repo">
+        <Link href="https://github.com/settings/tokens/new?description=Dashboard&scopes=repo,public_repo,read:org">
           Generate one
         </Link>
         .
