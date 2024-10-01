@@ -36,6 +36,7 @@ import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewAvatar } from './review-avatar.tsx';
 import { ReviewState, ReviewStateIcon } from './review-state-icon.js';
 import { composedComparator } from './utils/composed-comparator.ts';
+import { formatDuration } from './utils/format-duration.js';
 import { intersperse } from './utils/intersperse.js';
 
 export interface FailedCheck {
@@ -70,6 +71,8 @@ export interface IssueListItem {
   title: string;
   unread: boolean;
   url: string;
+  /** For how long the viewer has been requested to review */
+  viewerReviewWaitTimes?: number;
 }
 
 interface IssueListProps {
@@ -91,6 +94,8 @@ interface IssueListProps {
   totalCount: number;
 }
 
+const ONE_DAY_MS = 1000 * 60 * 60 * 24;
+
 export function IssueList(props: IssueListProps) {
   const {
     onOpenModal,
@@ -109,7 +114,7 @@ export function IssueList(props: IssueListProps) {
         id: 'main',
         width: 'auto',
         renderCell: data => {
-          const { labels, failedChecks } = data;
+          const { labels, failedChecks, viewerReviewWaitTimes = 0 } = data;
 
           return (
             <Box sx={{ display: 'flex', alignItems: 'start' }} data-unread={String(data.unread)}>
@@ -220,6 +225,12 @@ export function IssueList(props: IssueListProps) {
                     </span>
                   </Box>
                 )}
+                {viewerReviewWaitTimes > ONE_DAY_MS * 2 ? (
+                  <p className={css.slowReviewWarning}>
+                    This PR has been waiting for your review for{' '}
+                    {formatDuration(viewerReviewWaitTimes, 'en', 1)}
+                  </p>
+                ) : null}
               </Box>
             </Box>
           );
@@ -316,7 +327,7 @@ export function IssueList(props: IssueListProps) {
           rows={10}
         />
       ) : props.error ? (
-        <Flash variant="danger">Failed to load content</Flash>
+        <Flash variant="danger">{String(props.error)}</Flash>
       ) : (
         <>
           {totalCount > 0 ? (

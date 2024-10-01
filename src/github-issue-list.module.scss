@@ -7,3 +7,8 @@
     color: inherit;
   }
 }
+
+.slowReviewWarning {
+  color: var(--fgColor-attention);
+  margin: var(--space-small) 0 0 0;
+}

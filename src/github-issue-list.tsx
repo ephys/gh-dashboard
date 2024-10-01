@@ -37,6 +37,10 @@ import { getFormValues } from './utils/get-form-values.ts';
 
 const searchQuery = graphql(/* GraphQL */ `
   query searchIssuesAndPullRequests($query: String!, $first: Int!, $after: String!) {
+    viewer {
+      id
+      login
+    }
     search(query: $query, type: ISSUE, first: $first, after: $after) {
       issueCount
       pageInfo {
@@ -76,7 +80,9 @@ const searchQuery = graphql(/* GraphQL */ `
           }
         }
         ... on PullRequest {
+          viewerDidAuthor
           id
+          isDraft
           prState: state
           title
           headRefName
@@ -129,6 +135,34 @@ const searchQuery = graphql(/* GraphQL */ `
                   login
                 }
                 ...InlineUser
+              }
+            }
+          }
+          timelineItems(itemTypes: [REVIEW_REQUESTED_EVENT, READY_FOR_REVIEW_EVENT], last: 100) {
+            nodes {
+              ... on ReadyForReviewEvent {
+                createdAt
+              }
+              ... on ReviewRequestedEvent {
+                createdAt
+                requestedReviewer {
+                  ... on User {
+                    id
+                  }
+                  ... on Team {
+                    id
+                  }
+                }
+              }
+            }
+          }
+          viewerLatestReviewRequest {
+            requestedReviewer {
+              ... on User {
+                id
+              }
+              ... on Team {
+                id
               }
             }
           }
@@ -213,7 +247,8 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
     },
   });
 
-  const error = urqlSearch.error;
+  const error = urqlSearch.error?.graphQLErrors[0];
+  const viewerLogin = urqlSearch.data?.viewer.login;
   const nodes = (urqlSearch.data?.search.nodes ?? []) as SearchResult[];
   const totalCount = urqlSearch.data?.search.issueCount ?? 0;
 
@@ -345,6 +380,7 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         }
       }
 
+      const seenCheckNames = new Set();
       const failedChecks: FailedCheck[] = [];
       const hasChecks = Boolean(
         node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes?.length,
@@ -354,7 +390,8 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
       if (node.__typename === 'PullRequest' && node.statusCheckRollup?.contexts.nodes) {
         const checks = node.statusCheckRollup.contexts.nodes;
 
-        for (const check of checks) {
+        // process checks from last to first, as we only want to check the latest run of a given check.
+        for (const check of checks.toReversed()) {
           if (!check) {
             continue;
           }
@@ -363,6 +400,12 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
             console.error(`Unknown check type ${check.__typename}`);
             continue;
           }
+
+          if (seenCheckNames.has(check.name)) {
+            continue;
+          }
+
+          seenCheckNames.add(check.name);
 
           if (!check.conclusion) {
             hasPendingChecks = true;
@@ -398,6 +441,64 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         if (!authors.some(author => author.username === creator.username)) {
           authors.push(creator);
         }
+      }
+
+      const viewerReview = reviews.get(viewerLogin);
+      let viewerReviewWaitTimes = 0;
+
+      if (
+        (!viewerReview || viewerReview.requested) &&
+        node.__typename === 'PullRequest' &&
+        node.prState === 'OPEN' &&
+        !node.isDraft &&
+        // TODO: remove if assignee
+        !node.viewerDidAuthor &&
+        node.viewerLatestReviewRequest
+      ) {
+        const latestReadyForReviewEvent = node.timelineItems.nodes!.findLast(
+          item => item!.__typename === 'ReadyForReviewEvent',
+        );
+
+        if (
+          latestReadyForReviewEvent &&
+          latestReadyForReviewEvent.__typename !== 'ReadyForReviewEvent'
+        ) {
+          throw new Error('Should not happen');
+        }
+
+        // eslint-disable-next-line no-restricted-syntax -- API not yet available
+        const readyForReviewAtMs = Date.parse(
+          latestReadyForReviewEvent?.createdAt ?? node.createdAt,
+        );
+
+        const latestReviewRequestId = node.viewerLatestReviewRequest.requestedReviewer?.id;
+        const latestReviewRequestEvent = node.timelineItems.nodes!.findLast(item => {
+          if (item!.__typename !== 'ReviewRequestedEvent') {
+            return false;
+          }
+
+          const requestedReviewer = item?.requestedReviewer;
+          if (
+            !requestedReviewer ||
+            (requestedReviewer.__typename !== 'User' && requestedReviewer.__typename !== 'Team')
+          ) {
+            return false;
+          }
+
+          return requestedReviewer.id === latestReviewRequestId;
+        });
+
+        if (
+          latestReviewRequestEvent &&
+          latestReviewRequestEvent.__typename !== 'ReviewRequestedEvent'
+        ) {
+          throw new Error('Should not happen');
+        }
+
+        // eslint-disable-next-line no-restricted-syntax -- API not yet available
+        const reviewRequestedAt = Date.parse(latestReviewRequestEvent?.createdAt ?? node.createdAt);
+
+        viewerReviewWaitTimes = Date.now() - Math.min(readyForReviewAtMs, reviewRequestedAt);
       }
 
       return {
@@ -440,10 +541,11 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         reviews: [...reviews.values()],
         title: node.title,
         unread: !node.isReadByViewer,
+        viewerReviewWaitTimes,
         url: node.url,
       };
     });
-  }, [appConfiguration.prAuthorStyle, nodes]);
+  }, [appConfiguration.prAuthorStyle, nodes, viewerLogin]);
 
   return (
     <>
