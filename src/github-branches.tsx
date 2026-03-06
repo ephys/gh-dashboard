@@ -131,7 +131,15 @@ const COLUMNS: Array<Column<RefRow>> = [
   },
 ];
 
-export function GithubBranches({ config }: { config: GitHubBranchesConfiguration }) {
+export function GithubBranches({
+  config,
+  onDelete,
+  onEdit,
+}: {
+  config: GitHubBranchesConfiguration;
+  onDelete(): void;
+  onEdit(): void;
+}) {
   const [urqlSearch, refresh] = useUrqlQuery({
     query: searchQuery,
     variables: {
@@ -186,10 +194,6 @@ export function GithubBranches({ config }: { config: GitHubBranchesConfiguration
         };
       }) as RefRow[];
 
-    if (!refs.length) {
-      return null;
-    }
-
     const isFirstNode = renderedNodes === 0;
 
     renderedNodes++;
@@ -214,14 +218,14 @@ export function GithubBranches({ config }: { config: GitHubBranchesConfiguration
             <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
               <ActionMenu.Overlay width="auto">
                 <ActionList>
-                  <ActionList.Item onSelect={() => alert('nyi')}>
+                  <ActionList.Item onSelect={onEdit}>
                     Edit
                     <ActionList.LeadingVisual>
                       <PencilIcon />
                     </ActionList.LeadingVisual>
                   </ActionList.Item>
-                  <ActionList.Item onSelect={() => alert('nyi')} variant="danger">
-                    Delete List
+                  <ActionList.Item onSelect={onDelete} variant="danger">
+                    Delete
                     <ActionList.LeadingVisual>
                       <TrashIcon />
                     </ActionList.LeadingVisual>

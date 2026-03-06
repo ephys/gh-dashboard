@@ -9,7 +9,7 @@ import {
   TextInput,
 } from '@primer/react';
 import { parseSafeInteger } from '@sequelize/utils';
-import { useCallback, useId, useState, type SubmitEvent } from 'react';
+import { useCallback, useEffect, useId, useState, type SubmitEvent } from 'react';
 import { AlertVariant } from './flash-block.tsx';
 import { getFormValues } from './utils/get-form-values.ts';
 
@@ -23,6 +23,16 @@ export interface ComponentConfigDialogProps {
   onSave(config: any): void;
 }
 
+function detectComponentType(config: any): ComponentType {
+  if (!config) return 'github-search';
+  if ('variant' in config && 'markdown' in config) return 'flash';
+  if ('organization' in config) return 'devops-prs';
+  if ('type' in config && config.type === 'gh-branches') return 'github-branches';
+  // GitHub search has query field
+  if ('query' in config) return 'github-search';
+  return 'github-search';
+}
+
 export function ComponentConfigDialog({
   isOpen,
   onClose,
@@ -30,10 +40,10 @@ export function ComponentConfigDialog({
   initialConfig,
   initialType,
 }: ComponentConfigDialogProps) {
-  const [componentType, setComponentType] = useState<ComponentType>(
-    initialType ?? 'github-search',
-  );
+  const detectedType = initialType ?? detectComponentType(initialConfig);
+  const [componentType, setComponentType] = useState<ComponentType>(detectedType);
   const dialogId = useId();
+  const isEditing = Boolean(initialConfig);
 
   const handleSubmit = useCallback(
     (event: SubmitEvent<HTMLFormElement>) => {
@@ -102,7 +112,7 @@ export function ComponentConfigDialog({
             <Select
               value={componentType}
               onChange={e => setComponentType(e.target.value as ComponentType)}
-              disabled={Boolean(initialType)}>
+              disabled={isEditing}>
               <Select.Option value="github-search">GitHub Search / Issue List</Select.Option>
               <Select.Option value="github-branches">GitHub Branches</Select.Option>
               <Select.Option value="devops-prs">Azure DevOps Pull Requests</Select.Option>

@@ -1,17 +1,19 @@
 import { PlusIcon } from '@primer/octicons-react';
 import { Button, Flash, PageLayout, Link as PrimerLink, UnderlineNav } from '@primer/react';
 import { Blankslate } from '@primer/react/drafts';
-import { isNotNullish, upcast } from '@sequelize/utils';
+import { inspect, isNotNullish, upcast } from '@sequelize/utils';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAppConfiguration, type GitHubSearchConfiguration } from '../app-configuration.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
 import { ComponentConfigDialog } from '../component-config-dialog.tsx';
 import { ComponentWrapper } from '../component-wrapper.tsx';
+import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import { DevopsPullRequests } from '../devops-pull-requests.tsx';
 import { FlashBlock } from '../flash-block.tsx';
 import { GithubBranches } from '../github-branches.js';
 import { GithubIssueList } from '../github-issue-list.tsx';
+import { P } from '../markdown-components.tsx';
 import { useDevOpsPat } from '../use-devops-pat.tsx';
 import { useGithubPat } from '../use-github-pat.ts';
 import css from './dashboard.module.scss';
@@ -22,6 +24,8 @@ export function Dashboard() {
   const [devOpsPat] = useDevOpsPat();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [insertPosition, setInsertPosition] = useState<number | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const { tabSlug } = useParams();
@@ -36,26 +40,30 @@ export function Dashboard() {
 
   const currentPage = config.tabs.find(tab => tab.slug === tabSlug);
 
-  const onDeleteComponent = useCallback(
-    (index: number) => {
-      setConfig(oldConfig => {
-        return {
-          ...oldConfig,
-          tabs: oldConfig.tabs.map(tab => {
-            if (tab.slug !== tabSlug) {
-              return tab;
-            }
+  const onDeleteComponent = useCallback((index: number) => {
+    setDeletingIndex(index);
+  }, []);
 
-            return {
-              ...tab,
-              components: tab.components.toSpliced(index, 1),
-            };
-          }),
-        };
-      });
-    },
-    [setConfig, tabSlug],
-  );
+  const onConfirmDelete = useCallback(() => {
+    if (deletingIndex === null) return;
+
+    setConfig(oldConfig => {
+      return {
+        ...oldConfig,
+        tabs: oldConfig.tabs.map(tab => {
+          if (tab.slug !== tabSlug) {
+            return tab;
+          }
+
+          return {
+            ...tab,
+            components: tab.components.toSpliced(deletingIndex, 1),
+          };
+        }),
+      };
+    });
+    setDeletingIndex(null);
+  }, [setConfig, tabSlug, deletingIndex]);
 
   const onUpdateComponent = useCallback(
     (index: number, newList: GitHubSearchConfiguration) => {
@@ -101,6 +109,20 @@ export function Dashboard() {
     [setConfig, tabSlug, insertPosition],
   );
 
+  const onAddOrUpdateComponent = useCallback(
+    (component: any) => {
+      if (editingIndex !== null) {
+        // Update existing component
+        onUpdateComponent(editingIndex, component);
+        setEditingIndex(null);
+      } else {
+        // Add new component
+        onAddComponent(component);
+      }
+    },
+    [editingIndex, onUpdateComponent, onAddComponent],
+  );
+
   const onMoveComponent = useCallback(
     (fromIndex: number, toIndex: number) => {
       setConfig(oldConfig => {
@@ -133,7 +155,28 @@ export function Dashboard() {
 
   const onOpenAddDialog = useCallback(() => {
     setInsertPosition(null);
+    setEditingIndex(null);
     setIsAddDialogOpen(true);
+  }, []);
+
+  const onOpenEditDialog = useCallback((index: number) => {
+    setEditingIndex(index);
+    setIsAddDialogOpen(true);
+  }, []);
+
+  const onCloseDialog = useCallback(() => {
+    setIsAddDialogOpen(false);
+    setInsertPosition(null);
+    setEditingIndex(null);
+  }, []);
+
+  const getComponentName = useCallback((component: any): string => {
+    if ('variant' in component && 'markdown' in component) return 'Flash Message';
+    if ('organization' in component) return component.name || 'DevOps Pull Requests';
+    if ('type' in component && component.type === 'gh-branches')
+      return component.name || 'GitHub Branches';
+    if ('query' in component) return component.name || 'GitHub Search';
+    return 'Component';
   }, []);
 
   if (!githubPat && !devOpsPat) {
@@ -149,7 +192,13 @@ export function Dashboard() {
 
       if ('variant' in component) {
         componentElement = (
-          <FlashBlock key={index} variant={component.variant} markdown={component.markdown} />
+          <FlashBlock
+            key={index}
+            variant={component.variant}
+            markdown={component.markdown}
+            onEdit={() => onOpenEditDialog(index)}
+            onDelete={() => onDeleteComponent(index)}
+          />
         );
       } else if ('organization' in component) {
         if (!devOpsPat) {
@@ -157,10 +206,22 @@ export function Dashboard() {
           return null;
         }
         componentElement = (
-          <DevopsPullRequests key={index + component.organization} config={component} />
+          <DevopsPullRequests
+            key={index + component.organization}
+            config={component}
+            onEdit={() => onOpenEditDialog(index)}
+            onDelete={() => onDeleteComponent(index)}
+          />
         );
       } else if ('type' in component) {
-        componentElement = <GithubBranches key={index} config={component} />;
+        componentElement = (
+          <GithubBranches
+            key={index}
+            config={component}
+            onEdit={() => onOpenEditDialog(index)}
+            onDelete={() => onDeleteComponent(index)}
+          />
+        );
       } else {
         if (!githubPat) {
           hasHiddenGitHubComponents = true;
@@ -171,7 +232,7 @@ export function Dashboard() {
             key={index + component.query}
             list={component}
             onDelete={() => onDeleteComponent(index)}
-            onUpdate={newList => onUpdateComponent(index, newList)}
+            onEdit={() => onOpenEditDialog(index)}
           />
         );
       }
@@ -246,10 +307,7 @@ export function Dashboard() {
             <>
               <div className={css.lists}>{displayedComponents}</div>
               <div className={css.addButtonContainer}>
-                <Button
-                  leadingVisual={PlusIcon}
-                  onClick={onOpenAddDialog}
-                  sx={{ marginTop: 3 }}>
+                <Button leadingVisual={PlusIcon} onClick={onOpenAddDialog} sx={{ marginTop: 3 }}>
                   Add Component
                 </Button>
               </div>
@@ -268,12 +326,28 @@ export function Dashboard() {
 
           <ComponentConfigDialog
             isOpen={isAddDialogOpen}
-            onClose={() => {
-              setIsAddDialogOpen(false);
-              setInsertPosition(null);
-            }}
-            onSave={onAddComponent}
+            onClose={onCloseDialog}
+            onSave={onAddOrUpdateComponent}
+            key={editingIndex || 'null'}
+            initialConfig={
+              editingIndex !== null ? currentPage?.components[editingIndex] : undefined
+            }
           />
+
+          {deletingIndex !== null && currentPage?.components[deletingIndex] && (
+            <DeletionConfirmationDialog
+              onDelete={onConfirmDelete}
+              onCancel={() => setDeletingIndex(null)}
+              title="Delete Component?"
+              text={
+                <P>
+                  You are about to delete the{' '}
+                  {inspect(getComponentName(currentPage.components[deletingIndex]))} component. This
+                  action cannot be undone.
+                </P>
+              }
+            />
+          )}
         </PageLayout.Content>
       </PageLayout>
     </>
