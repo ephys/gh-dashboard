@@ -16,7 +16,7 @@ export function InlineUser(props: InlineUserProps) {
     <>
       {props.avatarUrl && (
         <>
-          <Avatar src={props.avatarUrl} size={16} sx={{ verticalAlign: 'middle' }} />{' '}
+          <Avatar src={props.avatarUrl} size={16} style={{ verticalAlign: 'middle' }} />{' '}
         </>
       )}
       {formatUserName({
@@ -27,7 +27,7 @@ export function InlineUser(props: InlineUserProps) {
       {props.isBot && (
         <>
           {' '}
-          <Label sx={{ font: 'inherit' }}>bot</Label>
+          <Label style={{ font: 'inherit' }}>bot</Label>
         </>
       )}
     </>

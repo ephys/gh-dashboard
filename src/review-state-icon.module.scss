@@ -1,0 +1,38 @@
+.badge {
+  align-items: center;
+  border-radius: 50%;
+  display: flex;
+  font-size: 10px;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
+}
+
+.approved {
+  background-color: var(--bgColor-success-emphasis, #1f883d);
+  color: var(--fgColor-onEmphasis, #ffffff);
+}
+
+.changesRequested {
+  background-color: var(--bgColor-danger-emphasis, #cf222e);
+  color: var(--fgColor-onEmphasis, #ffffff);
+}
+
+.commented {
+  background-color: var(--timelineBadge-bgColor, #eaeef2);
+  color: var(--fgColor-muted, #656d76);
+}
+
+.pending {
+  color: var(--fgColor-attention, #9a6700);
+}
+
+.rejected {
+  color: var(--fgColor-onEmphasis, #ffffff);
+  background-color: var(--bgColor-danger-emphasis, #cf222e);
+}
+
+.icon {
+  display: inline-flex;
+}
+

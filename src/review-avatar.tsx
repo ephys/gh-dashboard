@@ -1,4 +1,4 @@
-import { Avatar, Tooltip } from '@primer/react';
+import { Avatar, Link, Tooltip } from '@primer/react';
 import { useAppConfiguration } from './app-configuration.tsx';
 import { AvatarIcon } from './avatar-icon.tsx';
 import { formatUserName } from './format-user-name.tsx';
@@ -38,15 +38,17 @@ export function ReviewAvatar(props: ReviewAvatarProps) {
                     : ''
       }
       direction="nw">
-      <AvatarIcon
-        avatar={<Avatar src={reviewer.avatarUrl} size={32} />}
-        topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
-        bottomIcon={
-          state ? (
-            <ReviewStateIcon state={state} blockingCommentCount={props.blockingCommentCount} />
-          ) : null
-        }
-      />
+      <Link href={reviewer.avatarUrl} style={{ display: 'inline-flex' }}>
+        <AvatarIcon
+          avatar={<Avatar src={reviewer.avatarUrl} size={32} />}
+          topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
+          bottomIcon={
+            state ? (
+              <ReviewStateIcon state={state} blockingCommentCount={props.blockingCommentCount} />
+            ) : null
+          }
+        />
+      </Link>
     </Tooltip>
   );
 }

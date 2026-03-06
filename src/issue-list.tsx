@@ -1,34 +1,26 @@
-import {
-  CommentIcon,
-  KebabHorizontalIcon,
-  PencilIcon,
-  TrashIcon,
-  XIcon,
-} from '@primer/octicons-react';
+import { CommentIcon, KebabHorizontalIcon, XIcon } from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
-  Box,
   Flash,
   LabelGroup,
-  Octicon,
   Link as PrimerLink,
   RelativeTime,
   Text,
   Tooltip,
 } from '@primer/react';
-import { DataTable, Table, type Column } from '@primer/react/drafts';
+import { DataTable, Table, type Column } from '@primer/react/experimental';
 import { basicComparator } from '@sequelize/utils';
 import { useMemo, type ReactNode } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import { UserNameStyle } from './app-configuration.js';
 import { BranchButton } from './branch-button.js';
 import { formatUserName } from './format-user-name.js';
-import css from './github-issue-list.module.scss';
 import type { InlineUserProps } from './inline-user.tsx';
 import { InlineUser } from './inline-user.tsx';
 import type { IssueLabelProps } from './issue-label.tsx';
 import { IssueLabel } from './issue-label.tsx';
+import css from './issue-list.module.scss';
 import { P } from './markdown-components.tsx';
 import { Markdown } from './markdown.tsx';
 import { PendingReviewIcon } from './pending-review-icon.js';
@@ -55,6 +47,7 @@ export interface IssueListItem {
   autoMerge?: { at: string; by: InlineUserProps } | undefined;
   branchName?: string;
   checkStatus?: CheckStatus | undefined;
+  checksUrl: string;
   commentCount?: number;
   createdAt: string;
   failedChecks?: readonly FailedCheck[];
@@ -85,8 +78,7 @@ interface IssueListProps {
   issues: readonly IssueListItem[];
   loaded: boolean;
   name: ReactNode;
-
-  onOpenModal(this: void, id: 'edit' | 'delete'): void;
+  actions?: ReactNode;
 
   onPageChange(pageIndex: number): void;
 
@@ -97,15 +89,8 @@ interface IssueListProps {
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
 export function IssueList(props: IssueListProps) {
-  const {
-    onOpenModal,
-    totalCount,
-    countPerPage,
-    issues,
-    defaultRepository,
-    hideNumbers,
-    hideBranchNames,
-  } = props;
+  const { totalCount, countPerPage, issues, defaultRepository, hideNumbers, hideBranchNames } =
+    props;
 
   const COLUMNS: Array<Column<IssueListItem>> = useMemo(() => {
     return [
@@ -117,35 +102,33 @@ export function IssueList(props: IssueListProps) {
           const { labels, failedChecks, viewerReviewWaitTimes = 0 } = data;
 
           return (
-            <Box sx={{ display: 'flex', alignItems: 'start' }} data-unread={String(data.unread)}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexDirection: 'column',
-                  gap: '6px',
-                }}>
+            <div className={css.issueRow} data-unread={String(data.unread)}>
+              <div className={css.issueIconColumn}>
                 {data.icon}
                 {data.checkStatus === CheckStatus.failure ? (
                   <Tooltip text="Some checks failed" direction="ne">
-                    <ReviewStateIcon state={ReviewState.ChangesRequested} />
+                    <PrimerLink href={data.checksUrl} className={css.checksLink}>
+                      <ReviewStateIcon state={ReviewState.ChangesRequested} />
+                    </PrimerLink>
                   </Tooltip>
                 ) : data.checkStatus === CheckStatus.success ? (
                   <Tooltip text="All checks passed" direction="ne">
-                    <ReviewStateIcon state={ReviewState.Approved} />
+                    <PrimerLink href={data.checksUrl} className={css.checksLink}>
+                      <ReviewStateIcon state={ReviewState.Approved} />
+                    </PrimerLink>
                   </Tooltip>
                 ) : data.checkStatus === CheckStatus.pending ? (
                   <Tooltip text="Checks are running" direction="ne">
-                    <Box sx={{ height: '16px', alignItems: 'center', display: 'flex' }}>
+                    <PrimerLink href={data.checksUrl} className={css.checksLink}>
                       <PendingReviewIcon inProgress={false} />
-                    </Box>
+                    </PrimerLink>
                   </Tooltip>
                 ) : null}
-              </Box>
+              </div>
 
-              <Box sx={{ marginLeft: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Text as="div" sx={{ fontSize: 'var(--text-body-size-large)' }}>
+              <div className={css.issueContent}>
+                <div className={css.issueHeader}>
+                  <Text as="div" className={css.issueTitle}>
                     <PrimerLink href={data.url} className={css.titleLink}>
                       <Markdown>{data.title}</Markdown>
                     </PrimerLink>
@@ -158,30 +141,15 @@ export function IssueList(props: IssueListProps) {
                         username: data.autoMerge.by.username,
                       })}`}
                       direction="n">
-                      <Text
-                        as="p"
-                        sx={{
-                          margin: 0,
-                          borderColor: 'done.fg',
-                          borderStyle: 'solid',
-                          borderWidth: 1,
-                          color: 'done.fg',
-                          borderRadius: 1,
-                          padding: '0 4px',
-                          wordBreak: 'keep-all',
-                        }}>
-                        Auto-merge
-                      </Text>
+                      <PrimerLink href={data.url} className={css.autoMergeLink}>
+                        <Text as="p" className={css.autoMergeBadge}>
+                          Auto-merge
+                        </Text>
+                      </PrimerLink>
                     </Tooltip>
                   )}
-                </Box>
-                <Text
-                  as={P}
-                  sx={{
-                    color: 'fg.muted',
-                    fontSize: 'var(--text-body-size-small)',
-                    fontWeight: 'var(--base-text-weight-normal)',
-                  }}>
+                </div>
+                <Text as={P} className={css.issueMeta}>
                   {data.repository && data.repository.name !== defaultRepository && (
                     <>
                       <PrimerLink href={data.repository.url} className={css.titleLink}>
@@ -195,23 +163,22 @@ export function IssueList(props: IssueListProps) {
                       <BranchButton>{data.branchName}</BranchButton>{' '}
                     </>
                   )}
-                  opened {/* @ts-expect-error -- RelativeTime is badly typed */}
-                  <RelativeTime datetime={data.createdAt} /> by{' '}
+                  opened <RelativeTime datetime={data.createdAt} /> by{' '}
                   {intersperse(
                     data.authors.map(author => <InlineUser key={author.username} {...author} />),
                     ', ',
                   )}
                 </Text>
                 {Boolean(labels.length) && (
-                  <LabelGroup sx={{ mt: 1 }}>
+                  <LabelGroup className={css.labelGroup}>
                     {labels.map(label => (
                       <IssueLabel {...label} key={label.name} />
                     ))}
                   </LabelGroup>
                 )}
                 {Boolean(failedChecks?.length) && (
-                  <Box sx={{ mt: 2, alignItems: 'center', display: 'flex' }}>
-                    <Octicon icon={XIcon} sx={{ color: 'danger.emphasis' }} />{' '}
+                  <div className={css.failedChecksRow}>
+                    <XIcon className={css.failedCheckIcon} />{' '}
                     <span>
                       {intersperse(
                         failedChecks!.slice(0, 3).map((check, i) => (
@@ -223,7 +190,7 @@ export function IssueList(props: IssueListProps) {
                       )}
                       {failedChecks!.length > 3 && <>, and {failedChecks!.length - 3} more…</>}
                     </span>
-                  </Box>
+                  </div>
                 )}
                 {viewerReviewWaitTimes > ONE_DAY_MS * 2 ? (
                   <p className={css.slowReviewWarning}>
@@ -231,8 +198,8 @@ export function IssueList(props: IssueListProps) {
                     {formatDuration(viewerReviewWaitTimes, 'en', 1)}
                   </p>
                 ) : null}
-              </Box>
-            </Box>
+              </div>
+            </div>
           );
         },
         rowHeader: true,
@@ -259,30 +226,27 @@ export function IssueList(props: IssueListProps) {
           );
 
           return (
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <div className={css.reviewsRow}>
               {commentCount ? (
-                <Tooltip text={`${commentCount} non-review comments`}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      color: 'fg.muted',
-                      marginRight: 2,
-                    }}>
-                    <Octicon icon={CommentIcon} />
+                <Tooltip text={`${commentCount} non-review comments`} direction="w">
+                  <PrimerLink href={data.url} className={css.commentCountLink}>
+                    <CommentIcon />
                     {commentCount}
-                  </Box>
+                  </PrimerLink>
                 </Tooltip>
               ) : null}
               {sortedReviews.map(review => {
-                if (review.reviewer.isBot && !review.blockingCommentCount && review.state === ReviewState.Commented) {
+                if (
+                  review.reviewer.isBot &&
+                  !review.blockingCommentCount &&
+                  review.state === ReviewState.Commented
+                ) {
                   return null;
                 }
 
                 return <ReviewAvatar {...review} key={review.reviewer.username} />;
               })}
-            </Box>
+            </div>
           );
         },
       },
@@ -296,7 +260,7 @@ export function IssueList(props: IssueListProps) {
       </Table.Title>
       <Table.Subtitle id="repositories-subtitle">
         {props.description && (
-          <Text as="p" sx={{ margin: 0 }}>
+          <Text as="p" className={css.subtitleText}>
             {props.description}
           </Text>
         )}
@@ -306,20 +270,7 @@ export function IssueList(props: IssueListProps) {
       <Table.Actions>
         <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
           <ActionMenu.Overlay width="auto">
-            <ActionList>
-              <ActionList.Item onClick={() => onOpenModal('edit')}>
-                Edit
-                <ActionList.LeadingVisual>
-                  <PencilIcon />
-                </ActionList.LeadingVisual>
-              </ActionList.Item>
-              <ActionList.Item onSelect={() => onOpenModal('delete')} variant="danger">
-                Delete List
-                <ActionList.LeadingVisual>
-                  <TrashIcon />
-                </ActionList.LeadingVisual>
-              </ActionList.Item>
-            </ActionList>
+            <ActionList>{props.actions}</ActionList>
           </ActionMenu.Overlay>
         </ActionMenuIconButton>
       </Table.Actions>

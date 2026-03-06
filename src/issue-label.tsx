@@ -19,7 +19,6 @@ export function IssueLabel(props: IssueLabelProps) {
 
   return (
     <Label
-      sx={{ fontWeight: 'var(--base-text-weight-normal)' }}
       className={css.label}
       style={{
         '--label-r': r,

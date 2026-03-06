@@ -4,13 +4,13 @@ import type { ChangeEventHandler, ComponentProps } from 'react';
 export interface DevOpsPatFormControlProps {
   defaultValue?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
-  sx?: ComponentProps<typeof FormControl>['sx'];
+  style?: ComponentProps<typeof FormControl>['style'];
   value?: string;
 }
 
-export function DevOpsPatFormControl({ sx, ...passDown }: DevOpsPatFormControlProps) {
+export function DevOpsPatFormControl({ style, ...passDown }: DevOpsPatFormControlProps) {
   return (
-    <FormControl sx={sx}>
+    <FormControl style={style}>
       <FormControl.Label>Azure DevOps Personal Access Token</FormControl.Label>
       <FormControl.Caption>
         Your PAT is exclusively used to interact with the Azure DevOps API. It is stored in your

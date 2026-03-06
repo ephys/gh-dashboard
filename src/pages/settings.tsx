@@ -2,7 +2,6 @@ import { KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-rea
 import {
   ActionList,
   ActionMenu,
-  Box,
   Button,
   Dialog,
   FormControl,
@@ -124,9 +123,13 @@ export function Settings() {
       </PageLayout.Header>
       <PageLayout.Content>
         <GithubPatFormControl value={githubPat} onChange={onGithubPatChange} />
-        <DevOpsPatFormControl value={devOpsPat} onChange={onDevOpsPatChange} sx={{ mt: 3 }} />
+        <DevOpsPatFormControl
+          value={devOpsPat}
+          onChange={onDevOpsPatChange}
+          style={{ marginTop: 8 }}
+        />
 
-        <FormControl sx={{ mt: 3 }}>
+        <FormControl style={{ marginTop: 8 }}>
           <FormControl.Label>User Name Display</FormControl.Label>
           <Select block onChange={onUserNameStyleChange} value={appConfiguration.userNameStyle}>
             <Select.Option value={UserNameStyle.login}>Username</Select.Option>
@@ -145,7 +148,7 @@ export function Settings() {
           </FormControl.Caption>
         </FormControl>
 
-        <FormControl sx={{ mt: 3 }}>
+        <FormControl style={{ marginTop: 8 }}>
           <FormControl.Label>PR authors display</FormControl.Label>
           <Select block onChange={onAuthorsStyleChange} value={appConfiguration.prAuthorStyle}>
             <Select.Option value={PrAuthorStyle.creator}>Person that created the PR</Select.Option>
@@ -157,7 +160,7 @@ export function Settings() {
         <TabList />
 
         <form onSubmit={onAppConfigurationChange}>
-          <FormControl sx={{ mt: 3 }}>
+          <FormControl style={{ marginTop: 8 }}>
             <FormControl.Label>App Configuration</FormControl.Label>
             <Textarea
               block
@@ -166,7 +169,7 @@ export function Settings() {
               name="app-configuration"
             />
           </FormControl>
-          <Button type="submit" sx={{ marginTop: 2, marginLeft: 'auto' }}>
+          <Button type="submit" style={{ marginTop: 8, marginLeft: 'auto' }}>
             Save Configuration
           </Button>
         </form>
@@ -233,7 +236,7 @@ function TabList() {
 
   return (
     <>
-      <Heading as="h3" sx={{ marginTop: 3, fontSize: 1 }}>
+      <Heading as="h3" style={{ marginTop: 8, fontSize: 'var(--text-body-size-medium)' }}>
         Tabs
       </Heading>
       {/* TODO: drag & drop re-order */}
@@ -246,27 +249,27 @@ function TabList() {
       />
       <Button
         type="button"
-        sx={{ marginTop: 2, marginLeft: 'auto' }}
+        style={{ marginTop: 8, marginLeft: 'auto' }}
         onClick={() => setOpenModal('new')}>
         Add Tab
       </Button>
 
       {openModal === 'new' ? (
-        <NewTabDialog onDismiss={onCloseModal} />
+        <NewTabDialog onClose={onCloseModal} />
       ) : openModal === null ? null : openModal[0] === 'edit' ? (
-        <EditTabDialog index={openModal[1]} onDismiss={onCloseModal} />
+        <EditTabDialog index={openModal[1]} onClose={onCloseModal} />
       ) : (
-        <DeleteTabDialog index={openModal[1]} onDismiss={onCloseModal} />
+        <DeleteTabDialog index={openModal[1]} onClose={onCloseModal} />
       )}
     </>
   );
 }
 
 interface NewTabActionProps {
-  onDismiss(this: void): void;
+  onClose(this: void): void;
 }
 
-function NewTabDialog({ onDismiss }: NewTabActionProps) {
+function NewTabDialog({ onClose }: NewTabActionProps) {
   const [appConfiguration, setAppConfiguration] = useAppConfiguration();
 
   const onSubmit = useCallback(
@@ -308,21 +311,21 @@ function NewTabDialog({ onDismiss }: NewTabActionProps) {
         ],
       });
 
-      onDismiss();
+      onClose();
     },
-    [appConfiguration, onDismiss, setAppConfiguration],
+    [appConfiguration, onClose, setAppConfiguration],
   );
 
   return (
-    <Dialog isOpen onDismiss={onDismiss} aria-labelledby="header">
+    <Dialog onClose={onClose} aria-labelledby="header">
       <Dialog.Header id="header">New Tab</Dialog.Header>
-      <Box p={3} as="form" onSubmit={onSubmit}>
+      <form onSubmit={onSubmit}>
         <FormControl required>
           <FormControl.Label>Name</FormControl.Label>
           <TextInput block name="name" minLength={1} />
         </FormControl>
 
-        <FormControl sx={{ marginTop: 2 }}>
+        <FormControl style={{ marginTop: 8 }}>
           <FormControl.Label>Path</FormControl.Label>
           <FormControl.Caption>
             The URL pathname that leads to this tab. Accepts only numbers, dashes and lowercase
@@ -338,22 +341,22 @@ function NewTabDialog({ onDismiss }: NewTabActionProps) {
           />
         </FormControl>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8 }}>
           <Button type="submit">Save</Button>
-        </Box>
-      </Box>
+        </div>
+      </form>
     </Dialog>
   );
 }
 
 interface EditTabActionProps {
   index: number;
-  onDismiss(this: void): void;
+  onClose(this: void): void;
 }
 
 function EditTabDialog(props: EditTabActionProps) {
   const [appConfiguration, setAppConfiguration] = useAppConfiguration();
-  const { index, onDismiss } = props;
+  const { index, onClose } = props;
   const tab = appConfiguration.tabs[index];
 
   const onSubmit = useCallback(
@@ -392,21 +395,21 @@ function EditTabDialog(props: EditTabActionProps) {
         }),
       });
 
-      onDismiss();
+      onClose();
     },
-    [appConfiguration, index, onDismiss, setAppConfiguration, tab],
+    [appConfiguration, index, onClose, setAppConfiguration, tab],
   );
 
   return (
-    <Dialog isOpen onDismiss={onDismiss} aria-labelledby="header">
+    <Dialog onClose={onClose} aria-labelledby="header">
       <Dialog.Header id="header">Edit: {tab.name}</Dialog.Header>
-      <Box p={3} as="form" onSubmit={onSubmit}>
+      <form onSubmit={onSubmit}>
         <FormControl required>
           <FormControl.Label>Name</FormControl.Label>
           <TextInput block defaultValue={tab.name} name="name" minLength={1} />
         </FormControl>
 
-        <FormControl sx={{ marginTop: 2 }} required>
+        <FormControl style={{ marginTop: 8 }} required>
           <FormControl.Label>Path</FormControl.Label>
           <FormControl.Caption>
             The URL pathname that leads to this tab. Accepts only numbers, dashes and lowercase
@@ -423,17 +426,17 @@ function EditTabDialog(props: EditTabActionProps) {
           />
         </FormControl>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8 }}>
           <Button type="submit">Save</Button>
-        </Box>
-      </Box>
+        </div>
+      </form>
     </Dialog>
   );
 }
 
 function DeleteTabDialog(props: EditTabActionProps) {
   const [appConfiguration, setAppConfiguration] = useAppConfiguration();
-  const { index, onDismiss } = props;
+  const { index, onClose } = props;
   const tab = appConfiguration.tabs[index];
 
   const onDelete = useCallback(() => {
@@ -442,13 +445,13 @@ function DeleteTabDialog(props: EditTabActionProps) {
       tabs: appConfiguration.tabs.toSpliced(index, 1),
     });
 
-    onDismiss();
-  }, [appConfiguration, onDismiss, index, setAppConfiguration]);
+    onClose();
+  }, [appConfiguration, onClose, index, setAppConfiguration]);
 
   return (
     <DeletionConfirmationDialog
       onDelete={onDelete}
-      onCancel={onDismiss}
+      onCancel={onClose}
       title="Delete Tab?"
       text={
         <P>You are about to delete the {inspect(tab.name)} tab. This action cannot be undone.</P>

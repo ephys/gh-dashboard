@@ -1,4 +1,4 @@
-import { Box, Button, Dialog } from '@primer/react';
+import { Button, Dialog } from '@primer/react';
 import type { ReactNode } from 'react';
 import { useId } from 'react';
 import { P } from './markdown-components.tsx';
@@ -19,18 +19,18 @@ export function DeletionConfirmationDialog({
   const headerId = useId();
 
   return (
-    <Dialog isOpen onDismiss={onCancel} aria-labelledby={headerId}>
+    <Dialog onClose={onCancel} aria-labelledby={headerId}>
       <Dialog.Header id={headerId}>{title}</Dialog.Header>
-      <Box p={3}>
+      <div>
         {text}
         <P>Are you sure you want to proceed?</P>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8 }}>
           <Button onClick={onCancel}>Cancel</Button>
           <Button variant="danger" onClick={onDelete}>
             Delete
           </Button>
-        </Box>
-      </Box>
+        </div>
+      </div>
     </Dialog>
   );
 }

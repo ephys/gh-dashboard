@@ -1,6 +1,6 @@
 import { KeyIcon } from '@primer/octicons-react';
-import { Box, Button } from '@primer/react';
-import { Blankslate } from '@primer/react/drafts';
+import { Button } from '@primer/react';
+import { Blankslate } from '@primer/react/experimental';
 import { isString } from '@sequelize/utils';
 import type { FormEvent } from 'react';
 import { useCallback } from 'react';
@@ -50,13 +50,13 @@ export function BlankPatState() {
         <br />
         To get started, please enter your personal access token for the platforms you want to use.
       </Blankslate.Description>
-      <Box sx={{ marginTop: 4, width: '100%' }} as="form" onSubmit={onSubmit}>
+      <form style={{ marginTop: 4, width: '100%' }} onSubmit={onSubmit}>
         <GithubPatFormControl />
-        <DevOpsPatFormControl sx={{ marginTop: 3 }} />
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
+        <DevOpsPatFormControl style={{ marginTop: 8 }} />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8 }}>
           <Button type="submit">Save</Button>
-        </Box>
-      </Box>
+        </div>
+      </form>
     </Blankslate>
   );
 }

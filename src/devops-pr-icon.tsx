@@ -4,27 +4,26 @@ import {
   GitPullRequestDraftIcon,
   GitPullRequestIcon,
 } from '@primer/octicons-react';
-import type { OcticonProps } from '@primer/react';
-import { Octicon } from '@primer/react';
+import css from './devops-pr-icon.module.scss';
 
 interface DevopsPrIconProps {
   isDraft: boolean;
   status: 'active' | 'abandoned' | 'completed';
-  sx?: OcticonProps['sx'];
+  className?: string;
 }
 
 export function DevopsPrIcon(props: DevopsPrIconProps) {
   if (props.status === 'abandoned') {
-    return <Octicon icon={GitPullRequestClosedIcon} color="closed.fg" sx={props.sx} />;
+    return <GitPullRequestClosedIcon className={`${css.iconClosed} ${props.className || ''}`} />;
   }
 
   if (props.status === 'completed') {
-    return <Octicon icon={GitMergeIcon} color="done.fg" sx={props.sx} />;
+    return <GitMergeIcon className={`${css.iconDone} ${props.className || ''}`} />;
   }
 
   if (props.isDraft) {
-    return <Octicon icon={GitPullRequestDraftIcon} color="fg.muted" sx={props.sx} />;
+    return <GitPullRequestDraftIcon className={`${css.iconMuted} ${props.className || ''}`} />;
   }
 
-  return <Octicon icon={GitPullRequestIcon} color="open.fg" sx={props.sx} />;
+  return <GitPullRequestIcon className={`${css.iconOpen} ${props.className || ''}`} />;
 }

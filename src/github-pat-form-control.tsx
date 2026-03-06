@@ -4,13 +4,13 @@ import type { ChangeEventHandler, ComponentProps } from 'react';
 export interface GithubPatFormControlProps {
   defaultValue?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
-  sx?: ComponentProps<typeof FormControl>['sx'];
+  style?: ComponentProps<typeof FormControl>['style'];
   value?: string;
 }
 
-export function GithubPatFormControl({ sx, ...passDown }: GithubPatFormControlProps) {
+export function GithubPatFormControl({ style, ...passDown }: GithubPatFormControlProps) {
   return (
-    <FormControl sx={sx}>
+    <FormControl style={style}>
       <FormControl.Label>GitHub Personal Access Token</FormControl.Label>
       <FormControl.Caption>
         Your PAT is exclusively used to interact with the GitHub API. It is stored in your browser's

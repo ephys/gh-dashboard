@@ -1,30 +1,20 @@
 import { GearIcon, MarkGithubIcon } from '@primer/octicons-react';
-import { Header, IconButton, Octicon } from '@primer/react';
+import { Header, IconButton } from '@primer/react';
 import type { PropsWithChildren } from 'react';
 import { Link } from 'react-router-dom';
+import css from './layout.module.scss';
 
 export function Layout(props: PropsWithChildren) {
   return (
     <>
-      <Header sx={{ bg: 'canvas.default', color: '#ffffff' }}>
+      <Header className={css.header}>
         <Header.Item full>
-          <Header.Link
-            to="/"
-            as={Link}
-            sx={{
-              fontSize: 2,
-            }}>
-            <Octicon
-              icon={MarkGithubIcon}
-              size={32}
-              sx={{
-                mr: 2,
-              }}
-            />
+          <Header.Link to="/" as={Link}>
+            <MarkGithubIcon size={32} className={css.brandIcon} />
             <span>Dashboard</span>
           </Header.Link>
         </Header.Item>
-        <Header.Item sx={{ marginRight: 0 }}>
+        <Header.Item className={css.settingsItem}>
           <IconButton as={Link} to="/settings" aria-label="Settings" icon={GearIcon} />
         </Header.Item>
       </Header>

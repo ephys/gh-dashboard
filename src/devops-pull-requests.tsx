@@ -1,7 +1,8 @@
 import { EMPTY_ARRAY } from '@sequelize/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { DevOpsPullRequestsConfiguration } from './app-configuration.tsx';
 import { useDevOpsAvatars } from './devops-avatar-provider.tsx';
+import css from './devops-pr-icon.module.scss';
 import { DevopsPrIcon } from './devops-pr-icon.tsx';
 import type { IssueListItem } from './issue-list.tsx';
 import { IssueList } from './issue-list.tsx';
@@ -68,9 +69,10 @@ interface DevOpsPullRequestResponse {
 
 interface DevOpsPullRequestsProps {
   config: DevOpsPullRequestsConfiguration;
+  actions?: ReactNode;
 }
 
-export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
+export function DevopsPullRequests({ config, actions }: DevOpsPullRequestsProps) {
   const countPerPage = 100;
 
   const getDevOpsAvatar = useDevOpsAvatars();
@@ -102,6 +104,8 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
     }
 
     return data.value.map(pullRequest => {
+      const url = getWebPrUrl(pullRequest.url);
+
       return {
         authors: [
           {
@@ -112,14 +116,14 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
               getDevOpsAvatar(pullRequest.createdBy.imageUrl) ?? pullRequest.createdBy.imageUrl,
           },
         ],
-        url: getWebPrUrl(pullRequest.url),
+        url,
         id: String(pullRequest.pullRequestId),
         createdAt: pullRequest.creationDate,
         icon: (
           <DevopsPrIcon
             isDraft={pullRequest.isDraft}
             status={pullRequest.status}
-            sx={{ marginTop: 1 }}
+            className={css.iconWithMargin}
           />
         ),
         reviews: pullRequest.reviewers
@@ -143,6 +147,7 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
         title: pullRequest.title,
         labels: [],
         unread: false,
+        checksUrl: url,
       } satisfies IssueListItem;
     });
   }, [data?.value, getDevOpsAvatar]);
@@ -153,11 +158,11 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
       error={error}
       totalCount={data?.count ?? 0}
       loaded={Boolean(error || data)}
-      onOpenModal={() => alert('NYI')}
       onPageChange={setPage}
       name={config.name}
       issues={pullRequests}
       description={config.description}
+      actions={actions}
     />
   );
 }

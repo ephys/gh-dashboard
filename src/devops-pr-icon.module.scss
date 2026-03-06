@@ -1,0 +1,19 @@
+.iconClosed {
+  color: var(--fgColor-closed, #d1242f);
+}
+
+.iconDone {
+  color: var(--fgColor-done, #8250df);
+}
+
+.iconMuted {
+  color: var(--fgColor-muted, #656d76);
+}
+
+.iconOpen {
+  color: var(--fgColor-open, #1a7f37);
+}
+
+.iconWithMargin {
+  margin-top: 4px;
+}

@@ -7,8 +7,7 @@ import {
   IssueOpenedIcon,
   SkipIcon,
 } from '@primer/octicons-react';
-import type { OcticonProps } from '@primer/react';
-import { Octicon } from '@primer/react';
+import css from './github-issue-icon.module.scss';
 import type { FragmentType } from './gql/fragment-masking.ts';
 import { getFragmentData } from './gql/fragment-masking.ts';
 import { IssueState, IssueStateReason, PullRequestState } from './gql/graphql.ts';
@@ -29,7 +28,7 @@ export const IssueIconFragment = graphql(/* GraphQL */ `
 
 interface GithubIssueIconProps {
   issue: FragmentType<typeof IssueIconFragment>;
-  sx: OcticonProps['sx'];
+  className?: string;
 }
 
 export function GithubIssueIcon(props: GithubIssueIconProps) {
@@ -38,32 +37,34 @@ export function GithubIssueIcon(props: GithubIssueIconProps) {
   switch (issue.__typename) {
     case 'Issue':
       if (issue.issueState === IssueState.Open) {
-        return <Octicon icon={IssueOpenedIcon} color="open.fg" sx={props.sx} />;
+        return <IssueOpenedIcon className={`${css.iconOpen} ${props.className || ''}`} />;
       }
 
       if (issue.issueStateReason === IssueStateReason.Completed) {
-        return <Octicon icon={IssueClosedIcon} color="closed.fg" sx={props.sx} />;
+        return <IssueClosedIcon className={`${css.iconClosed} ${props.className || ''}`} />;
       }
 
       if (issue.issueStateReason === IssueStateReason.NotPlanned) {
-        return <Octicon icon={SkipIcon} color="fg.muted" sx={props.sx} />;
+        return <SkipIcon className={`${css.iconMuted} ${props.className || ''}`} />;
       }
 
       return null;
     case 'PullRequest':
       if (issue.prState === PullRequestState.Closed) {
-        return <Octicon icon={GitPullRequestClosedIcon} color="closed.fg" sx={props.sx} />;
+        return (
+          <GitPullRequestClosedIcon className={`${css.iconClosed} ${props.className || ''}`} />
+        );
       }
 
       if (issue.prState === PullRequestState.Merged) {
-        return <Octicon icon={GitMergeIcon} color="done.fg" sx={props.sx} />;
+        return <GitMergeIcon className={`${css.iconDone} ${props.className || ''}`} />;
       }
 
       if (issue.isDraft) {
-        return <Octicon icon={GitPullRequestDraftIcon} color="fg.muted" sx={props.sx} />;
+        return <GitPullRequestDraftIcon className={`${css.iconMuted} ${props.className || ''}`} />;
       }
 
-      return <Octicon icon={GitPullRequestIcon} color="open.fg" sx={props.sx} />;
+      return <GitPullRequestIcon className={`${css.iconOpen} ${props.className || ''}`} />;
 
     default:
       return null;

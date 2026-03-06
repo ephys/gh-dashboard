@@ -1,0 +1,100 @@
+.titleLink {
+  text-decoration: none !important;
+
+  font: inherit;
+
+  &:not(:hover) {
+    color: inherit;
+  }
+}
+
+.slowReviewWarning {
+  color: var(--fgColor-attention);
+  margin: var(--space-small) 0 0 0;
+}
+
+.failedCheckIcon {
+  color: var(--fgColor-danger, #d1242f);
+}
+
+.issueRow {
+  align-items: flex-start;
+  display: flex;
+}
+
+.issueIconColumn {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checksLink {
+  align-items: center;
+  display: inline-flex;
+  height: 16px;
+}
+
+.issueContent {
+  margin-left: 8px;
+}
+
+.issueHeader {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.issueTitle {
+  font-size: var(--text-body-size-large);
+}
+
+.autoMergeLink {
+  text-decoration: none;
+}
+
+.autoMergeBadge {
+  border-color: var(--fgColor-done, #8250df);
+  border-radius: 4px;
+  border-style: solid;
+  border-width: 1px;
+  color: var(--fgColor-done, #8250df);
+  margin: 0;
+  padding: 0 4px;
+  word-break: keep-all;
+}
+
+.issueMeta {
+  color: var(--fgColor-muted, #656d76);
+  font-size: var(--text-body-size-small);
+  font-weight: var(--base-text-weight-normal);
+}
+
+.labelGroup {
+  margin-top: 4px;
+}
+
+.failedChecksRow {
+  align-items: center;
+  display: flex;
+  margin-top: 8px;
+}
+
+.reviewsRow {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.commentCountLink {
+  align-items: center;
+  color: var(--fgColor-muted, #656d76);
+  display: flex;
+  gap: 4px;
+  margin-right: 8px;
+  text-decoration: none;
+}
+
+.subtitleText {
+  margin: 0;
+}

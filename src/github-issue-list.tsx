@@ -1,25 +1,16 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Dialog,
-  FormControl,
-  Text,
-  Textarea,
-  TextInput,
-} from '@primer/react';
+import { Text } from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
-import { EMPTY_ARRAY, inspect } from '@sequelize/utils';
-import { useCallback, useId, useMemo, useState, type FormEvent } from 'react';
+import { EMPTY_ARRAY } from '@sequelize/utils';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from 'urql';
 import {
   PrAuthorStyle,
   useAppConfiguration,
   type GitHubSearchConfiguration,
 } from './app-configuration.tsx';
-import { DeletionConfirmationDialog } from './deletion-confirmation-dialog.tsx';
 import { getGitHubInlineUser } from './github-inline-user.tsx';
 import { GithubIssueIcon } from './github-issue-icon.tsx';
+import css from './github-issue-list.module.scss';
 import {
   CheckConclusionState,
   PullRequestReviewState,
@@ -29,11 +20,10 @@ import {
 import { graphql } from './gql/index.ts';
 import type { InlineUserProps } from './inline-user.js';
 import { CheckStatus, IssueList, type FailedCheck, type IssueListItem } from './issue-list.tsx';
-import { InlineCode, P } from './markdown-components.tsx';
+import { InlineCode } from './markdown-components.js';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewState } from './review-state-icon.tsx';
-import { isLoadedUrql } from './urql/urql.utils.ts';
-import { getFormValues } from './utils/get-form-values.ts';
+import { isLoadedUrql } from './urql/urql.utils.js';
 
 const searchQuery = graphql(/* GraphQL */ `
   query searchIssuesAndPullRequests($query: String!, $first: Int!, $after: String!) {
@@ -224,11 +214,10 @@ type SearchResult = MakeNonNullish<
 
 export interface IssueListProps {
   list: GitHubSearchConfiguration;
-  onDelete(this: void): void;
-  onUpdate(this: void, list: GitHubSearchConfiguration): void;
+  actions?: ReactNode;
 }
 
-export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
+export function GithubIssueList({ list, actions }: IssueListProps) {
   const [appConfiguration] = useAppConfiguration();
 
   const countPerPage = list.countPerPage;
@@ -251,12 +240,6 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
   const viewerLogin = urqlSearch.data?.viewer.login;
   const nodes = (urqlSearch.data?.search.nodes ?? []) as SearchResult[];
   const totalCount = urqlSearch.data?.search.issueCount ?? 0;
-
-  const [openModalId, setOpenModalId] = useState<'edit' | 'delete' | ''>('');
-
-  const closeModal = useCallback(() => {
-    setOpenModalId('');
-  }, []);
 
   const issues: IssueListItem[] = useMemo(() => {
     return nodes.map(node => {
@@ -529,7 +512,7 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         commentCount: node.comments.totalCount,
         createdAt: node.createdAt,
         failedChecks,
-        icon: <GithubIssueIcon issue={node} sx={{ marginTop: 1 }} />,
+        icon: <GithubIssueIcon issue={node} className={css.iconWithMargin} />,
         id: node.id,
         labels: node.labels!.nodes!.map(label => {
           return {
@@ -548,37 +531,31 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
         unread: !node.isReadByViewer,
         viewerReviewWaitTimes,
         url: node.url,
+        checksUrl: node.__typename !== 'PullRequest' ? node.url : `${node.url}/checks`,
       };
     });
   }, [appConfiguration.prAuthorStyle, nodes, viewerLogin]);
 
   return (
-    <>
-      <IssueList
-        countPerPage={countPerPage}
-        error={error}
-        totalCount={totalCount}
-        defaultRepository={list.defaultRepository}
-        loaded={isLoadedUrql(urqlSearch)}
-        onOpenModal={setOpenModalId}
-        onPageChange={setPage}
-        name={list.name}
-        issues={issues}
-        description={list.description}
-        hideNumbers={list.hidePrNumbers}
-        hideBranchNames={list.hideBranchNames}
-        subtitle={
-          <Text as="p" sx={{ margin: 0 }}>
-            <InlineCode>{list.query}</InlineCode>
-          </Text>
-        }
-      />
-      {openModalId === 'delete' ? (
-        <DeleteListDialog onClose={closeModal} onDelete={onDelete} list={list} />
-      ) : openModalId === 'edit' ? (
-        <EditListDialog onClose={closeModal} onUpdate={onUpdate} list={list} />
-      ) : null}
-    </>
+    <IssueList
+      countPerPage={countPerPage}
+      error={error}
+      totalCount={totalCount}
+      loaded={isLoadedUrql(urqlSearch)}
+      onPageChange={setPage}
+      name={list.name}
+      subtitle={
+        <Text as="p" style={{ margin: 0 }}>
+          <InlineCode>{list.query}</InlineCode>
+        </Text>
+      }
+      issues={issues}
+      description={list.description}
+      hideBranchNames={list.hideBranchNames}
+      hideNumbers={list.hidePrNumbers}
+      defaultRepository={list.defaultRepository}
+      actions={actions}
+    />
   );
 }
 
@@ -599,114 +576,4 @@ function mapGitHubReviewState(state: PullRequestReviewState): ReviewState {
     case PullRequestReviewState.Dismissed:
       throw new Error('Unsupported state');
   }
-}
-
-interface DeleteListDialogProps {
-  list: GitHubSearchConfiguration;
-  onClose(this: void): void;
-  onDelete(this: void): void;
-}
-
-function DeleteListDialog({ list, onClose, onDelete: propsOnDelete }: DeleteListDialogProps) {
-  const onDelete = useCallback(() => {
-    propsOnDelete();
-    onClose();
-  }, [propsOnDelete, onClose]);
-
-  return (
-    <DeletionConfirmationDialog
-      onDelete={onDelete}
-      onCancel={onClose}
-      title="Delete List?"
-      text={
-        <P>You are about to delete the {inspect(list.name)} list. This action cannot be undone.</P>
-      }
-    />
-  );
-}
-
-interface EditListDialogProps {
-  list: GitHubSearchConfiguration;
-  onClose(this: void): void;
-  onUpdate(this: void, list: GitHubSearchConfiguration): void;
-}
-
-function EditListDialog({ list, onClose, onUpdate }: EditListDialogProps) {
-  const headerId = useId();
-
-  const onSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      const { showBranchNames, showPrNumbers, ...data } = getFormValues(event.currentTarget);
-
-      onUpdate({
-        ...data,
-        hidePrNumbers: !showPrNumbers,
-        hideBranchNames: !showBranchNames,
-      } as GitHubSearchConfiguration);
-      onClose();
-    },
-    [onClose, onUpdate],
-  );
-
-  return (
-    <Dialog isOpen onDismiss={onClose} aria-labelledby={headerId}>
-      <Dialog.Header id={headerId}>Edit List</Dialog.Header>
-      <Box p={3} as="form" onSubmit={onSubmit}>
-        <FormControl required>
-          <FormControl.Label>Name</FormControl.Label>
-          <TextInput block type="text" name="name" defaultValue={list.name} />
-        </FormControl>
-
-        <FormControl sx={{ marginTop: 2 }}>
-          <FormControl.Label>Description</FormControl.Label>
-          <TextInput block type="text" name="description" defaultValue={list.description} />
-        </FormControl>
-
-        <FormControl required sx={{ marginTop: 2 }}>
-          <FormControl.Label>Query</FormControl.Label>
-          <Textarea block name="query" defaultValue={list.query} />
-        </FormControl>
-
-        <FormControl required sx={{ marginTop: 2 }}>
-          <FormControl.Label>Results per page</FormControl.Label>
-          <TextInput
-            block
-            type="number"
-            step="1"
-            name="countPerPage"
-            defaultValue={list.countPerPage}
-            min="1"
-          />
-        </FormControl>
-
-        <FormControl sx={{ marginTop: 2 }}>
-          <FormControl.Label>Default repository</FormControl.Label>
-          <FormControl.Caption>
-            PRs from this repository will not display their repository name.
-          </FormControl.Caption>
-          <TextInput block name="defaultRepository" defaultValue={list.defaultRepository} />
-        </FormControl>
-
-        <Box sx={{ marginTop: 2 }}>
-          <FormControl>
-            <Checkbox value="showBranchNames" defaultChecked={!list.hideBranchNames} />
-            <FormControl.Label>Show branch names</FormControl.Label>
-          </FormControl>
-          <FormControl>
-            <Checkbox value="showPrNumbers" defaultChecked={!list.hidePrNumbers} />
-            <FormControl.Label>Show PR numbers</FormControl.Label>
-          </FormControl>
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, marginTop: 2 }}>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button variant="primary" type="submit">
-            Save
-          </Button>
-        </Box>
-      </Box>
-    </Dialog>
-  );
 }

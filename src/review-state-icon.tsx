@@ -1,6 +1,6 @@
 import { CheckIcon, DotFillIcon, EyeIcon, XIcon } from '@primer/octicons-react';
-import { Box, Octicon } from '@primer/react';
 import type { ComponentType } from 'react';
+import css from './review-state-icon.module.scss';
 
 export enum ReviewState {
   Approved = 'Approved',
@@ -21,36 +21,33 @@ interface ReviewStateIconProps {
 const ICONS: Record<
   ReviewState,
   {
-    bgColor?: string;
-    fgColor?: string;
-    icon: ComponentType;
+    badgeClassName?: string;
+    icon: ComponentType<{ className?: string; size?: number }>;
     iconSize: number;
   }
 > = {
   [ReviewState.Approved]: {
-    bgColor: 'success.emphasis',
-    fgColor: 'black',
+    badgeClassName: css.approved,
     icon: CheckIcon,
     iconSize: 12,
   },
   [ReviewState.ChangesRequested]: {
-    bgColor: 'danger.emphasis',
+    badgeClassName: css.changesRequested,
     icon: XIcon,
     iconSize: 8,
   },
   [ReviewState.Commented]: {
-    bgColor: 'var(--timelineBadge-bgColor)',
-    fgColor: 'var(--fgColor-muted)',
+    badgeClassName: css.commented,
     icon: EyeIcon,
     iconSize: 12,
   },
   [ReviewState.Pending]: {
-    fgColor: 'attention.emphasis',
+    badgeClassName: css.pending,
     icon: DotFillIcon,
     iconSize: 16,
   },
   [ReviewState.Rejected]: {
-    fgColor: 'black',
+    badgeClassName: css.rejected,
     icon: DotFillIcon,
     iconSize: 16,
   },
@@ -59,31 +56,18 @@ const ICONS: Record<
 export function ReviewStateIcon(props: ReviewStateIconProps) {
   const iconData = ICONS[props.state];
 
+  const Icon = iconData.icon;
+
   const icon =
     !props.blockingCommentCount ||
     props.state === 'Rejected' ||
     props.state === 'ChangesRequested' ? (
-      <Octicon icon={iconData.icon} size={iconData.iconSize} />
+      <Icon className={css.icon} size={iconData.iconSize} />
     ) : props.blockingCommentCount > 9 ? (
       '9+'
     ) : (
       props.blockingCommentCount
     );
 
-  return (
-    <Box
-      sx={{
-        alignItems: 'center',
-        backgroundColor: iconData.bgColor,
-        borderRadius: '50%',
-        color: iconData.fgColor,
-        display: 'flex',
-        justifyContent: 'center',
-        padding: 1,
-        size: 16,
-        fontSize: '10px',
-      }}>
-      {icon}
-    </Box>
-  );
+  return <div className={`${css.badge} ${iconData.badgeClassName ?? ''}`}>{icon}</div>;
 }

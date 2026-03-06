@@ -1,5 +1,12 @@
 .lists {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
+
+.addButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
