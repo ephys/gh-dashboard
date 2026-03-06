@@ -1,10 +1,13 @@
-import { Flash, PageLayout, Link as PrimerLink, UnderlineNav } from '@primer/react';
+import { PlusIcon } from '@primer/octicons-react';
+import { Button, Flash, PageLayout, Link as PrimerLink, UnderlineNav } from '@primer/react';
 import { Blankslate } from '@primer/react/drafts';
 import { isNotNullish, upcast } from '@sequelize/utils';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAppConfiguration, type GitHubSearchConfiguration } from '../app-configuration.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
+import { ComponentConfigDialog } from '../component-config-dialog.tsx';
+import { ComponentWrapper } from '../component-wrapper.tsx';
 import { DevopsPullRequests } from '../devops-pull-requests.tsx';
 import { FlashBlock } from '../flash-block.tsx';
 import { GithubBranches } from '../github-branches.js';
@@ -17,6 +20,8 @@ export function Dashboard() {
   const [config, setConfig] = useAppConfiguration();
   const [githubPat] = useGithubPat();
   const [devOpsPat] = useDevOpsPat();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [insertPosition, setInsertPosition] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const { tabSlug } = useParams();
@@ -73,6 +78,64 @@ export function Dashboard() {
     [setConfig, tabSlug],
   );
 
+  const onAddComponent = useCallback(
+    (component: any) => {
+      setConfig(oldConfig => {
+        return {
+          ...oldConfig,
+          tabs: oldConfig.tabs.map(tab => {
+            if (tab.slug !== tabSlug) {
+              return tab;
+            }
+
+            const position = insertPosition ?? tab.components.length;
+            return {
+              ...tab,
+              components: tab.components.toSpliced(position, 0, component),
+            };
+          }),
+        };
+      });
+      setInsertPosition(null);
+    },
+    [setConfig, tabSlug, insertPosition],
+  );
+
+  const onMoveComponent = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      setConfig(oldConfig => {
+        return {
+          ...oldConfig,
+          tabs: oldConfig.tabs.map(tab => {
+            if (tab.slug !== tabSlug) {
+              return tab;
+            }
+
+            const components = [...tab.components];
+            const [removed] = components.splice(fromIndex, 1);
+            components.splice(toIndex, 0, removed);
+
+            return {
+              ...tab,
+              components,
+            };
+          }),
+        };
+      });
+    },
+    [setConfig, tabSlug],
+  );
+
+  const onOpenInsertDialog = useCallback((position: number) => {
+    setInsertPosition(position);
+    setIsAddDialogOpen(true);
+  }, []);
+
+  const onOpenAddDialog = useCallback(() => {
+    setInsertPosition(null);
+    setIsAddDialogOpen(true);
+  }, []);
+
   if (!githubPat && !devOpsPat) {
     return <BlankPatState />;
   }
@@ -82,37 +145,47 @@ export function Dashboard() {
 
   const displayedComponents = currentPage?.components
     .map((component, index) => {
-      if ('variant' in component) {
-        return <FlashBlock key={index} variant={component.variant} markdown={component.markdown} />;
-      }
+      let componentElement: JSX.Element | null = null;
 
-      if ('organization' in component) {
+      if ('variant' in component) {
+        componentElement = (
+          <FlashBlock key={index} variant={component.variant} markdown={component.markdown} />
+        );
+      } else if ('organization' in component) {
         if (!devOpsPat) {
           hasHiddenDevOpsComponents = true;
-
           return null;
         }
-
-        return <DevopsPullRequests key={index + component.organization} config={component} />;
-      }
-
-      if ('type' in component) {
-        return <GithubBranches key={index} config={component} />;
-      }
-
-      if (!githubPat) {
-        hasHiddenGitHubComponents = true;
-
-        return null;
+        componentElement = (
+          <DevopsPullRequests key={index + component.organization} config={component} />
+        );
+      } else if ('type' in component) {
+        componentElement = <GithubBranches key={index} config={component} />;
+      } else {
+        if (!githubPat) {
+          hasHiddenGitHubComponents = true;
+          return null;
+        }
+        componentElement = (
+          <GithubIssueList
+            key={index + component.query}
+            list={component}
+            onDelete={() => onDeleteComponent(index)}
+            onUpdate={newList => onUpdateComponent(index, newList)}
+          />
+        );
       }
 
       return (
-        <GithubIssueList
-          key={index + component.query}
-          list={component}
-          onDelete={() => onDeleteComponent(index)}
-          onUpdate={newList => onUpdateComponent(index, newList)}
-        />
+        <ComponentWrapper
+          key={index}
+          canMoveUp={index > 0}
+          canMoveDown={index < (currentPage?.components.length ?? 0) - 1}
+          onMoveUp={() => onMoveComponent(index, index - 1)}
+          onMoveDown={() => onMoveComponent(index, index + 1)}
+          onInsertBefore={() => onOpenInsertDialog(index)}>
+          {componentElement}
+        </ComponentWrapper>
       );
     })
     .filter(isNotNullish);
@@ -170,16 +243,37 @@ export function Dashboard() {
           )}
 
           {hasContent ? (
-            <div className={css.lists}>{displayedComponents}</div>
+            <>
+              <div className={css.lists}>{displayedComponents}</div>
+              <div className={css.addButtonContainer}>
+                <Button
+                  leadingVisual={PlusIcon}
+                  onClick={onOpenAddDialog}
+                  sx={{ marginTop: 3 }}>
+                  Add Component
+                </Button>
+              </div>
+            </>
           ) : (
             <Blankslate>
               <Blankslate.Heading>Add your first block</Blankslate.Heading>
               <Blankslate.Description>
                 This page doesn't have any content yet. Add your first block to get started.
               </Blankslate.Description>
-              <Blankslate.PrimaryAction href="#">Add a block</Blankslate.PrimaryAction>
+              <Blankslate.PrimaryAction onClick={onOpenAddDialog}>
+                Add a block
+              </Blankslate.PrimaryAction>
             </Blankslate>
           )}
+
+          <ComponentConfigDialog
+            isOpen={isAddDialogOpen}
+            onClose={() => {
+              setIsAddDialogOpen(false);
+              setInsertPosition(null);
+            }}
+            onSave={onAddComponent}
+          />
         </PageLayout.Content>
       </PageLayout>
     </>
