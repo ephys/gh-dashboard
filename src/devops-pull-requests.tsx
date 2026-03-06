@@ -1,5 +1,5 @@
 import { EMPTY_ARRAY } from '@sequelize/utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { DevOpsPullRequestsConfiguration } from './app-configuration.tsx';
 import { useDevOpsAvatars } from './devops-avatar-provider.tsx';
 import { DevopsPrIcon } from './devops-pr-icon.tsx';
@@ -68,11 +68,10 @@ interface DevOpsPullRequestResponse {
 
 interface DevOpsPullRequestsProps {
   config: DevOpsPullRequestsConfiguration;
-  onDelete(): void;
-  onEdit(): void;
+  actions?: ReactNode;
 }
 
-export function DevopsPullRequests({ config, onDelete, onEdit }: DevOpsPullRequestsProps) {
+export function DevopsPullRequests({ config, actions }: DevOpsPullRequestsProps) {
   const countPerPage = 100;
 
   const getDevOpsAvatar = useDevOpsAvatars();
@@ -80,17 +79,6 @@ export function DevopsPullRequests({ config, onDelete, onEdit }: DevOpsPullReque
   const [error, setError] = useState<unknown>(null);
   const [data, setData] = useState<DevOpsPullRequestResponse | null>(null);
   const [page, setPage] = useState(0);
-
-  const handleOpenModal = useCallback(
-    (id: 'edit' | 'delete') => {
-      if (id === 'edit') {
-        onEdit();
-      } else if (id === 'delete') {
-        onDelete();
-      }
-    },
-    [onEdit, onDelete],
-  );
 
   useEffect(() => {
     fetch(
@@ -166,11 +154,11 @@ export function DevopsPullRequests({ config, onDelete, onEdit }: DevOpsPullReque
       error={error}
       totalCount={data?.count ?? 0}
       loaded={Boolean(error || data)}
-      onOpenModal={handleOpenModal}
       onPageChange={setPage}
       name={config.name}
       issues={pullRequests}
       description={config.description}
+      actions={actions}
     />
   );
 }

@@ -1,6 +1,8 @@
-import { PencilIcon, TrashIcon } from '@primer/octicons-react';
-import { Flash, IconButton } from '@primer/react';
+import { KebabHorizontalIcon } from '@primer/octicons-react';
+import { ActionList, ActionMenu, Flash } from '@primer/react';
+import type { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 
 export enum AlertVariant {
   info = 'info',
@@ -12,8 +14,7 @@ export enum AlertVariant {
 type AlertProps = {
   markdown: string;
   variant: AlertVariant;
-  onDelete(): void;
-  onEdit(): void;
+  actions?: ReactNode;
 };
 
 export function FlashBlock(props: AlertProps) {
@@ -23,26 +24,13 @@ export function FlashBlock(props: AlertProps) {
         <div style={{ flex: 1 }}>
           <ReactMarkdown>{props.markdown}</ReactMarkdown>
         </div>
-          <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
-            {props.onEdit && (
-              <IconButton
-                aria-label="Edit"
-                icon={PencilIcon}
-                size="small"
-                onClick={props.onEdit}
-                variant="invisible"
-              />
-            )}
-            {props.onDelete && (
-              <IconButton
-                aria-label="Delete"
-                icon={TrashIcon}
-                size="small"
-                onClick={props.onDelete}
-                variant="invisible"
-              />
-            )}
-          </div>
+        <div style={{ display: 'flex', marginLeft: '8px' }}>
+          <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
+            <ActionMenu.Overlay width="auto">
+              <ActionList>{props.actions}</ActionList>
+            </ActionMenu.Overlay>
+          </ActionMenuIconButton>
+        </div>
       </div>
     </Flash>
   );

@@ -9,7 +9,7 @@ import {
   TextInput,
 } from '@primer/react';
 import { parseSafeInteger } from '@sequelize/utils';
-import { useCallback, useEffect, useId, useState, type SubmitEvent } from 'react';
+import { useCallback, useId, useState, type SubmitEvent } from 'react';
 import { AlertVariant } from './flash-block.tsx';
 import { getFormValues } from './utils/get-form-values.ts';
 
@@ -52,6 +52,8 @@ export function ComponentConfigDialog({
       const formData = getFormValues(event.currentTarget);
       let config: any;
 
+      console.log(formData.hideBranchNames);
+
       switch (componentType) {
         case 'github-search':
           config = {
@@ -60,8 +62,8 @@ export function ComponentConfigDialog({
             description: formData.description || undefined,
             countPerPage: parseSafeInteger(String(formData.countPerPage)) ?? 10,
             defaultRepository: formData.defaultRepository || undefined,
-            hideBranchNames: formData.hideBranchNames === 'on',
-            hidePrNumbers: formData.hidePrNumbers === 'on',
+            hideBranchNames: formData.hideBranchNames,
+            hidePrNumbers: formData.hidePrNumbers,
           };
           break;
 
@@ -74,7 +76,7 @@ export function ComponentConfigDialog({
               .map((r: string) => r.trim())
               .filter(Boolean),
             branch: formData.branch || undefined,
-            onlyNoPr: formData.onlyNoPr === 'on',
+            onlyNoPr: formData.onlyNoPr,
           };
           break;
 
@@ -120,9 +122,7 @@ export function ComponentConfigDialog({
             </Select>
           </FormControl>
 
-          {componentType === 'github-search' && (
-            <GitHubSearchForm initialConfig={initialConfig} />
-          )}
+          {componentType === 'github-search' && <GitHubSearchForm initialConfig={initialConfig} />}
           {componentType === 'github-branches' && (
             <GitHubBranchesForm initialConfig={initialConfig} />
           )}
@@ -208,7 +208,10 @@ function GitHubSearchForm({ initialConfig }: { initialConfig?: any }) {
 
       <Box sx={{ marginTop: 3 }}>
         <FormControl>
-          <Checkbox name="hideBranchNames" defaultChecked={initialConfig?.hideBranchNames ?? false} />
+          <Checkbox
+            name="hideBranchNames"
+            defaultChecked={initialConfig?.hideBranchNames ?? false}
+          />
           <FormControl.Label>Hide branch names</FormControl.Label>
         </FormControl>
       </Box>
@@ -326,7 +329,3 @@ function FlashForm({ initialConfig }: { initialConfig?: any }) {
     </>
   );
 }
-
-
-
-

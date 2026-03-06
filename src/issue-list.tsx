@@ -1,10 +1,4 @@
-import {
-  CommentIcon,
-  KebabHorizontalIcon,
-  PencilIcon,
-  TrashIcon,
-  XIcon,
-} from '@primer/octicons-react';
+import { CommentIcon, KebabHorizontalIcon, XIcon } from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
@@ -85,8 +79,7 @@ interface IssueListProps {
   issues: readonly IssueListItem[];
   loaded: boolean;
   name: ReactNode;
-
-  onOpenModal(this: void, id: 'edit' | 'delete'): void;
+  actions?: ReactNode;
 
   onPageChange(pageIndex: number): void;
 
@@ -97,15 +90,8 @@ interface IssueListProps {
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
 export function IssueList(props: IssueListProps) {
-  const {
-    onOpenModal,
-    totalCount,
-    countPerPage,
-    issues,
-    defaultRepository,
-    hideNumbers,
-    hideBranchNames,
-  } = props;
+  const { totalCount, countPerPage, issues, defaultRepository, hideNumbers, hideBranchNames } =
+    props;
 
   const COLUMNS: Array<Column<IssueListItem>> = useMemo(() => {
     return [
@@ -276,7 +262,11 @@ export function IssueList(props: IssueListProps) {
                 </Tooltip>
               ) : null}
               {sortedReviews.map(review => {
-                if (review.reviewer.isBot && !review.blockingCommentCount && review.state === ReviewState.Commented) {
+                if (
+                  review.reviewer.isBot &&
+                  !review.blockingCommentCount &&
+                  review.state === ReviewState.Commented
+                ) {
                   return null;
                 }
 
@@ -306,20 +296,7 @@ export function IssueList(props: IssueListProps) {
       <Table.Actions>
         <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
           <ActionMenu.Overlay width="auto">
-            <ActionList>
-              <ActionList.Item onClick={() => onOpenModal('edit')}>
-                Edit
-                <ActionList.LeadingVisual>
-                  <PencilIcon />
-                </ActionList.LeadingVisual>
-              </ActionList.Item>
-              <ActionList.Item onSelect={() => onOpenModal('delete')} variant="danger">
-                Delete List
-                <ActionList.LeadingVisual>
-                  <TrashIcon />
-                </ActionList.LeadingVisual>
-              </ActionList.Item>
-            </ActionList>
+            <ActionList>{props.actions}</ActionList>
           </ActionMenu.Overlay>
         </ActionMenuIconButton>
       </Table.Actions>

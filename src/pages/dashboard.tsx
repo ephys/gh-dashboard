@@ -1,5 +1,18 @@
-import { PlusIcon } from '@primer/octicons-react';
-import { Button, Flash, PageLayout, Link as PrimerLink, UnderlineNav } from '@primer/react';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@primer/octicons-react';
+import {
+  ActionList,
+  Button,
+  Flash,
+  PageLayout,
+  Link as PrimerLink,
+  UnderlineNav,
+} from '@primer/react';
 import { Blankslate } from '@primer/react/drafts';
 import { inspect, isNotNullish, upcast } from '@sequelize/utils';
 import { useCallback, useEffect, useState } from 'react';
@@ -7,7 +20,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAppConfiguration, type GitHubSearchConfiguration } from '../app-configuration.tsx';
 import { BlankPatState } from '../blank-pat-state.tsx';
 import { ComponentConfigDialog } from '../component-config-dialog.tsx';
-import { ComponentWrapper } from '../component-wrapper.tsx';
 import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import { DevopsPullRequests } from '../devops-pull-requests.tsx';
 import { FlashBlock } from '../flash-block.tsx';
@@ -179,6 +191,45 @@ export function Dashboard() {
     return 'Component';
   }, []);
 
+  const buildActions = useCallback(
+    (index: number, canMoveUp: boolean, canMoveDown: boolean) => (
+      <>
+        <ActionList.Item onSelect={() => onOpenEditDialog(index)}>
+          Edit
+          <ActionList.LeadingVisual>
+            <PencilIcon />
+          </ActionList.LeadingVisual>
+        </ActionList.Item>
+        <ActionList.Item onSelect={() => onDeleteComponent(index)} variant="danger">
+          Delete
+          <ActionList.LeadingVisual>
+            <TrashIcon />
+          </ActionList.LeadingVisual>
+        </ActionList.Item>
+        <ActionList.Divider />
+        <ActionList.Item onSelect={() => onOpenInsertDialog(index)}>
+          Insert above
+          <ActionList.LeadingVisual>
+            <PlusIcon />
+          </ActionList.LeadingVisual>
+        </ActionList.Item>
+        <ActionList.Item onSelect={() => onMoveComponent(index, index - 1)} disabled={!canMoveUp}>
+          Move up
+          <ActionList.LeadingVisual>
+            <ChevronUpIcon />
+          </ActionList.LeadingVisual>
+        </ActionList.Item>
+        <ActionList.Item onSelect={() => onMoveComponent(index, index + 1)} disabled={!canMoveDown}>
+          Move down
+          <ActionList.LeadingVisual>
+            <ChevronDownIcon />
+          </ActionList.LeadingVisual>
+        </ActionList.Item>
+      </>
+    ),
+    [onOpenEditDialog, onDeleteComponent, onOpenInsertDialog, onMoveComponent],
+  );
+
   if (!githubPat && !devOpsPat) {
     return <BlankPatState />;
   }
@@ -188,16 +239,17 @@ export function Dashboard() {
 
   const displayedComponents = currentPage?.components
     .map((component, index) => {
-      let componentElement: JSX.Element | null = null;
+      const canMoveUp = index > 0;
+      const canMoveDown = index < (currentPage?.components.length ?? 0) - 1;
+      const actions = buildActions(index, canMoveUp, canMoveDown);
 
       if ('variant' in component) {
-        componentElement = (
+        return (
           <FlashBlock
             key={index}
             variant={component.variant}
             markdown={component.markdown}
-            onEdit={() => onOpenEditDialog(index)}
-            onDelete={() => onDeleteComponent(index)}
+            actions={actions}
           />
         );
       } else if ('organization' in component) {
@@ -205,49 +257,22 @@ export function Dashboard() {
           hasHiddenDevOpsComponents = true;
           return null;
         }
-        componentElement = (
+        return (
           <DevopsPullRequests
             key={index + component.organization}
             config={component}
-            onEdit={() => onOpenEditDialog(index)}
-            onDelete={() => onDeleteComponent(index)}
+            actions={actions}
           />
         );
       } else if ('type' in component) {
-        componentElement = (
-          <GithubBranches
-            key={index}
-            config={component}
-            onEdit={() => onOpenEditDialog(index)}
-            onDelete={() => onDeleteComponent(index)}
-          />
-        );
+        return <GithubBranches key={index} config={component} actions={actions} />;
       } else {
         if (!githubPat) {
           hasHiddenGitHubComponents = true;
           return null;
         }
-        componentElement = (
-          <GithubIssueList
-            key={index + component.query}
-            list={component}
-            onDelete={() => onDeleteComponent(index)}
-            onEdit={() => onOpenEditDialog(index)}
-          />
-        );
+        return <GithubIssueList key={index + component.query} list={component} actions={actions} />;
       }
-
-      return (
-        <ComponentWrapper
-          key={index}
-          canMoveUp={index > 0}
-          canMoveDown={index < (currentPage?.components.length ?? 0) - 1}
-          onMoveUp={() => onMoveComponent(index, index - 1)}
-          onMoveDown={() => onMoveComponent(index, index + 1)}
-          onInsertBefore={() => onOpenInsertDialog(index)}>
-          {componentElement}
-        </ComponentWrapper>
-      );
     })
     .filter(isNotNullish);
 

@@ -1,7 +1,6 @@
-import { Text } from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { EMPTY_ARRAY } from '@sequelize/utils';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from 'urql';
 import {
   PrAuthorStyle,
@@ -19,10 +18,8 @@ import {
 import { graphql } from './gql/index.ts';
 import type { InlineUserProps } from './inline-user.js';
 import { CheckStatus, IssueList, type FailedCheck, type IssueListItem } from './issue-list.tsx';
-import { InlineCode } from './markdown-components.tsx';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewState } from './review-state-icon.tsx';
-import { isLoadedUrql } from './urql/urql.utils.ts';
 
 const searchQuery = graphql(/* GraphQL */ `
   query searchIssuesAndPullRequests($query: String!, $first: Int!, $after: String!) {
@@ -213,11 +210,10 @@ type SearchResult = MakeNonNullish<
 
 export interface IssueListProps {
   list: GitHubSearchConfiguration;
-  onDelete(this: void): void;
-  onEdit(this: void): void;
+  actions?: ReactNode;
 }
 
-export function GithubIssueList({ list, onDelete, onEdit }: IssueListProps) {
+export function GithubIssueList({ list, actions }: IssueListProps) {
   const [appConfiguration] = useAppConfiguration();
 
   const countPerPage = list.countPerPage;
@@ -240,17 +236,6 @@ export function GithubIssueList({ list, onDelete, onEdit }: IssueListProps) {
   const viewerLogin = urqlSearch.data?.viewer.login;
   const nodes = (urqlSearch.data?.search.nodes ?? []) as SearchResult[];
   const totalCount = urqlSearch.data?.search.issueCount ?? 0;
-
-  const handleOpenModal = useCallback(
-    (id: 'edit' | 'delete') => {
-      if (id === 'edit') {
-        onEdit();
-      } else if (id === 'delete') {
-        onDelete();
-      }
-    },
-    [onEdit, onDelete],
-  );
 
   const issues: IssueListItem[] = useMemo(() => {
     return nodes.map(node => {
@@ -547,27 +532,20 @@ export function GithubIssueList({ list, onDelete, onEdit }: IssueListProps) {
   }, [appConfiguration.prAuthorStyle, nodes, viewerLogin]);
 
   return (
-    <>
-      <IssueList
-        countPerPage={countPerPage}
-        error={error}
-        totalCount={totalCount}
-        defaultRepository={list.defaultRepository}
-        loaded={isLoadedUrql(urqlSearch)}
-        onOpenModal={handleOpenModal}
-        onPageChange={setPage}
-        name={list.name}
-        issues={issues}
-        description={list.description}
-        hideNumbers={list.hidePrNumbers}
-        hideBranchNames={list.hideBranchNames}
-        subtitle={
-          <Text as="p" sx={{ margin: 0 }}>
-            <InlineCode>{list.query}</InlineCode>
-          </Text>
-        }
-      />
-    </>
+    <IssueList
+      countPerPage={countPerPage}
+      error={error}
+      totalCount={totalCount}
+      loaded={Boolean(error || urqlSearch.data)}
+      onPageChange={setPage}
+      name={list.name}
+      issues={issues}
+      description={list.description}
+      hideBranchNames={list.hideBranchNames}
+      hideNumbers={list.hidePrNumbers}
+      defaultRepository={list.defaultRepository}
+      actions={actions}
+    />
   );
 }
 

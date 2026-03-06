@@ -1,4 +1,4 @@
-import { KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-react';
+import { KebabHorizontalIcon } from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
@@ -12,6 +12,7 @@ import { DataTable, Table } from '@primer/react/drafts';
 import type { Column } from '@primer/react/lib-esm/DataTable/column.js';
 import type { UniqueRow } from '@primer/react/lib/DataTable/row.js';
 import type { MakeNonNullish } from '@sequelize/utils';
+import type { ReactNode } from 'react';
 import { useId } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.js';
 import type { GitHubBranchesConfiguration } from './app-configuration.js';
@@ -133,12 +134,10 @@ const COLUMNS: Array<Column<RefRow>> = [
 
 export function GithubBranches({
   config,
-  onDelete,
-  onEdit,
+  actions,
 }: {
   config: GitHubBranchesConfiguration;
-  onDelete(): void;
-  onEdit(): void;
+  actions?: ReactNode;
 }) {
   const [urqlSearch, refresh] = useUrqlQuery({
     query: searchQuery,
@@ -160,11 +159,9 @@ export function GithubBranches({
     return <Flash variant="danger">Failed to load content</Flash>;
   }
 
-  let renderedNodes = 0;
-
-  return nodes.map(repo => {
+  const repoEntries = nodes.flatMap(repo => {
     if (repo.__typename !== 'Repository' || !repo.refs?.nodes) {
-      return null;
+      return [];
     }
 
     const refs = repo.refs.nodes
@@ -194,6 +191,53 @@ export function GithubBranches({
         };
       }) as RefRow[];
 
+    return [
+      {
+        repo,
+        refs,
+      },
+    ];
+  });
+
+  if (repoEntries.length === 0) {
+    return (
+      <Table.Container>
+        <Table.Title as="h2" id={`${id}-empty`}>
+          {config.name || 'Unnamed'}
+        </Table.Title>
+        <Table.Subtitle id={`${id}-empty-subtitle`}>
+          <Text as="p" sx={{ margin: 0 }}>
+            No repositories found
+          </Text>
+        </Table.Subtitle>
+        <Table.Actions>
+          <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
+            <ActionMenu.Overlay width="auto">
+              <ActionList>{actions}</ActionList>
+            </ActionMenu.Overlay>
+          </ActionMenuIconButton>
+        </Table.Actions>
+        <Table>
+          <Table.Head>
+            <Table.Row>
+              <Table.Header>Results</Table.Header>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            <Table.Row>
+              <Table.Cell>
+                <Table.CellPlaceholder>Empty</Table.CellPlaceholder>
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table>
+      </Table.Container>
+    );
+  }
+
+  let renderedNodes = 0;
+
+  return repoEntries.map(({ repo, refs }) => {
     const isFirstNode = renderedNodes === 0;
 
     renderedNodes++;
@@ -217,20 +261,7 @@ export function GithubBranches({
           <Table.Actions>
             <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="More Actions">
               <ActionMenu.Overlay width="auto">
-                <ActionList>
-                  <ActionList.Item onSelect={onEdit}>
-                    Edit
-                    <ActionList.LeadingVisual>
-                      <PencilIcon />
-                    </ActionList.LeadingVisual>
-                  </ActionList.Item>
-                  <ActionList.Item onSelect={onDelete} variant="danger">
-                    Delete
-                    <ActionList.LeadingVisual>
-                      <TrashIcon />
-                    </ActionList.LeadingVisual>
-                  </ActionList.Item>
-                </ActionList>
+                <ActionList>{actions}</ActionList>
               </ActionMenu.Overlay>
             </ActionMenuIconButton>
           </Table.Actions>
