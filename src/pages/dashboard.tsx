@@ -34,7 +34,7 @@ export function Dashboard() {
   const [config, setConfig] = useAppConfiguration();
   const [githubPat] = useGithubPat();
   const [devOpsPat] = useDevOpsPat();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [componentConfigIsOpen, setComponentConfigIsOpen] = useState(false);
   const [insertPosition, setInsertPosition] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
@@ -162,22 +162,22 @@ export function Dashboard() {
 
   const onOpenInsertDialog = useCallback((position: number) => {
     setInsertPosition(position);
-    setIsAddDialogOpen(true);
+    setComponentConfigIsOpen(true);
   }, []);
 
   const onOpenAddDialog = useCallback(() => {
     setInsertPosition(null);
     setEditingIndex(null);
-    setIsAddDialogOpen(true);
+    setComponentConfigIsOpen(true);
   }, []);
 
   const onOpenEditDialog = useCallback((index: number) => {
     setEditingIndex(index);
-    setIsAddDialogOpen(true);
+    setComponentConfigIsOpen(true);
   }, []);
 
   const onCloseDialog = useCallback(() => {
-    setIsAddDialogOpen(false);
+    setComponentConfigIsOpen(false);
     setInsertPosition(null);
     setEditingIndex(null);
   }, []);
@@ -349,15 +349,16 @@ export function Dashboard() {
             </Blankslate>
           )}
 
-          <ComponentConfigDialog
-            isOpen={isAddDialogOpen}
-            onClose={onCloseDialog}
-            onSave={onAddOrUpdateComponent}
-            key={editingIndex || 'null'}
-            initialConfig={
-              editingIndex !== null ? currentPage?.components[editingIndex] : undefined
-            }
-          />
+          {componentConfigIsOpen && (
+            <ComponentConfigDialog
+              onClose={onCloseDialog}
+              onSave={onAddOrUpdateComponent}
+              key={editingIndex || 'null'}
+              initialConfig={
+                editingIndex !== null ? currentPage?.components[editingIndex] : undefined
+              }
+            />
+          )}
 
           {deletingIndex !== null && currentPage?.components[deletingIndex] && (
             <DeletionConfirmationDialog

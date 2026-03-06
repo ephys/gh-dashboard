@@ -18,7 +18,6 @@ export type ComponentType = 'github-search' | 'github-branches' | 'devops-prs' |
 export interface ComponentConfigDialogProps {
   initialConfig?: any;
   initialType?: ComponentType;
-  isOpen: boolean;
   onClose(): void;
   onSave(config: any): void;
 }
@@ -28,13 +27,10 @@ function detectComponentType(config: any): ComponentType {
   if ('variant' in config && 'markdown' in config) return 'flash';
   if ('organization' in config) return 'devops-prs';
   if ('type' in config && config.type === 'gh-branches') return 'github-branches';
-  // GitHub search has query field
-  if ('query' in config) return 'github-search';
   return 'github-search';
 }
 
 export function ComponentConfigDialog({
-  isOpen,
   onClose,
   onSave,
   initialConfig,
@@ -103,18 +99,17 @@ export function ComponentConfigDialog({
   );
 
   return (
-    <Dialog isOpen={isOpen} onDismiss={onClose} aria-labelledby={dialogId}>
+    <Dialog isOpen onDismiss={onClose} aria-labelledby={dialogId}>
       <Dialog.Header id={dialogId}>
         {initialConfig ? 'Edit Component' : 'Add Component'}
       </Dialog.Header>
       <form onSubmit={handleSubmit}>
         <Box sx={{ padding: 3 }}>
-          <FormControl required>
+          <FormControl required disabled={isEditing}>
             <FormControl.Label>Component Type</FormControl.Label>
             <Select
               value={componentType}
-              onChange={e => setComponentType(e.target.value as ComponentType)}
-              disabled={isEditing}>
+              onChange={e => setComponentType(e.target.value as ComponentType)}>
               <Select.Option value="github-search">GitHub Search / Issue List</Select.Option>
               <Select.Option value="github-branches">GitHub Branches</Select.Option>
               <Select.Option value="devops-prs">Azure DevOps Pull Requests</Select.Option>
@@ -169,7 +164,7 @@ function GitHubSearchForm({ initialConfig }: { initialConfig?: any }) {
           rows={3}
         />
         <FormControl.Caption>
-          GitHub search query (e.g., "is:pr is:open review-requested:@me")
+          GitHub issue query (e.g., "is:pr is:open review-requested:@me").
         </FormControl.Caption>
       </FormControl>
 
@@ -203,7 +198,9 @@ function GitHubSearchForm({ initialConfig }: { initialConfig?: any }) {
           placeholder="owner/repo"
           block
         />
-        <FormControl.Caption>Optional default repository for filtering</FormControl.Caption>
+        <FormControl.Caption>
+          We won’t show the repo name if the PR is from the default repository
+        </FormControl.Caption>
       </FormControl>
 
       <Box sx={{ marginTop: 3 }}>
