@@ -119,8 +119,12 @@ export function Dashboard() {
 
   const hasContent = Boolean(displayedComponents?.length);
 
+  const currentTab = config.tabs.find(tab => tab.slug === tabSlug);
+
   return (
     <>
+      <title>{currentTab?.name || 'Dashboard'}</title>
+
       {config.tabs.length > 1 && (
         <UnderlineNav
           aria-label="Search Tabs"
