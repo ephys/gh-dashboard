@@ -41,7 +41,7 @@ const searchQuery = graphql(/* GraphQL */ `
       id
       login
     }
-    search(query: $query, type: ISSUE, first: $first, after: $after) {
+    search(query: $query, type: ISSUE_ADVANCED, first: $first, after: $after) {
       issueCount
       pageInfo {
         endCursor
