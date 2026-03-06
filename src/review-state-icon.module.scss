@@ -10,12 +10,12 @@
 
 .approved {
   background-color: var(--bgColor-success-emphasis, #1f883d);
-  color: var(--fgColor-onEmphasis, #ffffff);
+  color: black;
 }
 
 .changesRequested {
   background-color: var(--bgColor-danger-emphasis, #cf222e);
-  color: var(--fgColor-onEmphasis, #ffffff);
+  color: black;
 }
 
 .commented {
