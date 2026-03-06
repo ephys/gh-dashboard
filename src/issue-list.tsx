@@ -276,6 +276,10 @@ export function IssueList(props: IssueListProps) {
                 </Tooltip>
               ) : null}
               {sortedReviews.map(review => {
+                if (review.reviewer.isBot && !review.blockingCommentCount && review.state === ReviewState.Commented) {
+                  return null;
+                }
+
                 return <ReviewAvatar {...review} key={review.reviewer.username} />;
               })}
             </Box>

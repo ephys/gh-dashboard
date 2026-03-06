@@ -302,7 +302,12 @@ export function GithubIssueList({ list, onDelete, onUpdate }: IssueListProps) {
               continue;
             }
 
-            if (!review.authorCanPushToRepository) {
+            if (
+              // This is a proxy for knowing whether the author's reviews have an impact
+              !review.authorCanPushToRepository &&
+              // bots typically cannot push to repository
+              review.author.__typename !== 'Bot'
+            ) {
               continue;
             }
 
