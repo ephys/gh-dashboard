@@ -1,3 +1,4 @@
+import { Text } from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { EMPTY_ARRAY } from '@sequelize/utils';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -18,8 +19,10 @@ import {
 import { graphql } from './gql/index.ts';
 import type { InlineUserProps } from './inline-user.js';
 import { CheckStatus, IssueList, type FailedCheck, type IssueListItem } from './issue-list.tsx';
+import { InlineCode } from './markdown-components.js';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewState } from './review-state-icon.tsx';
+import { isLoadedUrql } from './urql/urql.utils.js';
 
 const searchQuery = graphql(/* GraphQL */ `
   query searchIssuesAndPullRequests($query: String!, $first: Int!, $after: String!) {
@@ -536,9 +539,14 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
       countPerPage={countPerPage}
       error={error}
       totalCount={totalCount}
-      loaded={Boolean(error || urqlSearch.data)}
+      loaded={isLoadedUrql(urqlSearch)}
       onPageChange={setPage}
       name={list.name}
+      subtitle={
+        <Text as="p" sx={{ margin: 0 }}>
+          <InlineCode>{list.query}</InlineCode>
+        </Text>
+      }
       issues={issues}
       description={list.description}
       hideBranchNames={list.hideBranchNames}
