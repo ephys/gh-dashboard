@@ -1,5 +1,5 @@
 import { EMPTY_ARRAY } from '@sequelize/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { DevOpsPullRequestsConfiguration } from './app-configuration.tsx';
 import { useDevOpsAvatars } from './devops-avatar-provider.tsx';
 import { DevopsPrIcon } from './devops-pr-icon.tsx';
@@ -68,9 +68,10 @@ interface DevOpsPullRequestResponse {
 
 interface DevOpsPullRequestsProps {
   config: DevOpsPullRequestsConfiguration;
+  actions?: ReactNode;
 }
 
-export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
+export function DevopsPullRequests({ config, actions }: DevOpsPullRequestsProps) {
   const countPerPage = 100;
 
   const getDevOpsAvatar = useDevOpsAvatars();
@@ -153,11 +154,11 @@ export function DevopsPullRequests({ config }: DevOpsPullRequestsProps) {
       error={error}
       totalCount={data?.count ?? 0}
       loaded={Boolean(error || data)}
-      onOpenModal={() => alert('NYI')}
       onPageChange={setPage}
       name={config.name}
       issues={pullRequests}
       description={config.description}
+      actions={actions}
     />
   );
 }
