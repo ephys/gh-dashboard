@@ -10,6 +10,7 @@ export function UrqlProvider(props: PropsWithChildren) {
     return new Client({
       url: 'https://api.github.com/graphql',
       exchanges: [cacheExchange, fetchExchange],
+      preferGetMethod: false,
       fetchOptions: () => ({
         headers: {
           Authorization: `Bearer ${pat}`,
