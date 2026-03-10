@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -837,6 +837,8 @@ export type Agentic = {
   viewerCopilotAgentCreatesChannel?: Maybe<Scalars['String']['output']>;
   /** Channel value for subscribing to live updates for session log updates. */
   viewerCopilotAgentLogUpdatesChannel?: Maybe<Scalars['String']['output']>;
+  /** Channel value for subscribing to live updates for task updates. */
+  viewerCopilotAgentTaskUpdatesChannel?: Maybe<Scalars['String']['output']>;
   /** Channel value for subscribing to live updates for session updates. */
   viewerCopilotAgentUpdatesChannel?: Maybe<Scalars['String']['output']>;
 };
@@ -34858,6 +34860,8 @@ export type User = Actor & Agentic & Node & PackageOwner & ProfileOwner & Projec
   viewerCopilotAgentCreatesChannel?: Maybe<Scalars['String']['output']>;
   /** Channel value for subscribing to live updates for session log updates. */
   viewerCopilotAgentLogUpdatesChannel?: Maybe<Scalars['String']['output']>;
+  /** Channel value for subscribing to live updates for task updates. */
+  viewerCopilotAgentTaskUpdatesChannel?: Maybe<Scalars['String']['output']>;
   /** Channel value for subscribing to live updates for session updates. */
   viewerCopilotAgentUpdatesChannel?: Maybe<Scalars['String']['output']>;
   /** Whether or not this user is followed by the viewer. Inverse of isFollowingViewer. */
@@ -35961,11 +35965,16 @@ export type WorkflowsParametersInput = {
 
 export type _Entity = AddedToMergeQueueEvent | AddedToProjectEvent | AddedToProjectV2Event | App | AssignedEvent | AutoMergeDisabledEvent | AutoMergeEnabledEvent | AutoRebaseEnabledEvent | AutoSquashEnabledEvent | AutomaticBaseChangeFailedEvent | AutomaticBaseChangeSucceededEvent | BaseRefChangedEvent | BaseRefDeletedEvent | BaseRefForcePushedEvent | Blob | BlockedByAddedEvent | BlockedByRemovedEvent | BlockingAddedEvent | BlockingRemovedEvent | Bot | BranchProtectionRule | BypassForcePushAllowance | BypassPullRequestAllowance | Cwe | CheckRun | CheckSuite | ClosedEvent | CodeOfConduct | CommentDeletedEvent | Commit | CommitComment | CommitCommentThread | Comparison | ConnectedEvent | ConvertToDraftEvent | ConvertedFromDraftEvent | ConvertedNoteToIssueEvent | ConvertedToDiscussionEvent | CrossReferencedEvent | DemilestonedEvent | DependencyGraphManifest | DeployKey | DeployedEvent | Deployment | DeploymentEnvironmentChangedEvent | DeploymentReview | DeploymentStatus | DisconnectedEvent | Discussion | DiscussionCategory | DiscussionComment | DiscussionPoll | DiscussionPollOption | DraftIssue | Enterprise | EnterpriseAdministratorInvitation | EnterpriseIdentityProvider | EnterpriseMemberInvitation | EnterpriseRepositoryInfo | EnterpriseServerInstallation | EnterpriseServerUserAccount | EnterpriseServerUserAccountEmail | EnterpriseServerUserAccountsUpload | EnterpriseUserAccount | Environment | ExternalIdentity | Gist | GistComment | HeadRefDeletedEvent | HeadRefForcePushedEvent | HeadRefRestoredEvent | IpAllowListEntry | Issue | IssueComment | IssueType | IssueTypeAddedEvent | IssueTypeChangedEvent | IssueTypeRemovedEvent | Label | LabeledEvent | Language | License | LinkedBranch | LockedEvent | Mannequin | MarkedAsDuplicateEvent | MarketplaceCategory | MarketplaceListing | MemberFeatureRequestNotification | MembersCanDeleteReposClearAuditEntry | MembersCanDeleteReposDisableAuditEntry | MembersCanDeleteReposEnableAuditEntry | MentionedEvent | MergeQueue | MergeQueueEntry | MergedEvent | MigrationSource | Milestone | MilestonedEvent | MovedColumnsInProjectEvent | OidcProvider | OauthApplicationCreateAuditEntry | OrgAddBillingManagerAuditEntry | OrgAddMemberAuditEntry | OrgBlockUserAuditEntry | OrgConfigDisableCollaboratorsOnlyAuditEntry | OrgConfigEnableCollaboratorsOnlyAuditEntry | OrgCreateAuditEntry | OrgDisableOauthAppRestrictionsAuditEntry | OrgDisableSamlAuditEntry | OrgDisableTwoFactorRequirementAuditEntry | OrgEnableOauthAppRestrictionsAuditEntry | OrgEnableSamlAuditEntry | OrgEnableTwoFactorRequirementAuditEntry | OrgInviteMemberAuditEntry | OrgInviteToBusinessAuditEntry | OrgOauthAppAccessApprovedAuditEntry | OrgOauthAppAccessBlockedAuditEntry | OrgOauthAppAccessDeniedAuditEntry | OrgOauthAppAccessRequestedAuditEntry | OrgOauthAppAccessUnblockedAuditEntry | OrgRemoveBillingManagerAuditEntry | OrgRemoveMemberAuditEntry | OrgRemoveOutsideCollaboratorAuditEntry | OrgRestoreMemberAuditEntry | OrgUnblockUserAuditEntry | OrgUpdateDefaultRepositoryPermissionAuditEntry | OrgUpdateMemberAuditEntry | OrgUpdateMemberRepositoryCreationPermissionAuditEntry | OrgUpdateMemberRepositoryInvitationPermissionAuditEntry | Organization | OrganizationIdentityProvider | OrganizationInvitation | Package | PackageFile | PackageTag | PackageVersion | ParentIssueAddedEvent | ParentIssueRemovedEvent | PinnedDiscussion | PinnedEnvironment | PinnedEvent | PinnedIssue | PrivateRepositoryForkingDisableAuditEntry | PrivateRepositoryForkingEnableAuditEntry | Project | ProjectCard | ProjectColumn | ProjectV2 | ProjectV2Field | ProjectV2Item | ProjectV2ItemFieldDateValue | ProjectV2ItemFieldIterationValue | ProjectV2ItemFieldNumberValue | ProjectV2ItemFieldSingleSelectValue | ProjectV2ItemFieldTextValue | ProjectV2ItemStatusChangedEvent | ProjectV2IterationField | ProjectV2SingleSelectField | ProjectV2StatusUpdate | ProjectV2View | ProjectV2Workflow | PublicKey | PullRequest | PullRequestCommit | PullRequestCommitCommentThread | PullRequestReview | PullRequestReviewComment | PullRequestReviewThread | PullRequestThread | Push | PushAllowance | Query | Reaction | ReadyForReviewEvent | Ref | ReferencedEvent | Release | ReleaseAsset | RemovedFromMergeQueueEvent | RemovedFromProjectEvent | RemovedFromProjectV2Event | RenamedTitleEvent | ReopenedEvent | RepoAccessAuditEntry | RepoAddMemberAuditEntry | RepoAddTopicAuditEntry | RepoArchivedAuditEntry | RepoChangeMergeSettingAuditEntry | RepoConfigDisableAnonymousGitAccessAuditEntry | RepoConfigDisableCollaboratorsOnlyAuditEntry | RepoConfigDisableContributorsOnlyAuditEntry | RepoConfigDisableSockpuppetDisallowedAuditEntry | RepoConfigEnableAnonymousGitAccessAuditEntry | RepoConfigEnableCollaboratorsOnlyAuditEntry | RepoConfigEnableContributorsOnlyAuditEntry | RepoConfigEnableSockpuppetDisallowedAuditEntry | RepoConfigLockAnonymousGitAccessAuditEntry | RepoConfigUnlockAnonymousGitAccessAuditEntry | RepoCreateAuditEntry | RepoDestroyAuditEntry | RepoRemoveMemberAuditEntry | RepoRemoveTopicAuditEntry | Repository | RepositoryCustomProperty | RepositoryInvitation | RepositoryMigration | RepositoryRule | RepositoryRuleset | RepositoryRulesetBypassActor | RepositoryTopic | RepositoryVisibilityChangeDisableAuditEntry | RepositoryVisibilityChangeEnableAuditEntry | RepositoryVulnerabilityAlert | ReviewDismissalAllowance | ReviewDismissedEvent | ReviewRequest | ReviewRequestRemovedEvent | ReviewRequestedEvent | SavedReply | SecurityAdvisory | SponsorsActivity | SponsorsListing | SponsorsListingFeaturedItem | SponsorsTier | Sponsorship | SponsorshipNewsletter | Status | StatusCheckRollup | StatusContext | SubIssueAddedEvent | SubIssueRemovedEvent | SubscribedEvent | Team | TeamAddMemberAuditEntry | TeamAddRepositoryAuditEntry | TeamChangeParentTeamAuditEntry | TeamRemoveMemberAuditEntry | TeamRemoveRepositoryAuditEntry | Topic | TransferredEvent | Tree | UnassignedEvent | UnlabeledEvent | UnlockedEvent | UnmarkedAsDuplicateEvent | UnpinnedEvent | UnsubscribedEvent | User | UserBlockedEvent | UserContentEdit | UserList | UserNamespaceRepository | UserStatus | VerifiableDomain | Workflow | WorkflowRun | WorkflowRunFile;
 
-export type RefFragment = { __typename?: 'Ref', name: string, target?: { __typename?: 'Blob' } | { __typename?: 'Commit', committedDate: any, author?: { __typename?: 'GitActor', user?: (
-        { __typename?: 'User' }
-        & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-      ) | null } | null } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null, associatedPullRequests: { __typename?: 'PullRequestConnection', nodes?: Array<(
-      { __typename?: 'PullRequest', url: any, number: number }
+export type RefFragment = { __typename?: 'Ref', name: string, target?:
+    | { __typename?: 'Blob' }
+    | { __typename?: 'Commit', committedDate: any, author?: { __typename?: 'GitActor', user?: (
+          { __typename?: 'User' }
+          & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+        ) | null } | null }
+    | { __typename?: 'Tag' }
+    | { __typename?: 'Tree' }
+   | null, associatedPullRequests: { __typename?: 'PullRequestConnection', nodes?: Array<(
+      { __typename?: 'PullRequest', url: any, number: number, state: PullRequestState }
       & { ' $fragmentRefs'?: { 'IssueIcon_PullRequest_Fragment': IssueIcon_PullRequest_Fragment } }
     ) | null> | null } } & { ' $fragmentName'?: 'RefFragment' };
 
@@ -35976,10 +35985,19 @@ export type SearchBranchesQueryVariables = Exact<{
 }>;
 
 
-export type SearchBranchesQuery = { __typename?: 'Query', search: { __typename?: 'SearchResultItemConnection', nodes?: Array<{ __typename: 'App' } | { __typename: 'Discussion' } | { __typename: 'Issue' } | { __typename: 'MarketplaceListing' } | { __typename: 'Organization' } | { __typename: 'PullRequest' } | { __typename: 'Repository', nameWithOwner: string, url: any, defaultBranchRef?: { __typename?: 'Ref', name: string } | null, refs?: { __typename?: 'RefConnection', nodes?: Array<(
-          { __typename?: 'Ref' }
-          & { ' $fragmentRefs'?: { 'RefFragment': RefFragment } }
-        ) | null> | null } | null } | { __typename: 'User' } | null> | null } };
+export type SearchBranchesQuery = { __typename?: 'Query', search: { __typename?: 'SearchResultItemConnection', nodes?: Array<
+      | { __typename: 'App' }
+      | { __typename: 'Discussion' }
+      | { __typename: 'Issue' }
+      | { __typename: 'MarketplaceListing' }
+      | { __typename: 'Organization' }
+      | { __typename: 'PullRequest' }
+      | { __typename: 'Repository', nameWithOwner: string, url: any, defaultBranchRef?: { __typename?: 'Ref', name: string } | null, refs?: { __typename?: 'RefConnection', nodes?: Array<(
+            { __typename?: 'Ref' }
+            & { ' $fragmentRefs'?: { 'RefFragment': RefFragment } }
+          ) | null> | null } | null }
+      | { __typename: 'User' }
+     | null> | null } };
 
 type InlineUser_Bot_Fragment = { __typename?: 'Bot', login: string, avatarUrl: any } & { ' $fragmentName'?: 'InlineUser_Bot_Fragment' };
 
@@ -35991,7 +36009,13 @@ type InlineUser_Organization_Fragment = { __typename?: 'Organization', login: st
 
 type InlineUser_User_Fragment = { __typename?: 'User', name?: string | null, login: string, avatarUrl: any } & { ' $fragmentName'?: 'InlineUser_User_Fragment' };
 
-export type InlineUserFragment = InlineUser_Bot_Fragment | InlineUser_EnterpriseUserAccount_Fragment | InlineUser_Mannequin_Fragment | InlineUser_Organization_Fragment | InlineUser_User_Fragment;
+export type InlineUserFragment =
+  | InlineUser_Bot_Fragment
+  | InlineUser_EnterpriseUserAccount_Fragment
+  | InlineUser_Mannequin_Fragment
+  | InlineUser_Organization_Fragment
+  | InlineUser_User_Fragment
+;
 
 type IssueIcon_AddedToMergeQueueEvent_Fragment = { __typename?: 'AddedToMergeQueueEvent' } & { ' $fragmentName'?: 'IssueIcon_AddedToMergeQueueEvent_Fragment' };
 
@@ -36513,7 +36537,268 @@ type IssueIcon_WorkflowRun_Fragment = { __typename?: 'WorkflowRun' } & { ' $frag
 
 type IssueIcon_WorkflowRunFile_Fragment = { __typename?: 'WorkflowRunFile' } & { ' $fragmentName'?: 'IssueIcon_WorkflowRunFile_Fragment' };
 
-export type IssueIconFragment = IssueIcon_AddedToMergeQueueEvent_Fragment | IssueIcon_AddedToProjectEvent_Fragment | IssueIcon_AddedToProjectV2Event_Fragment | IssueIcon_App_Fragment | IssueIcon_AssignedEvent_Fragment | IssueIcon_AutoMergeDisabledEvent_Fragment | IssueIcon_AutoMergeEnabledEvent_Fragment | IssueIcon_AutoRebaseEnabledEvent_Fragment | IssueIcon_AutoSquashEnabledEvent_Fragment | IssueIcon_AutomaticBaseChangeFailedEvent_Fragment | IssueIcon_AutomaticBaseChangeSucceededEvent_Fragment | IssueIcon_BaseRefChangedEvent_Fragment | IssueIcon_BaseRefDeletedEvent_Fragment | IssueIcon_BaseRefForcePushedEvent_Fragment | IssueIcon_Blob_Fragment | IssueIcon_BlockedByAddedEvent_Fragment | IssueIcon_BlockedByRemovedEvent_Fragment | IssueIcon_BlockingAddedEvent_Fragment | IssueIcon_BlockingRemovedEvent_Fragment | IssueIcon_Bot_Fragment | IssueIcon_BranchProtectionRule_Fragment | IssueIcon_BypassForcePushAllowance_Fragment | IssueIcon_BypassPullRequestAllowance_Fragment | IssueIcon_Cwe_Fragment | IssueIcon_CheckRun_Fragment | IssueIcon_CheckSuite_Fragment | IssueIcon_ClosedEvent_Fragment | IssueIcon_CodeOfConduct_Fragment | IssueIcon_CommentDeletedEvent_Fragment | IssueIcon_Commit_Fragment | IssueIcon_CommitComment_Fragment | IssueIcon_CommitCommentThread_Fragment | IssueIcon_Comparison_Fragment | IssueIcon_ConnectedEvent_Fragment | IssueIcon_ConvertToDraftEvent_Fragment | IssueIcon_ConvertedFromDraftEvent_Fragment | IssueIcon_ConvertedNoteToIssueEvent_Fragment | IssueIcon_ConvertedToDiscussionEvent_Fragment | IssueIcon_CrossReferencedEvent_Fragment | IssueIcon_DemilestonedEvent_Fragment | IssueIcon_DependencyGraphManifest_Fragment | IssueIcon_DeployKey_Fragment | IssueIcon_DeployedEvent_Fragment | IssueIcon_Deployment_Fragment | IssueIcon_DeploymentEnvironmentChangedEvent_Fragment | IssueIcon_DeploymentReview_Fragment | IssueIcon_DeploymentStatus_Fragment | IssueIcon_DisconnectedEvent_Fragment | IssueIcon_Discussion_Fragment | IssueIcon_DiscussionCategory_Fragment | IssueIcon_DiscussionComment_Fragment | IssueIcon_DiscussionPoll_Fragment | IssueIcon_DiscussionPollOption_Fragment | IssueIcon_DraftIssue_Fragment | IssueIcon_Enterprise_Fragment | IssueIcon_EnterpriseAdministratorInvitation_Fragment | IssueIcon_EnterpriseIdentityProvider_Fragment | IssueIcon_EnterpriseMemberInvitation_Fragment | IssueIcon_EnterpriseRepositoryInfo_Fragment | IssueIcon_EnterpriseServerInstallation_Fragment | IssueIcon_EnterpriseServerUserAccount_Fragment | IssueIcon_EnterpriseServerUserAccountEmail_Fragment | IssueIcon_EnterpriseServerUserAccountsUpload_Fragment | IssueIcon_EnterpriseUserAccount_Fragment | IssueIcon_Environment_Fragment | IssueIcon_ExternalIdentity_Fragment | IssueIcon_Gist_Fragment | IssueIcon_GistComment_Fragment | IssueIcon_HeadRefDeletedEvent_Fragment | IssueIcon_HeadRefForcePushedEvent_Fragment | IssueIcon_HeadRefRestoredEvent_Fragment | IssueIcon_IpAllowListEntry_Fragment | IssueIcon_Issue_Fragment | IssueIcon_IssueComment_Fragment | IssueIcon_IssueType_Fragment | IssueIcon_IssueTypeAddedEvent_Fragment | IssueIcon_IssueTypeChangedEvent_Fragment | IssueIcon_IssueTypeRemovedEvent_Fragment | IssueIcon_Label_Fragment | IssueIcon_LabeledEvent_Fragment | IssueIcon_Language_Fragment | IssueIcon_License_Fragment | IssueIcon_LinkedBranch_Fragment | IssueIcon_LockedEvent_Fragment | IssueIcon_Mannequin_Fragment | IssueIcon_MarkedAsDuplicateEvent_Fragment | IssueIcon_MarketplaceCategory_Fragment | IssueIcon_MarketplaceListing_Fragment | IssueIcon_MemberFeatureRequestNotification_Fragment | IssueIcon_MembersCanDeleteReposClearAuditEntry_Fragment | IssueIcon_MembersCanDeleteReposDisableAuditEntry_Fragment | IssueIcon_MembersCanDeleteReposEnableAuditEntry_Fragment | IssueIcon_MentionedEvent_Fragment | IssueIcon_MergeQueue_Fragment | IssueIcon_MergeQueueEntry_Fragment | IssueIcon_MergedEvent_Fragment | IssueIcon_MigrationSource_Fragment | IssueIcon_Milestone_Fragment | IssueIcon_MilestonedEvent_Fragment | IssueIcon_MovedColumnsInProjectEvent_Fragment | IssueIcon_OidcProvider_Fragment | IssueIcon_OauthApplicationCreateAuditEntry_Fragment | IssueIcon_OrgAddBillingManagerAuditEntry_Fragment | IssueIcon_OrgAddMemberAuditEntry_Fragment | IssueIcon_OrgBlockUserAuditEntry_Fragment | IssueIcon_OrgConfigDisableCollaboratorsOnlyAuditEntry_Fragment | IssueIcon_OrgConfigEnableCollaboratorsOnlyAuditEntry_Fragment | IssueIcon_OrgCreateAuditEntry_Fragment | IssueIcon_OrgDisableOauthAppRestrictionsAuditEntry_Fragment | IssueIcon_OrgDisableSamlAuditEntry_Fragment | IssueIcon_OrgDisableTwoFactorRequirementAuditEntry_Fragment | IssueIcon_OrgEnableOauthAppRestrictionsAuditEntry_Fragment | IssueIcon_OrgEnableSamlAuditEntry_Fragment | IssueIcon_OrgEnableTwoFactorRequirementAuditEntry_Fragment | IssueIcon_OrgInviteMemberAuditEntry_Fragment | IssueIcon_OrgInviteToBusinessAuditEntry_Fragment | IssueIcon_OrgOauthAppAccessApprovedAuditEntry_Fragment | IssueIcon_OrgOauthAppAccessBlockedAuditEntry_Fragment | IssueIcon_OrgOauthAppAccessDeniedAuditEntry_Fragment | IssueIcon_OrgOauthAppAccessRequestedAuditEntry_Fragment | IssueIcon_OrgOauthAppAccessUnblockedAuditEntry_Fragment | IssueIcon_OrgRemoveBillingManagerAuditEntry_Fragment | IssueIcon_OrgRemoveMemberAuditEntry_Fragment | IssueIcon_OrgRemoveOutsideCollaboratorAuditEntry_Fragment | IssueIcon_OrgRestoreMemberAuditEntry_Fragment | IssueIcon_OrgUnblockUserAuditEntry_Fragment | IssueIcon_OrgUpdateDefaultRepositoryPermissionAuditEntry_Fragment | IssueIcon_OrgUpdateMemberAuditEntry_Fragment | IssueIcon_OrgUpdateMemberRepositoryCreationPermissionAuditEntry_Fragment | IssueIcon_OrgUpdateMemberRepositoryInvitationPermissionAuditEntry_Fragment | IssueIcon_Organization_Fragment | IssueIcon_OrganizationIdentityProvider_Fragment | IssueIcon_OrganizationInvitation_Fragment | IssueIcon_OrganizationMigration_Fragment | IssueIcon_Package_Fragment | IssueIcon_PackageFile_Fragment | IssueIcon_PackageTag_Fragment | IssueIcon_PackageVersion_Fragment | IssueIcon_ParentIssueAddedEvent_Fragment | IssueIcon_ParentIssueRemovedEvent_Fragment | IssueIcon_PinnedDiscussion_Fragment | IssueIcon_PinnedEnvironment_Fragment | IssueIcon_PinnedEvent_Fragment | IssueIcon_PinnedIssue_Fragment | IssueIcon_PrivateRepositoryForkingDisableAuditEntry_Fragment | IssueIcon_PrivateRepositoryForkingEnableAuditEntry_Fragment | IssueIcon_Project_Fragment | IssueIcon_ProjectCard_Fragment | IssueIcon_ProjectColumn_Fragment | IssueIcon_ProjectV2_Fragment | IssueIcon_ProjectV2Field_Fragment | IssueIcon_ProjectV2Item_Fragment | IssueIcon_ProjectV2ItemFieldDateValue_Fragment | IssueIcon_ProjectV2ItemFieldIterationValue_Fragment | IssueIcon_ProjectV2ItemFieldNumberValue_Fragment | IssueIcon_ProjectV2ItemFieldSingleSelectValue_Fragment | IssueIcon_ProjectV2ItemFieldTextValue_Fragment | IssueIcon_ProjectV2ItemStatusChangedEvent_Fragment | IssueIcon_ProjectV2IterationField_Fragment | IssueIcon_ProjectV2SingleSelectField_Fragment | IssueIcon_ProjectV2StatusUpdate_Fragment | IssueIcon_ProjectV2View_Fragment | IssueIcon_ProjectV2Workflow_Fragment | IssueIcon_PublicKey_Fragment | IssueIcon_PullRequest_Fragment | IssueIcon_PullRequestCommit_Fragment | IssueIcon_PullRequestCommitCommentThread_Fragment | IssueIcon_PullRequestReview_Fragment | IssueIcon_PullRequestReviewComment_Fragment | IssueIcon_PullRequestReviewThread_Fragment | IssueIcon_PullRequestThread_Fragment | IssueIcon_Push_Fragment | IssueIcon_PushAllowance_Fragment | IssueIcon_Query_Fragment | IssueIcon_Reaction_Fragment | IssueIcon_ReadyForReviewEvent_Fragment | IssueIcon_Ref_Fragment | IssueIcon_ReferencedEvent_Fragment | IssueIcon_Release_Fragment | IssueIcon_ReleaseAsset_Fragment | IssueIcon_RemovedFromMergeQueueEvent_Fragment | IssueIcon_RemovedFromProjectEvent_Fragment | IssueIcon_RemovedFromProjectV2Event_Fragment | IssueIcon_RenamedTitleEvent_Fragment | IssueIcon_ReopenedEvent_Fragment | IssueIcon_RepoAccessAuditEntry_Fragment | IssueIcon_RepoAddMemberAuditEntry_Fragment | IssueIcon_RepoAddTopicAuditEntry_Fragment | IssueIcon_RepoArchivedAuditEntry_Fragment | IssueIcon_RepoChangeMergeSettingAuditEntry_Fragment | IssueIcon_RepoConfigDisableAnonymousGitAccessAuditEntry_Fragment | IssueIcon_RepoConfigDisableCollaboratorsOnlyAuditEntry_Fragment | IssueIcon_RepoConfigDisableContributorsOnlyAuditEntry_Fragment | IssueIcon_RepoConfigDisableSockpuppetDisallowedAuditEntry_Fragment | IssueIcon_RepoConfigEnableAnonymousGitAccessAuditEntry_Fragment | IssueIcon_RepoConfigEnableCollaboratorsOnlyAuditEntry_Fragment | IssueIcon_RepoConfigEnableContributorsOnlyAuditEntry_Fragment | IssueIcon_RepoConfigEnableSockpuppetDisallowedAuditEntry_Fragment | IssueIcon_RepoConfigLockAnonymousGitAccessAuditEntry_Fragment | IssueIcon_RepoConfigUnlockAnonymousGitAccessAuditEntry_Fragment | IssueIcon_RepoCreateAuditEntry_Fragment | IssueIcon_RepoDestroyAuditEntry_Fragment | IssueIcon_RepoRemoveMemberAuditEntry_Fragment | IssueIcon_RepoRemoveTopicAuditEntry_Fragment | IssueIcon_Repository_Fragment | IssueIcon_RepositoryCustomProperty_Fragment | IssueIcon_RepositoryInvitation_Fragment | IssueIcon_RepositoryMigration_Fragment | IssueIcon_RepositoryRule_Fragment | IssueIcon_RepositoryRuleset_Fragment | IssueIcon_RepositoryRulesetBypassActor_Fragment | IssueIcon_RepositoryTopic_Fragment | IssueIcon_RepositoryVisibilityChangeDisableAuditEntry_Fragment | IssueIcon_RepositoryVisibilityChangeEnableAuditEntry_Fragment | IssueIcon_RepositoryVulnerabilityAlert_Fragment | IssueIcon_ReviewDismissalAllowance_Fragment | IssueIcon_ReviewDismissedEvent_Fragment | IssueIcon_ReviewRequest_Fragment | IssueIcon_ReviewRequestRemovedEvent_Fragment | IssueIcon_ReviewRequestedEvent_Fragment | IssueIcon_SavedReply_Fragment | IssueIcon_SecurityAdvisory_Fragment | IssueIcon_SponsorsActivity_Fragment | IssueIcon_SponsorsListing_Fragment | IssueIcon_SponsorsListingFeaturedItem_Fragment | IssueIcon_SponsorsTier_Fragment | IssueIcon_Sponsorship_Fragment | IssueIcon_SponsorshipNewsletter_Fragment | IssueIcon_Status_Fragment | IssueIcon_StatusCheckRollup_Fragment | IssueIcon_StatusContext_Fragment | IssueIcon_SubIssueAddedEvent_Fragment | IssueIcon_SubIssueRemovedEvent_Fragment | IssueIcon_SubscribedEvent_Fragment | IssueIcon_Tag_Fragment | IssueIcon_Team_Fragment | IssueIcon_TeamAddMemberAuditEntry_Fragment | IssueIcon_TeamAddRepositoryAuditEntry_Fragment | IssueIcon_TeamChangeParentTeamAuditEntry_Fragment | IssueIcon_TeamRemoveMemberAuditEntry_Fragment | IssueIcon_TeamRemoveRepositoryAuditEntry_Fragment | IssueIcon_Topic_Fragment | IssueIcon_TransferredEvent_Fragment | IssueIcon_Tree_Fragment | IssueIcon_UnassignedEvent_Fragment | IssueIcon_UnlabeledEvent_Fragment | IssueIcon_UnlockedEvent_Fragment | IssueIcon_UnmarkedAsDuplicateEvent_Fragment | IssueIcon_UnpinnedEvent_Fragment | IssueIcon_UnsubscribedEvent_Fragment | IssueIcon_User_Fragment | IssueIcon_UserBlockedEvent_Fragment | IssueIcon_UserContentEdit_Fragment | IssueIcon_UserList_Fragment | IssueIcon_UserNamespaceRepository_Fragment | IssueIcon_UserStatus_Fragment | IssueIcon_VerifiableDomain_Fragment | IssueIcon_Workflow_Fragment | IssueIcon_WorkflowRun_Fragment | IssueIcon_WorkflowRunFile_Fragment;
+export type IssueIconFragment =
+  | IssueIcon_AddedToMergeQueueEvent_Fragment
+  | IssueIcon_AddedToProjectEvent_Fragment
+  | IssueIcon_AddedToProjectV2Event_Fragment
+  | IssueIcon_App_Fragment
+  | IssueIcon_AssignedEvent_Fragment
+  | IssueIcon_AutoMergeDisabledEvent_Fragment
+  | IssueIcon_AutoMergeEnabledEvent_Fragment
+  | IssueIcon_AutoRebaseEnabledEvent_Fragment
+  | IssueIcon_AutoSquashEnabledEvent_Fragment
+  | IssueIcon_AutomaticBaseChangeFailedEvent_Fragment
+  | IssueIcon_AutomaticBaseChangeSucceededEvent_Fragment
+  | IssueIcon_BaseRefChangedEvent_Fragment
+  | IssueIcon_BaseRefDeletedEvent_Fragment
+  | IssueIcon_BaseRefForcePushedEvent_Fragment
+  | IssueIcon_Blob_Fragment
+  | IssueIcon_BlockedByAddedEvent_Fragment
+  | IssueIcon_BlockedByRemovedEvent_Fragment
+  | IssueIcon_BlockingAddedEvent_Fragment
+  | IssueIcon_BlockingRemovedEvent_Fragment
+  | IssueIcon_Bot_Fragment
+  | IssueIcon_BranchProtectionRule_Fragment
+  | IssueIcon_BypassForcePushAllowance_Fragment
+  | IssueIcon_BypassPullRequestAllowance_Fragment
+  | IssueIcon_Cwe_Fragment
+  | IssueIcon_CheckRun_Fragment
+  | IssueIcon_CheckSuite_Fragment
+  | IssueIcon_ClosedEvent_Fragment
+  | IssueIcon_CodeOfConduct_Fragment
+  | IssueIcon_CommentDeletedEvent_Fragment
+  | IssueIcon_Commit_Fragment
+  | IssueIcon_CommitComment_Fragment
+  | IssueIcon_CommitCommentThread_Fragment
+  | IssueIcon_Comparison_Fragment
+  | IssueIcon_ConnectedEvent_Fragment
+  | IssueIcon_ConvertToDraftEvent_Fragment
+  | IssueIcon_ConvertedFromDraftEvent_Fragment
+  | IssueIcon_ConvertedNoteToIssueEvent_Fragment
+  | IssueIcon_ConvertedToDiscussionEvent_Fragment
+  | IssueIcon_CrossReferencedEvent_Fragment
+  | IssueIcon_DemilestonedEvent_Fragment
+  | IssueIcon_DependencyGraphManifest_Fragment
+  | IssueIcon_DeployKey_Fragment
+  | IssueIcon_DeployedEvent_Fragment
+  | IssueIcon_Deployment_Fragment
+  | IssueIcon_DeploymentEnvironmentChangedEvent_Fragment
+  | IssueIcon_DeploymentReview_Fragment
+  | IssueIcon_DeploymentStatus_Fragment
+  | IssueIcon_DisconnectedEvent_Fragment
+  | IssueIcon_Discussion_Fragment
+  | IssueIcon_DiscussionCategory_Fragment
+  | IssueIcon_DiscussionComment_Fragment
+  | IssueIcon_DiscussionPoll_Fragment
+  | IssueIcon_DiscussionPollOption_Fragment
+  | IssueIcon_DraftIssue_Fragment
+  | IssueIcon_Enterprise_Fragment
+  | IssueIcon_EnterpriseAdministratorInvitation_Fragment
+  | IssueIcon_EnterpriseIdentityProvider_Fragment
+  | IssueIcon_EnterpriseMemberInvitation_Fragment
+  | IssueIcon_EnterpriseRepositoryInfo_Fragment
+  | IssueIcon_EnterpriseServerInstallation_Fragment
+  | IssueIcon_EnterpriseServerUserAccount_Fragment
+  | IssueIcon_EnterpriseServerUserAccountEmail_Fragment
+  | IssueIcon_EnterpriseServerUserAccountsUpload_Fragment
+  | IssueIcon_EnterpriseUserAccount_Fragment
+  | IssueIcon_Environment_Fragment
+  | IssueIcon_ExternalIdentity_Fragment
+  | IssueIcon_Gist_Fragment
+  | IssueIcon_GistComment_Fragment
+  | IssueIcon_HeadRefDeletedEvent_Fragment
+  | IssueIcon_HeadRefForcePushedEvent_Fragment
+  | IssueIcon_HeadRefRestoredEvent_Fragment
+  | IssueIcon_IpAllowListEntry_Fragment
+  | IssueIcon_Issue_Fragment
+  | IssueIcon_IssueComment_Fragment
+  | IssueIcon_IssueType_Fragment
+  | IssueIcon_IssueTypeAddedEvent_Fragment
+  | IssueIcon_IssueTypeChangedEvent_Fragment
+  | IssueIcon_IssueTypeRemovedEvent_Fragment
+  | IssueIcon_Label_Fragment
+  | IssueIcon_LabeledEvent_Fragment
+  | IssueIcon_Language_Fragment
+  | IssueIcon_License_Fragment
+  | IssueIcon_LinkedBranch_Fragment
+  | IssueIcon_LockedEvent_Fragment
+  | IssueIcon_Mannequin_Fragment
+  | IssueIcon_MarkedAsDuplicateEvent_Fragment
+  | IssueIcon_MarketplaceCategory_Fragment
+  | IssueIcon_MarketplaceListing_Fragment
+  | IssueIcon_MemberFeatureRequestNotification_Fragment
+  | IssueIcon_MembersCanDeleteReposClearAuditEntry_Fragment
+  | IssueIcon_MembersCanDeleteReposDisableAuditEntry_Fragment
+  | IssueIcon_MembersCanDeleteReposEnableAuditEntry_Fragment
+  | IssueIcon_MentionedEvent_Fragment
+  | IssueIcon_MergeQueue_Fragment
+  | IssueIcon_MergeQueueEntry_Fragment
+  | IssueIcon_MergedEvent_Fragment
+  | IssueIcon_MigrationSource_Fragment
+  | IssueIcon_Milestone_Fragment
+  | IssueIcon_MilestonedEvent_Fragment
+  | IssueIcon_MovedColumnsInProjectEvent_Fragment
+  | IssueIcon_OidcProvider_Fragment
+  | IssueIcon_OauthApplicationCreateAuditEntry_Fragment
+  | IssueIcon_OrgAddBillingManagerAuditEntry_Fragment
+  | IssueIcon_OrgAddMemberAuditEntry_Fragment
+  | IssueIcon_OrgBlockUserAuditEntry_Fragment
+  | IssueIcon_OrgConfigDisableCollaboratorsOnlyAuditEntry_Fragment
+  | IssueIcon_OrgConfigEnableCollaboratorsOnlyAuditEntry_Fragment
+  | IssueIcon_OrgCreateAuditEntry_Fragment
+  | IssueIcon_OrgDisableOauthAppRestrictionsAuditEntry_Fragment
+  | IssueIcon_OrgDisableSamlAuditEntry_Fragment
+  | IssueIcon_OrgDisableTwoFactorRequirementAuditEntry_Fragment
+  | IssueIcon_OrgEnableOauthAppRestrictionsAuditEntry_Fragment
+  | IssueIcon_OrgEnableSamlAuditEntry_Fragment
+  | IssueIcon_OrgEnableTwoFactorRequirementAuditEntry_Fragment
+  | IssueIcon_OrgInviteMemberAuditEntry_Fragment
+  | IssueIcon_OrgInviteToBusinessAuditEntry_Fragment
+  | IssueIcon_OrgOauthAppAccessApprovedAuditEntry_Fragment
+  | IssueIcon_OrgOauthAppAccessBlockedAuditEntry_Fragment
+  | IssueIcon_OrgOauthAppAccessDeniedAuditEntry_Fragment
+  | IssueIcon_OrgOauthAppAccessRequestedAuditEntry_Fragment
+  | IssueIcon_OrgOauthAppAccessUnblockedAuditEntry_Fragment
+  | IssueIcon_OrgRemoveBillingManagerAuditEntry_Fragment
+  | IssueIcon_OrgRemoveMemberAuditEntry_Fragment
+  | IssueIcon_OrgRemoveOutsideCollaboratorAuditEntry_Fragment
+  | IssueIcon_OrgRestoreMemberAuditEntry_Fragment
+  | IssueIcon_OrgUnblockUserAuditEntry_Fragment
+  | IssueIcon_OrgUpdateDefaultRepositoryPermissionAuditEntry_Fragment
+  | IssueIcon_OrgUpdateMemberAuditEntry_Fragment
+  | IssueIcon_OrgUpdateMemberRepositoryCreationPermissionAuditEntry_Fragment
+  | IssueIcon_OrgUpdateMemberRepositoryInvitationPermissionAuditEntry_Fragment
+  | IssueIcon_Organization_Fragment
+  | IssueIcon_OrganizationIdentityProvider_Fragment
+  | IssueIcon_OrganizationInvitation_Fragment
+  | IssueIcon_OrganizationMigration_Fragment
+  | IssueIcon_Package_Fragment
+  | IssueIcon_PackageFile_Fragment
+  | IssueIcon_PackageTag_Fragment
+  | IssueIcon_PackageVersion_Fragment
+  | IssueIcon_ParentIssueAddedEvent_Fragment
+  | IssueIcon_ParentIssueRemovedEvent_Fragment
+  | IssueIcon_PinnedDiscussion_Fragment
+  | IssueIcon_PinnedEnvironment_Fragment
+  | IssueIcon_PinnedEvent_Fragment
+  | IssueIcon_PinnedIssue_Fragment
+  | IssueIcon_PrivateRepositoryForkingDisableAuditEntry_Fragment
+  | IssueIcon_PrivateRepositoryForkingEnableAuditEntry_Fragment
+  | IssueIcon_Project_Fragment
+  | IssueIcon_ProjectCard_Fragment
+  | IssueIcon_ProjectColumn_Fragment
+  | IssueIcon_ProjectV2_Fragment
+  | IssueIcon_ProjectV2Field_Fragment
+  | IssueIcon_ProjectV2Item_Fragment
+  | IssueIcon_ProjectV2ItemFieldDateValue_Fragment
+  | IssueIcon_ProjectV2ItemFieldIterationValue_Fragment
+  | IssueIcon_ProjectV2ItemFieldNumberValue_Fragment
+  | IssueIcon_ProjectV2ItemFieldSingleSelectValue_Fragment
+  | IssueIcon_ProjectV2ItemFieldTextValue_Fragment
+  | IssueIcon_ProjectV2ItemStatusChangedEvent_Fragment
+  | IssueIcon_ProjectV2IterationField_Fragment
+  | IssueIcon_ProjectV2SingleSelectField_Fragment
+  | IssueIcon_ProjectV2StatusUpdate_Fragment
+  | IssueIcon_ProjectV2View_Fragment
+  | IssueIcon_ProjectV2Workflow_Fragment
+  | IssueIcon_PublicKey_Fragment
+  | IssueIcon_PullRequest_Fragment
+  | IssueIcon_PullRequestCommit_Fragment
+  | IssueIcon_PullRequestCommitCommentThread_Fragment
+  | IssueIcon_PullRequestReview_Fragment
+  | IssueIcon_PullRequestReviewComment_Fragment
+  | IssueIcon_PullRequestReviewThread_Fragment
+  | IssueIcon_PullRequestThread_Fragment
+  | IssueIcon_Push_Fragment
+  | IssueIcon_PushAllowance_Fragment
+  | IssueIcon_Query_Fragment
+  | IssueIcon_Reaction_Fragment
+  | IssueIcon_ReadyForReviewEvent_Fragment
+  | IssueIcon_Ref_Fragment
+  | IssueIcon_ReferencedEvent_Fragment
+  | IssueIcon_Release_Fragment
+  | IssueIcon_ReleaseAsset_Fragment
+  | IssueIcon_RemovedFromMergeQueueEvent_Fragment
+  | IssueIcon_RemovedFromProjectEvent_Fragment
+  | IssueIcon_RemovedFromProjectV2Event_Fragment
+  | IssueIcon_RenamedTitleEvent_Fragment
+  | IssueIcon_ReopenedEvent_Fragment
+  | IssueIcon_RepoAccessAuditEntry_Fragment
+  | IssueIcon_RepoAddMemberAuditEntry_Fragment
+  | IssueIcon_RepoAddTopicAuditEntry_Fragment
+  | IssueIcon_RepoArchivedAuditEntry_Fragment
+  | IssueIcon_RepoChangeMergeSettingAuditEntry_Fragment
+  | IssueIcon_RepoConfigDisableAnonymousGitAccessAuditEntry_Fragment
+  | IssueIcon_RepoConfigDisableCollaboratorsOnlyAuditEntry_Fragment
+  | IssueIcon_RepoConfigDisableContributorsOnlyAuditEntry_Fragment
+  | IssueIcon_RepoConfigDisableSockpuppetDisallowedAuditEntry_Fragment
+  | IssueIcon_RepoConfigEnableAnonymousGitAccessAuditEntry_Fragment
+  | IssueIcon_RepoConfigEnableCollaboratorsOnlyAuditEntry_Fragment
+  | IssueIcon_RepoConfigEnableContributorsOnlyAuditEntry_Fragment
+  | IssueIcon_RepoConfigEnableSockpuppetDisallowedAuditEntry_Fragment
+  | IssueIcon_RepoConfigLockAnonymousGitAccessAuditEntry_Fragment
+  | IssueIcon_RepoConfigUnlockAnonymousGitAccessAuditEntry_Fragment
+  | IssueIcon_RepoCreateAuditEntry_Fragment
+  | IssueIcon_RepoDestroyAuditEntry_Fragment
+  | IssueIcon_RepoRemoveMemberAuditEntry_Fragment
+  | IssueIcon_RepoRemoveTopicAuditEntry_Fragment
+  | IssueIcon_Repository_Fragment
+  | IssueIcon_RepositoryCustomProperty_Fragment
+  | IssueIcon_RepositoryInvitation_Fragment
+  | IssueIcon_RepositoryMigration_Fragment
+  | IssueIcon_RepositoryRule_Fragment
+  | IssueIcon_RepositoryRuleset_Fragment
+  | IssueIcon_RepositoryRulesetBypassActor_Fragment
+  | IssueIcon_RepositoryTopic_Fragment
+  | IssueIcon_RepositoryVisibilityChangeDisableAuditEntry_Fragment
+  | IssueIcon_RepositoryVisibilityChangeEnableAuditEntry_Fragment
+  | IssueIcon_RepositoryVulnerabilityAlert_Fragment
+  | IssueIcon_ReviewDismissalAllowance_Fragment
+  | IssueIcon_ReviewDismissedEvent_Fragment
+  | IssueIcon_ReviewRequest_Fragment
+  | IssueIcon_ReviewRequestRemovedEvent_Fragment
+  | IssueIcon_ReviewRequestedEvent_Fragment
+  | IssueIcon_SavedReply_Fragment
+  | IssueIcon_SecurityAdvisory_Fragment
+  | IssueIcon_SponsorsActivity_Fragment
+  | IssueIcon_SponsorsListing_Fragment
+  | IssueIcon_SponsorsListingFeaturedItem_Fragment
+  | IssueIcon_SponsorsTier_Fragment
+  | IssueIcon_Sponsorship_Fragment
+  | IssueIcon_SponsorshipNewsletter_Fragment
+  | IssueIcon_Status_Fragment
+  | IssueIcon_StatusCheckRollup_Fragment
+  | IssueIcon_StatusContext_Fragment
+  | IssueIcon_SubIssueAddedEvent_Fragment
+  | IssueIcon_SubIssueRemovedEvent_Fragment
+  | IssueIcon_SubscribedEvent_Fragment
+  | IssueIcon_Tag_Fragment
+  | IssueIcon_Team_Fragment
+  | IssueIcon_TeamAddMemberAuditEntry_Fragment
+  | IssueIcon_TeamAddRepositoryAuditEntry_Fragment
+  | IssueIcon_TeamChangeParentTeamAuditEntry_Fragment
+  | IssueIcon_TeamRemoveMemberAuditEntry_Fragment
+  | IssueIcon_TeamRemoveRepositoryAuditEntry_Fragment
+  | IssueIcon_Topic_Fragment
+  | IssueIcon_TransferredEvent_Fragment
+  | IssueIcon_Tree_Fragment
+  | IssueIcon_UnassignedEvent_Fragment
+  | IssueIcon_UnlabeledEvent_Fragment
+  | IssueIcon_UnlockedEvent_Fragment
+  | IssueIcon_UnmarkedAsDuplicateEvent_Fragment
+  | IssueIcon_UnpinnedEvent_Fragment
+  | IssueIcon_UnsubscribedEvent_Fragment
+  | IssueIcon_User_Fragment
+  | IssueIcon_UserBlockedEvent_Fragment
+  | IssueIcon_UserContentEdit_Fragment
+  | IssueIcon_UserList_Fragment
+  | IssueIcon_UserNamespaceRepository_Fragment
+  | IssueIcon_UserStatus_Fragment
+  | IssueIcon_VerifiableDomain_Fragment
+  | IssueIcon_Workflow_Fragment
+  | IssueIcon_WorkflowRun_Fragment
+  | IssueIcon_WorkflowRunFile_Fragment
+;
 
 export type SearchIssuesAndPullRequestsQueryVariables = Exact<{
   query: Scalars['String']['input'];
@@ -36522,154 +36807,303 @@ export type SearchIssuesAndPullRequestsQueryVariables = Exact<{
 }>;
 
 
-export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, login: string }, search: { __typename?: 'SearchResultItemConnection', issueCount: number, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean }, nodes?: Array<(
-      { __typename?: 'App', id: string }
-      & { ' $fragmentRefs'?: { 'IssueIcon_App_Fragment': IssueIcon_App_Fragment } }
-    ) | (
-      { __typename?: 'Discussion', id: string, createdAt: any, author?: (
-        { __typename?: 'Bot' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-      ) | (
-        { __typename?: 'EnterpriseUserAccount' }
-        & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-      ) | (
-        { __typename?: 'Mannequin' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-      ) | (
-        { __typename?: 'Organization' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-      ) | (
-        { __typename?: 'User' }
-        & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-      ) | null, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string } }
-      & { ' $fragmentRefs'?: { 'IssueIcon_Discussion_Fragment': IssueIcon_Discussion_Fragment } }
-    ) | (
-      { __typename?: 'Issue', id: string, createdAt: any, isReadByViewer?: boolean | null, title: string, url: any, number: number, issueState: IssueState, issueStateReason?: IssueStateReason | null, author?: (
-        { __typename?: 'Bot' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-      ) | (
-        { __typename?: 'EnterpriseUserAccount' }
-        & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-      ) | (
-        { __typename?: 'Mannequin' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-      ) | (
-        { __typename?: 'Organization' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-      ) | (
-        { __typename?: 'User' }
-        & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-      ) | null, assignees: { __typename?: 'UserConnection', nodes?: Array<(
-          { __typename?: 'User' }
-          & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-        ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string }, comments: { __typename?: 'IssueCommentConnection', totalCount: number } }
-      & { ' $fragmentRefs'?: { 'IssueIcon_Issue_Fragment': IssueIcon_Issue_Fragment } }
-    ) | (
-      { __typename?: 'MarketplaceListing', id: string }
-      & { ' $fragmentRefs'?: { 'IssueIcon_MarketplaceListing_Fragment': IssueIcon_MarketplaceListing_Fragment } }
-    ) | (
-      { __typename?: 'Organization', id: string }
-      & { ' $fragmentRefs'?: { 'IssueIcon_Organization_Fragment': IssueIcon_Organization_Fragment } }
-    ) | (
-      { __typename?: 'PullRequest', id: string, createdAt: any, viewerDidAuthor: boolean, isDraft: boolean, title: string, headRefName: string, isReadByViewer?: boolean | null, url: any, number: number, mergedAt?: any | null, prState: PullRequestState, author?: (
-        { __typename?: 'Bot' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-      ) | (
-        { __typename?: 'EnterpriseUserAccount' }
-        & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-      ) | (
-        { __typename?: 'Mannequin' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-      ) | (
-        { __typename?: 'Organization' }
-        & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-      ) | (
-        { __typename?: 'User' }
-        & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-      ) | null, assignees: { __typename?: 'UserConnection', nodes?: Array<(
-          { __typename?: 'User' }
-          & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-        ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string }, autoMergeRequest?: { __typename?: 'AutoMergeRequest', enabledAt?: any | null, enabledBy?: (
-          { __typename?: 'Bot' }
-          & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-        ) | (
-          { __typename?: 'EnterpriseUserAccount' }
-          & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-        ) | (
-          { __typename?: 'Mannequin' }
-          & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-        ) | (
-          { __typename?: 'Organization' }
-          & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-        ) | (
-          { __typename?: 'User' }
-          & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-        ) | null } | null, comments: { __typename?: 'IssueCommentConnection', totalCount: number }, reviewThreads: { __typename?: 'PullRequestReviewThreadConnection', nodes?: Array<{ __typename?: 'PullRequestReviewThread', isCollapsed: boolean, comments: { __typename?: 'PullRequestReviewCommentConnection', nodes?: Array<{ __typename?: 'PullRequestReviewComment', author?: { __typename?: 'Bot', login: string } | { __typename?: 'EnterpriseUserAccount', login: string } | { __typename?: 'Mannequin', login: string } | { __typename?: 'Organization', login: string } | { __typename?: 'User', login: string } | null } | null> | null } } | null> | null }, statusCheckRollup?: { __typename?: 'StatusCheckRollup', state: StatusState, contexts: { __typename?: 'StatusCheckRollupContextConnection', nodes?: Array<{ __typename: 'CheckRun', conclusion?: CheckConclusionState | null, name: string, detailsUrl?: any | null } | { __typename: 'StatusContext' } | null> | null } } | null, reviewRequests?: { __typename?: 'ReviewRequestConnection', nodes?: Array<{ __typename?: 'ReviewRequest', requestedReviewer?: (
-            { __typename?: 'Bot', login: string }
+export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, login: string }, search: { __typename?: 'SearchResultItemConnection', issueCount: number, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean }, nodes?: Array<
+      | (
+        { __typename?: 'App', id: string }
+        & { ' $fragmentRefs'?: { 'IssueIcon_App_Fragment': IssueIcon_App_Fragment } }
+      )
+      | (
+        { __typename?: 'Discussion', id: string, createdAt: any, author?:
+          | (
+            { __typename?: 'Bot' }
             & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-          ) | (
+          )
+          | (
+            { __typename?: 'EnterpriseUserAccount' }
+            & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
+          )
+          | (
             { __typename?: 'Mannequin' }
             & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-          ) | { __typename?: 'Team' } | (
-            { __typename?: 'User', login: string }
-            & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-          ) | null } | null> | null } | null, timelineItems: { __typename?: 'PullRequestTimelineItemsConnection', nodes?: Array<{ __typename?: 'AddedToMergeQueueEvent' } | { __typename?: 'AddedToProjectEvent' } | { __typename?: 'AddedToProjectV2Event' } | { __typename?: 'AssignedEvent' } | { __typename?: 'AutoMergeDisabledEvent' } | { __typename?: 'AutoMergeEnabledEvent' } | { __typename?: 'AutoRebaseEnabledEvent' } | { __typename?: 'AutoSquashEnabledEvent' } | { __typename?: 'AutomaticBaseChangeFailedEvent' } | { __typename?: 'AutomaticBaseChangeSucceededEvent' } | { __typename?: 'BaseRefChangedEvent' } | { __typename?: 'BaseRefDeletedEvent' } | { __typename?: 'BaseRefForcePushedEvent' } | { __typename?: 'BlockedByAddedEvent' } | { __typename?: 'BlockedByRemovedEvent' } | { __typename?: 'BlockingAddedEvent' } | { __typename?: 'BlockingRemovedEvent' } | { __typename?: 'ClosedEvent' } | { __typename?: 'CommentDeletedEvent' } | { __typename?: 'ConnectedEvent' } | { __typename?: 'ConvertToDraftEvent' } | { __typename?: 'ConvertedFromDraftEvent' } | { __typename?: 'ConvertedNoteToIssueEvent' } | { __typename?: 'ConvertedToDiscussionEvent' } | { __typename?: 'CrossReferencedEvent' } | { __typename?: 'DemilestonedEvent' } | { __typename?: 'DeployedEvent' } | { __typename?: 'DeploymentEnvironmentChangedEvent' } | { __typename?: 'DisconnectedEvent' } | { __typename?: 'HeadRefDeletedEvent' } | { __typename?: 'HeadRefForcePushedEvent' } | { __typename?: 'HeadRefRestoredEvent' } | { __typename?: 'IssueComment' } | { __typename?: 'IssueTypeAddedEvent' } | { __typename?: 'IssueTypeChangedEvent' } | { __typename?: 'IssueTypeRemovedEvent' } | { __typename?: 'LabeledEvent' } | { __typename?: 'LockedEvent' } | { __typename?: 'MarkedAsDuplicateEvent' } | { __typename?: 'MentionedEvent' } | { __typename?: 'MergedEvent' } | { __typename?: 'MilestonedEvent' } | { __typename?: 'MovedColumnsInProjectEvent' } | { __typename?: 'ParentIssueAddedEvent' } | { __typename?: 'ParentIssueRemovedEvent' } | { __typename?: 'PinnedEvent' } | { __typename?: 'ProjectV2ItemStatusChangedEvent' } | { __typename?: 'PullRequestCommit' } | { __typename?: 'PullRequestCommitCommentThread' } | { __typename?: 'PullRequestReview' } | { __typename?: 'PullRequestReviewThread' } | { __typename?: 'PullRequestRevisionMarker' } | { __typename?: 'ReadyForReviewEvent', createdAt: any } | { __typename?: 'ReferencedEvent' } | { __typename?: 'RemovedFromMergeQueueEvent' } | { __typename?: 'RemovedFromProjectEvent' } | { __typename?: 'RemovedFromProjectV2Event' } | { __typename?: 'RenamedTitleEvent' } | { __typename?: 'ReopenedEvent' } | { __typename?: 'ReviewDismissedEvent' } | { __typename?: 'ReviewRequestRemovedEvent' } | { __typename?: 'ReviewRequestedEvent', createdAt: any, requestedReviewer?: { __typename?: 'Bot' } | { __typename?: 'Mannequin' } | { __typename?: 'Team', id: string } | { __typename?: 'User', id: string } | null } | { __typename?: 'SubIssueAddedEvent' } | { __typename?: 'SubIssueRemovedEvent' } | { __typename?: 'SubscribedEvent' } | { __typename?: 'TransferredEvent' } | { __typename?: 'UnassignedEvent' } | { __typename?: 'UnlabeledEvent' } | { __typename?: 'UnlockedEvent' } | { __typename?: 'UnmarkedAsDuplicateEvent' } | { __typename?: 'UnpinnedEvent' } | { __typename?: 'UnsubscribedEvent' } | { __typename?: 'UserBlockedEvent' } | null> | null }, viewerLatestReviewRequest?: { __typename?: 'ReviewRequest', requestedReviewer?: { __typename?: 'Bot' } | { __typename?: 'Mannequin' } | { __typename?: 'Team', id: string } | { __typename?: 'User', id: string } | null } | null, latestOpinionatedReviews?: { __typename?: 'PullRequestReviewConnection', nodes?: Array<{ __typename?: 'PullRequestReview', state: PullRequestReviewState, author?: (
-            { __typename?: 'Bot', login: string }
-            & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-          ) | (
-            { __typename?: 'EnterpriseUserAccount', login: string }
-            & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-          ) | (
-            { __typename?: 'Mannequin', login: string }
-            & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-          ) | (
-            { __typename?: 'Organization', login: string }
+          )
+          | (
+            { __typename?: 'Organization' }
             & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-          ) | (
-            { __typename?: 'User', login: string }
+          )
+          | (
+            { __typename?: 'User' }
             & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-          ) | null } | null> | null } | null, pendingReviews?: { __typename?: 'PullRequestReviewConnection', nodes?: Array<{ __typename?: 'PullRequestReview', state: PullRequestReviewState, author?: (
-            { __typename?: 'Bot', login: string }
+          )
+         | null, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string } }
+        & { ' $fragmentRefs'?: { 'IssueIcon_Discussion_Fragment': IssueIcon_Discussion_Fragment } }
+      )
+      | (
+        { __typename?: 'Issue', id: string, createdAt: any, isReadByViewer?: boolean | null, title: string, url: any, number: number, issueState: IssueState, issueStateReason?: IssueStateReason | null, author?:
+          | (
+            { __typename?: 'Bot' }
             & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-          ) | (
-            { __typename?: 'EnterpriseUserAccount', login: string }
+          )
+          | (
+            { __typename?: 'EnterpriseUserAccount' }
             & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-          ) | (
-            { __typename?: 'Mannequin', login: string }
+          )
+          | (
+            { __typename?: 'Mannequin' }
             & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-          ) | (
-            { __typename?: 'Organization', login: string }
+          )
+          | (
+            { __typename?: 'Organization' }
             & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-          ) | (
-            { __typename?: 'User', login: string }
+          )
+          | (
+            { __typename?: 'User' }
             & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-          ) | null } | null> | null } | null, commentReviews?: { __typename?: 'PullRequestReviewConnection', nodes?: Array<{ __typename?: 'PullRequestReview', authorCanPushToRepository: boolean, state: PullRequestReviewState, author?: (
-            { __typename?: 'Bot', login: string }
+          )
+         | null, assignees: { __typename?: 'UserConnection', nodes?: Array<(
+            { __typename?: 'User' }
+            & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+          ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string }, comments: { __typename?: 'IssueCommentConnection', totalCount: number } }
+        & { ' $fragmentRefs'?: { 'IssueIcon_Issue_Fragment': IssueIcon_Issue_Fragment } }
+      )
+      | (
+        { __typename?: 'MarketplaceListing', id: string }
+        & { ' $fragmentRefs'?: { 'IssueIcon_MarketplaceListing_Fragment': IssueIcon_MarketplaceListing_Fragment } }
+      )
+      | (
+        { __typename?: 'Organization', id: string }
+        & { ' $fragmentRefs'?: { 'IssueIcon_Organization_Fragment': IssueIcon_Organization_Fragment } }
+      )
+      | (
+        { __typename?: 'PullRequest', id: string, createdAt: any, viewerDidAuthor: boolean, isDraft: boolean, title: string, headRefName: string, isReadByViewer?: boolean | null, url: any, number: number, mergedAt?: any | null, prState: PullRequestState, author?:
+          | (
+            { __typename?: 'Bot' }
             & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
-          ) | (
-            { __typename?: 'EnterpriseUserAccount', login: string }
+          )
+          | (
+            { __typename?: 'EnterpriseUserAccount' }
             & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
-          ) | (
-            { __typename?: 'Mannequin', login: string }
+          )
+          | (
+            { __typename?: 'Mannequin' }
             & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
-          ) | (
-            { __typename?: 'Organization', login: string }
+          )
+          | (
+            { __typename?: 'Organization' }
             & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
-          ) | (
-            { __typename?: 'User', login: string }
+          )
+          | (
+            { __typename?: 'User' }
             & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-          ) | null } | null> | null } | null }
-      & { ' $fragmentRefs'?: { 'IssueIcon_PullRequest_Fragment': IssueIcon_PullRequest_Fragment } }
-    ) | (
-      { __typename?: 'Repository', id: string }
-      & { ' $fragmentRefs'?: { 'IssueIcon_Repository_Fragment': IssueIcon_Repository_Fragment } }
-    ) | (
-      { __typename?: 'User', id: string }
-      & { ' $fragmentRefs'?: { 'IssueIcon_User_Fragment': IssueIcon_User_Fragment } }
-    ) | null> | null } };
+          )
+         | null, assignees: { __typename?: 'UserConnection', nodes?: Array<(
+            { __typename?: 'User' }
+            & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+          ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string }, autoMergeRequest?: { __typename?: 'AutoMergeRequest', enabledAt?: any | null, enabledBy?:
+            | (
+              { __typename?: 'Bot' }
+              & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
+            )
+            | (
+              { __typename?: 'EnterpriseUserAccount' }
+              & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
+            )
+            | (
+              { __typename?: 'Mannequin' }
+              & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
+            )
+            | (
+              { __typename?: 'Organization' }
+              & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
+            )
+            | (
+              { __typename?: 'User' }
+              & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+            )
+           | null } | null, comments: { __typename?: 'IssueCommentConnection', totalCount: number }, reviewThreads: { __typename?: 'PullRequestReviewThreadConnection', nodes?: Array<{ __typename?: 'PullRequestReviewThread', isCollapsed: boolean, comments: { __typename?: 'PullRequestReviewCommentConnection', nodes?: Array<{ __typename?: 'PullRequestReviewComment', author?:
+                  | { __typename?: 'Bot', login: string }
+                  | { __typename?: 'EnterpriseUserAccount', login: string }
+                  | { __typename?: 'Mannequin', login: string }
+                  | { __typename?: 'Organization', login: string }
+                  | { __typename?: 'User', login: string }
+                 | null } | null> | null } } | null> | null }, statusCheckRollup?: { __typename?: 'StatusCheckRollup', state: StatusState, contexts: { __typename?: 'StatusCheckRollupContextConnection', nodes?: Array<
+              | { __typename: 'CheckRun', conclusion?: CheckConclusionState | null, name: string, detailsUrl?: any | null }
+              | { __typename: 'StatusContext' }
+             | null> | null } } | null, reviewRequests?: { __typename?: 'ReviewRequestConnection', nodes?: Array<{ __typename?: 'ReviewRequest', requestedReviewer?:
+              | (
+                { __typename?: 'Bot', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
+              )
+              | (
+                { __typename?: 'Mannequin' }
+                & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
+              )
+              | { __typename?: 'Team' }
+              | (
+                { __typename?: 'User', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+              )
+             | null } | null> | null } | null, timelineItems: { __typename?: 'PullRequestTimelineItemsConnection', nodes?: Array<
+            | { __typename?: 'AddedToMergeQueueEvent' }
+            | { __typename?: 'AddedToProjectEvent' }
+            | { __typename?: 'AddedToProjectV2Event' }
+            | { __typename?: 'AssignedEvent' }
+            | { __typename?: 'AutoMergeDisabledEvent' }
+            | { __typename?: 'AutoMergeEnabledEvent' }
+            | { __typename?: 'AutoRebaseEnabledEvent' }
+            | { __typename?: 'AutoSquashEnabledEvent' }
+            | { __typename?: 'AutomaticBaseChangeFailedEvent' }
+            | { __typename?: 'AutomaticBaseChangeSucceededEvent' }
+            | { __typename?: 'BaseRefChangedEvent' }
+            | { __typename?: 'BaseRefDeletedEvent' }
+            | { __typename?: 'BaseRefForcePushedEvent' }
+            | { __typename?: 'BlockedByAddedEvent' }
+            | { __typename?: 'BlockedByRemovedEvent' }
+            | { __typename?: 'BlockingAddedEvent' }
+            | { __typename?: 'BlockingRemovedEvent' }
+            | { __typename?: 'ClosedEvent' }
+            | { __typename?: 'CommentDeletedEvent' }
+            | { __typename?: 'ConnectedEvent' }
+            | { __typename?: 'ConvertToDraftEvent' }
+            | { __typename?: 'ConvertedFromDraftEvent' }
+            | { __typename?: 'ConvertedNoteToIssueEvent' }
+            | { __typename?: 'ConvertedToDiscussionEvent' }
+            | { __typename?: 'CrossReferencedEvent' }
+            | { __typename?: 'DemilestonedEvent' }
+            | { __typename?: 'DeployedEvent' }
+            | { __typename?: 'DeploymentEnvironmentChangedEvent' }
+            | { __typename?: 'DisconnectedEvent' }
+            | { __typename?: 'HeadRefDeletedEvent' }
+            | { __typename?: 'HeadRefForcePushedEvent' }
+            | { __typename?: 'HeadRefRestoredEvent' }
+            | { __typename?: 'IssueComment' }
+            | { __typename?: 'IssueTypeAddedEvent' }
+            | { __typename?: 'IssueTypeChangedEvent' }
+            | { __typename?: 'IssueTypeRemovedEvent' }
+            | { __typename?: 'LabeledEvent' }
+            | { __typename?: 'LockedEvent' }
+            | { __typename?: 'MarkedAsDuplicateEvent' }
+            | { __typename?: 'MentionedEvent' }
+            | { __typename?: 'MergedEvent' }
+            | { __typename?: 'MilestonedEvent' }
+            | { __typename?: 'MovedColumnsInProjectEvent' }
+            | { __typename?: 'ParentIssueAddedEvent' }
+            | { __typename?: 'ParentIssueRemovedEvent' }
+            | { __typename?: 'PinnedEvent' }
+            | { __typename?: 'ProjectV2ItemStatusChangedEvent' }
+            | { __typename?: 'PullRequestCommit' }
+            | { __typename?: 'PullRequestCommitCommentThread' }
+            | { __typename?: 'PullRequestReview' }
+            | { __typename?: 'PullRequestReviewThread' }
+            | { __typename?: 'PullRequestRevisionMarker' }
+            | { __typename?: 'ReadyForReviewEvent', createdAt: any }
+            | { __typename?: 'ReferencedEvent' }
+            | { __typename?: 'RemovedFromMergeQueueEvent' }
+            | { __typename?: 'RemovedFromProjectEvent' }
+            | { __typename?: 'RemovedFromProjectV2Event' }
+            | { __typename?: 'RenamedTitleEvent' }
+            | { __typename?: 'ReopenedEvent' }
+            | { __typename?: 'ReviewDismissedEvent' }
+            | { __typename?: 'ReviewRequestRemovedEvent' }
+            | { __typename?: 'ReviewRequestedEvent', createdAt: any, requestedReviewer?:
+                | { __typename?: 'Bot' }
+                | { __typename?: 'Mannequin' }
+                | { __typename?: 'Team', id: string }
+                | { __typename?: 'User', id: string }
+               | null }
+            | { __typename?: 'SubIssueAddedEvent' }
+            | { __typename?: 'SubIssueRemovedEvent' }
+            | { __typename?: 'SubscribedEvent' }
+            | { __typename?: 'TransferredEvent' }
+            | { __typename?: 'UnassignedEvent' }
+            | { __typename?: 'UnlabeledEvent' }
+            | { __typename?: 'UnlockedEvent' }
+            | { __typename?: 'UnmarkedAsDuplicateEvent' }
+            | { __typename?: 'UnpinnedEvent' }
+            | { __typename?: 'UnsubscribedEvent' }
+            | { __typename?: 'UserBlockedEvent' }
+           | null> | null }, viewerLatestReviewRequest?: { __typename?: 'ReviewRequest', requestedReviewer?:
+            | { __typename?: 'Bot' }
+            | { __typename?: 'Mannequin' }
+            | { __typename?: 'Team', id: string }
+            | { __typename?: 'User', id: string }
+           | null } | null, latestOpinionatedReviews?: { __typename?: 'PullRequestReviewConnection', nodes?: Array<{ __typename?: 'PullRequestReview', state: PullRequestReviewState, author?:
+              | (
+                { __typename?: 'Bot', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
+              )
+              | (
+                { __typename?: 'EnterpriseUserAccount', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
+              )
+              | (
+                { __typename?: 'Mannequin', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
+              )
+              | (
+                { __typename?: 'Organization', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
+              )
+              | (
+                { __typename?: 'User', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+              )
+             | null } | null> | null } | null, pendingReviews?: { __typename?: 'PullRequestReviewConnection', nodes?: Array<{ __typename?: 'PullRequestReview', state: PullRequestReviewState, author?:
+              | (
+                { __typename?: 'Bot', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
+              )
+              | (
+                { __typename?: 'EnterpriseUserAccount', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
+              )
+              | (
+                { __typename?: 'Mannequin', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
+              )
+              | (
+                { __typename?: 'Organization', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
+              )
+              | (
+                { __typename?: 'User', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+              )
+             | null } | null> | null } | null, commentReviews?: { __typename?: 'PullRequestReviewConnection', nodes?: Array<{ __typename?: 'PullRequestReview', authorCanPushToRepository: boolean, state: PullRequestReviewState, author?:
+              | (
+                { __typename?: 'Bot', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
+              )
+              | (
+                { __typename?: 'EnterpriseUserAccount', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_EnterpriseUserAccount_Fragment': InlineUser_EnterpriseUserAccount_Fragment } }
+              )
+              | (
+                { __typename?: 'Mannequin', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
+              )
+              | (
+                { __typename?: 'Organization', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_Organization_Fragment': InlineUser_Organization_Fragment } }
+              )
+              | (
+                { __typename?: 'User', login: string }
+                & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
+              )
+             | null } | null> | null } | null }
+        & { ' $fragmentRefs'?: { 'IssueIcon_PullRequest_Fragment': IssueIcon_PullRequest_Fragment } }
+      )
+      | (
+        { __typename?: 'Repository', id: string }
+        & { ' $fragmentRefs'?: { 'IssueIcon_Repository_Fragment': IssueIcon_Repository_Fragment } }
+      )
+      | (
+        { __typename?: 'User', id: string }
+        & { ' $fragmentRefs'?: { 'IssueIcon_User_Fragment': IssueIcon_User_Fragment } }
+      )
+     | null> | null } };
 
 export const InlineUserFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<InlineUserFragment, unknown>;
 export const IssueIconFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<IssueIconFragment, unknown>;
-export const RefFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Ref"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Ref"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Commit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"committedDate"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"associatedPullRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"states"},"value":{"kind":"EnumValue","value":"OPEN"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<RefFragment, unknown>;
-export const SearchBranchesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchBranches"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repo"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"branch"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repoCount"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repo"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"REPOSITORY"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repoCount"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Repository"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"defaultBranchRef"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"refs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"refPrefix"},"value":{"kind":"StringValue","value":"refs/heads/","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"branch"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Ref"}}]}}]}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Ref"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Ref"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Commit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"committedDate"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"associatedPullRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"states"},"value":{"kind":"EnumValue","value":"OPEN"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}}]}}]}}]}}]} as unknown as DocumentNode<SearchBranchesQuery, SearchBranchesQueryVariables>;
+export const RefFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Ref"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Ref"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Commit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"committedDate"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"associatedPullRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<RefFragment, unknown>;
+export const SearchBranchesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchBranches"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repo"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"branch"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repoCount"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repo"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"REPOSITORY"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repoCount"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Repository"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"defaultBranchRef"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"refs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"refPrefix"},"value":{"kind":"StringValue","value":"refs/heads/","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"branch"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Ref"}}]}}]}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Ref"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Ref"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Commit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"committedDate"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"associatedPullRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}}]} as unknown as DocumentNode<SearchBranchesQuery, SearchBranchesQueryVariables>;
 export const SearchIssuesAndPullRequestsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchIssuesAndPullRequests"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"viewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"ISSUE_ADVANCED"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"issueCount"}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Assignable"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"assignees"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Labelable"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labels"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RepositoryNode"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repository"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"viewerDidAuthor"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}},{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"headRefName"}},{"kind":"Field","name":{"kind":"Name","value":"isReadByViewer"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"mergedAt"}},{"kind":"Field","name":{"kind":"Name","value":"autoMergeRequest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"enabledAt"}},{"kind":"Field","name":{"kind":"Name","value":"enabledBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviewThreads"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isCollapsed"}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"statusCheckRollup"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"contexts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CheckRun"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"conclusion"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"detailsUrl"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviewRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Bot"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"timelineItems"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"itemTypes"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"REVIEW_REQUESTED_EVENT"},{"kind":"EnumValue","value":"READY_FOR_REVIEW_EVENT"}]}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReadyForReviewEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReviewRequestedEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"viewerLatestReviewRequest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"latestOpinionatedReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}},{"kind":"Argument","name":{"kind":"Name","value":"writersOnly"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"pendingReviews"},"name":{"kind":"Name","value":"reviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"states"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"PENDING"}]}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"commentReviews"},"name":{"kind":"Name","value":"latestReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorCanPushToRepository"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isReadByViewer"}},{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<SearchIssuesAndPullRequestsQuery, SearchIssuesAndPullRequestsQueryVariables>;

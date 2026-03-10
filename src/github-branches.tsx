@@ -9,7 +9,7 @@ import {
   Text,
 } from '@primer/react';
 import { Column, DataTable, Table, UniqueRow } from '@primer/react/experimental';
-import type { MakeNonNullish } from '@sequelize/utils';
+import { MakeNonNullish } from '@sequelize/utils';
 import type { ReactNode } from 'react';
 import { useId } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.js';
@@ -35,11 +35,12 @@ const RefFragmentSchema = graphql(/* GraphQL */ `
         }
       }
     }
-    associatedPullRequests(states: OPEN, first: 1) {
+    associatedPullRequests(first: 1) {
       nodes {
         ...IssueIcon
         url
         number
+        state
       }
     }
   }
@@ -108,25 +109,31 @@ const COLUMNS: Array<Column<RefRow>> = [
     id: 'pr',
     header: 'Pull Request',
     renderCell(ref: RefRow) {
-      const associatedPr = ref.associatedPullRequests?.nodes?.[0];
+      const associatedPrs = ref.associatedPullRequests?.nodes;
 
-      if (!associatedPr) {
-        if (!ref.createPrUrl) {
+      const hasOkPr = associatedPrs?.some(pr => pr?.state !== 'CLOSED');
+
+      const prs = associatedPrs?.map(pr => {
+        if (!pr) {
           return null;
         }
 
         return (
-          <Button as="a" href={ref.createPrUrl}>
-            Open PR
-          </Button>
+          <PrimerLink href={pr.url} key={pr.url}>
+            <GithubIssueIcon issue={pr} className={css.iconWithMargin} /> #{pr.number}
+          </PrimerLink>
         );
-      }
+      });
 
       return (
-        <PrimerLink href={associatedPr.url}>
-          <GithubIssueIcon issue={associatedPr} className={css.iconWithMargin} /> #
-          {associatedPr.number}
-        </PrimerLink>
+        <div className={css.prs}>
+          {!hasOkPr && (
+            <Button as="a" href={ref.createPrUrl}>
+              Open PR
+            </Button>
+          )}
+          {prs}
+        </div>
       );
     },
   },
