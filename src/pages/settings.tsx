@@ -24,6 +24,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
+import type { TabConfiguration } from '../app-configuration.tsx';
 import {
   AppConfigurationSchema,
   BranchClickAction,
@@ -31,7 +32,6 @@ import {
   PrNumberClickAction,
   UserNameStyle,
   useAppConfiguration,
-  type TabConfiguration,
 } from '../app-configuration.tsx';
 import { DeletionConfirmationDialog } from '../deletion-confirmation-dialog.tsx';
 import { DevOpsPatFormControl } from '../devops-pat-form-control.tsx';
@@ -186,23 +186,23 @@ export function Settings() {
         </FormControl>
 
         <FormControl style={{ marginTop: 8 }}>
-          <FormControl style={{ marginTop: 8 }}>
-            <FormControl.Label>PR number — click action</FormControl.Label>
-            <Select
-              block
-              onChange={onPrNumberClickActionChange}
-              value={appConfiguration.prNumberClickAction}>
-              <Select.Option value={PrNumberClickAction.doNothing}>Do nothing</Select.Option>
-              <Select.Option value={PrNumberClickAction.copyNumber}>Copy PR number</Select.Option>
-              <Select.Option value={PrNumberClickAction.ghPrCheckout}>
-                Copy: gh pr checkout {'<number>'} --force
-              </Select.Option>
-            </Select>
-            <FormControl.Caption>
-              The "git" option falls back to copying the issue number when no branch is available.
-            </FormControl.Caption>
-          </FormControl>
+          <FormControl.Label>PR number — click action</FormControl.Label>
+          <Select
+            block
+            onChange={onPrNumberClickActionChange}
+            value={appConfiguration.prNumberClickAction}>
+            <Select.Option value={PrNumberClickAction.doNothing}>Do nothing</Select.Option>
+            <Select.Option value={PrNumberClickAction.copyNumber}>Copy PR number</Select.Option>
+            <Select.Option value={PrNumberClickAction.ghPrCheckout}>
+              Copy: gh pr checkout {'<number>'} --force
+            </Select.Option>
+          </Select>
+          <FormControl.Caption>
+            The "git" option falls back to copying the issue number when no branch is available.
+          </FormControl.Caption>
+        </FormControl>
 
+        <FormControl style={{ marginTop: 8 }}>
           <FormControl.Label>Branch name — click action</FormControl.Label>
           <Select
             block

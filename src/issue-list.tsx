@@ -168,7 +168,7 @@ export function IssueList(props: IssueListProps) {
           throw new Error('doNothing should be handled by the caller');
         case PrNumberClickAction.copyNumber:
           return {
-            copyValue: data.number,
+            copyValue: rawNumber,
             title: data.isPullRequest ? 'Copy PR number' : 'Copy issue number',
           };
       }

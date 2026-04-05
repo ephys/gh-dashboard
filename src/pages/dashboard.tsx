@@ -62,7 +62,9 @@ export function Dashboard() {
   }, []);
 
   const onConfirmDelete = useCallback(() => {
-    if (deletingIndex === null) {return;}
+    if (deletingIndex === null) {
+      return;
+    }
 
     setConfig(oldConfig => {
       return {
@@ -177,12 +179,16 @@ export function Dashboard() {
 
   const onPasteComponent = useCallback(
     (afterIndex: number) => {
-      if (!clipboard) {return;}
+      if (!clipboard) {
+        return;
+      }
 
       setConfig(oldConfig => ({
         ...oldConfig,
         tabs: oldConfig.tabs.map(tab => {
-          if (tab.slug !== tabSlug) {return tab;}
+          if (tab.slug !== tabSlug) {
+            return tab;
+          }
 
           return {
             ...tab,
@@ -199,7 +205,9 @@ export function Dashboard() {
       setConfig(oldConfig => ({
         ...oldConfig,
         tabs: oldConfig.tabs.map(tab => {
-          if (tab.slug !== tabSlug) {return tab;}
+          if (tab.slug !== tabSlug) {
+            return tab;
+          }
 
           return {
             ...tab,
@@ -215,7 +223,9 @@ export function Dashboard() {
     (fromIndex: number, targetTabSlug: string) => {
       setConfig(oldConfig => {
         const sourceTab = oldConfig.tabs.find(t => t.slug === tabSlug);
-        if (!sourceTab) {return oldConfig;}
+        if (!sourceTab) {
+          return oldConfig;
+        }
 
         const component = sourceTab.components[fromIndex];
 
@@ -256,14 +266,21 @@ export function Dashboard() {
   }, []);
 
   const getComponentName = useCallback((component: any): string => {
-    if ('variant' in component && 'markdown' in component) {return 'Flash Message';}
+    if ('variant' in component && 'markdown' in component) {
+      return 'Flash Message';
+    }
 
-    if ('organization' in component) {return component.name || 'DevOps Pull Requests';}
+    if ('organization' in component) {
+      return component.name || 'DevOps Pull Requests';
+    }
 
-    if ('type' in component && component.type === 'gh-branches')
-      {return component.name || 'GitHub Branches';}
+    if ('type' in component && component.type === 'gh-branches') {
+      return component.name || 'GitHub Branches';
+    }
 
-    if ('query' in component) {return component.name || 'GitHub Search';}
+    if ('query' in component) {
+      return component.name || 'GitHub Search';
+    }
 
     return 'Component';
   }, []);
@@ -299,7 +316,9 @@ export function Dashboard() {
               <ChevronUpIcon />
             </ActionList.LeadingVisual>
           </ActionList.Item>
-          <ActionList.Item onSelect={() => onMoveComponent(index, index + 1)} disabled={!canMoveDown}>
+          <ActionList.Item
+            onSelect={() => onMoveComponent(index, index + 1)}
+            disabled={!canMoveDown}>
             Move down
             <ActionList.LeadingVisual>
               <ChevronDownIcon />
@@ -398,14 +417,13 @@ export function Dashboard() {
         return <GithubBranches key={index} config={component} actions={actions} />;
       }
 
-        if (!githubPat) {
-          hasHiddenGitHubComponents = true;
+      if (!githubPat) {
+        hasHiddenGitHubComponents = true;
 
-          return null;
-        }
+        return null;
+      }
 
-        return <GithubIssueList key={index + component.query} list={component} actions={actions} />;
-
+      return <GithubIssueList key={index + component.query} list={component} actions={actions} />;
     })
     .filter(isNotNullish);
 

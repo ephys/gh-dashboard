@@ -5,7 +5,8 @@ import { useCallback, useRef, useState } from 'react';
 type IconButtonProps = ComponentProps<typeof IconButton>;
 
 export interface ActionMenuIconButtonProps
-  extends Pick<IconButtonProps, 'icon' | 'aria-label' | 'aria-labelledby'>,
+  extends
+    Pick<IconButtonProps, 'icon' | 'aria-label' | 'aria-labelledby'>,
     Pick<ComponentProps<typeof ActionMenu>, 'children'> {}
 
 export function ActionMenuIconButton({ children, ...passDown }: ActionMenuIconButtonProps) {

@@ -148,6 +148,7 @@ export function DevopsPullRequests({ config, actions }: DevOpsPullRequestsProps)
         title: pullRequest.title,
         labels: [],
         unread: false,
+        isPullRequest: true,
         checksUrl: url,
       } satisfies IssueListItem;
     });

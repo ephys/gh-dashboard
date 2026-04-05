@@ -1,6 +1,6 @@
 import { Text } from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
-import { EMPTY_ARRAY } from '@sequelize/utils';
+import { EMPTY_ARRAY, isNotNullish } from '@sequelize/utils';
 import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from 'urql';
 import {
@@ -424,17 +424,17 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
       ) {
         authors = [getGitHubInlineUser(node.author!)];
       } else if (appConfiguration.prAuthorStyle === PrAuthorStyle.assignees) {
-        authors = node.assignees.nodes.map(getGitHubInlineUser);
+        authors = node.assignees.nodes.filter(isNotNullish).map(getGitHubInlineUser);
       } else {
         const creator = getGitHubInlineUser(node.author!);
-        authors = node.assignees.nodes.map(getGitHubInlineUser);
+        authors = node.assignees.nodes.filter(isNotNullish).map(getGitHubInlineUser);
 
         if (!authors.some(author => author.username === creator.username)) {
           authors.push(creator);
         }
       }
 
-      const viewerReview = reviews.get(viewerLogin);
+      const viewerReview = viewerLogin != null ? reviews.get(viewerLogin) : undefined;
       let viewerReviewWaitTimes = 0;
 
       if (
@@ -462,21 +462,24 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
           latestReadyForReviewEvent?.createdAt ?? node.createdAt,
         );
 
-        const latestReviewRequestId = node.viewerLatestReviewRequest.requestedReviewer?.id;
+        const requestedReviewer = node.viewerLatestReviewRequest.requestedReviewer;
+        const latestReviewRequestId =
+          requestedReviewer && 'id' in requestedReviewer ? requestedReviewer.id : undefined;
         const latestReviewRequestEvent = node.timelineItems.nodes!.findLast(item => {
           if (item!.__typename !== 'ReviewRequestedEvent') {
             return false;
           }
 
-          const requestedReviewer = item?.requestedReviewer;
+          const itemRequestedReviewer = item?.requestedReviewer;
           if (
-            !requestedReviewer ||
-            (requestedReviewer.__typename !== 'User' && requestedReviewer.__typename !== 'Team')
+            !itemRequestedReviewer ||
+            (itemRequestedReviewer.__typename !== 'User' &&
+              itemRequestedReviewer.__typename !== 'Team')
           ) {
             return false;
           }
 
-          return requestedReviewer.id === latestReviewRequestId;
+          return itemRequestedReviewer.id === latestReviewRequestId;
         });
 
         if (
