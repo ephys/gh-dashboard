@@ -46,6 +46,8 @@ export interface IssueListItem {
   authors: InlineUserProps[];
   autoMerge?: { at: string; by: InlineUserProps } | undefined;
   branchName?: string;
+  /** Owner/repo of the head (fork) repo, only set when different from the base repo */
+  headRepositoryName?: string;
   checkStatus?: CheckStatus | undefined;
   checksUrl: string;
   commentCount?: number;
@@ -160,7 +162,11 @@ export function IssueList(props: IssueListProps) {
                   {!hideNumbers && <>{data.number} </>}
                   {!hideBranchNames && data.branchName && (
                     <>
-                      <BranchButton>{data.branchName}</BranchButton>{' '}
+                      <BranchButton>
+                        {data.headRepositoryName
+                          ? `${data.headRepositoryName}:${data.branchName}`
+                          : data.branchName}
+                      </BranchButton>{' '}
                     </>
                   )}
                   opened <RelativeTime datetime={data.createdAt} /> by{' '}

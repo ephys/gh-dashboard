@@ -76,6 +76,9 @@ const searchQuery = graphql(/* GraphQL */ `
           prState: state
           title
           headRefName
+          headRepository {
+            nameWithOwner
+          }
           isReadByViewer
           url
           number
@@ -499,6 +502,12 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
               }
             : undefined,
         branchName: node.__typename === 'PullRequest' ? node.headRefName : undefined,
+        headRepositoryName:
+          node.__typename === 'PullRequest' &&
+          node.headRepository &&
+          node.headRepository.nameWithOwner !== node.repository.nameWithOwner
+            ? node.headRepository.nameWithOwner
+            : undefined,
         checkStatus:
           node.__typename !== 'PullRequest' || !node.statusCheckRollup?.state || !hasChecks
             ? undefined
