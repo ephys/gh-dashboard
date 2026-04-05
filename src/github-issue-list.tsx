@@ -216,8 +216,8 @@ type SearchResult = MakeNonNullish<
 >;
 
 export interface IssueListProps {
-  list: GitHubSearchConfiguration;
   actions?: ReactNode;
+  list: GitHubSearchConfiguration;
 }
 
 export function GithubIssueList({ list, actions }: IssueListProps) {

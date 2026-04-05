@@ -27,13 +27,14 @@ export const IssueIconFragment = graphql(/* GraphQL */ `
 `);
 
 interface GithubIssueIconProps {
-  issue: FragmentType<typeof IssueIconFragment>;
   className?: string;
+  issue: FragmentType<typeof IssueIconFragment>;
 }
 
 export function GithubIssueIcon(props: GithubIssueIconProps) {
   const issue = getFragmentData(IssueIconFragment, props.issue);
 
+  // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
   switch (issue.__typename) {
     case 'Issue':
       if (issue.issueState === IssueState.Open) {

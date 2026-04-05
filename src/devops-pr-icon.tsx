@@ -7,9 +7,9 @@ import {
 import css from './devops-pr-icon.module.scss';
 
 interface DevopsPrIconProps {
+  className?: string;
   isDraft: boolean;
   status: 'active' | 'abandoned' | 'completed';
-  className?: string;
 }
 
 export function DevopsPrIcon(props: DevopsPrIconProps) {

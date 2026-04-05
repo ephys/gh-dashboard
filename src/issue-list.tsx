@@ -16,8 +16,8 @@ import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
 import {
   BranchClickAction,
   PrNumberClickAction,
-  UserNameStyle,
   useAppConfiguration,
+  UserNameStyle,
 } from './app-configuration.js';
 import { BranchButton } from './branch-button.js';
 import { formatUserName } from './format-user-name.js';
@@ -51,16 +51,16 @@ export interface IssueListItem {
   authors: InlineUserProps[];
   autoMerge?: { at: string; by: InlineUserProps } | undefined;
   branchName?: string;
-  /** Owner/repo of the head (fork) repo, only set when different from the base repo */
-  headRepositoryName?: string;
-  isPullRequest: boolean;
   checkStatus?: CheckStatus | undefined;
   checksUrl: string;
   commentCount?: number;
   createdAt: string;
   failedChecks?: readonly FailedCheck[];
+  /** Owner/repo of the head (fork) repo, only set when different from the base repo */
+  headRepositoryName?: string;
   icon: ReactNode;
   id: string;
+  isPullRequest: boolean;
   labels: IssueLabelProps[];
   mergedAt?: string | undefined;
   number: string;
@@ -77,6 +77,7 @@ export interface IssueListItem {
 }
 
 interface IssueListProps {
+  actions?: ReactNode;
   countPerPage: number;
   defaultRepository?: string;
   description: ReactNode;
@@ -86,7 +87,6 @@ interface IssueListProps {
   issues: readonly IssueListItem[];
   loaded: boolean;
   name: ReactNode;
-  actions?: ReactNode;
 
   onPageChange(pageIndex: number): void;
 
@@ -144,7 +144,9 @@ export function IssueList(props: IssueListProps) {
           return buildJetBrainsProps('phpstorm', repoUrl, branch);
         case BranchClickAction.openPyCharm:
           return buildJetBrainsProps('pycharm', repoUrl, branch);
-        default: // copyBranch
+        case BranchClickAction.doNothing:
+          throw new Error('doNothing should be handled by the caller');
+        case BranchClickAction.copyBranch:
           return { copyValue: branch, title: 'Copy branch name' };
       }
     }
@@ -162,7 +164,9 @@ export function IssueList(props: IssueListProps) {
             copyValue: `gh pr checkout ${rawNumber} --force`,
             title: 'Copy gh checkout command',
           };
-        default: // copyNumber
+        case PrNumberClickAction.doNothing:
+          throw new Error('doNothing should be handled by the caller');
+        case PrNumberClickAction.copyNumber:
           return {
             copyValue: data.number,
             title: data.isPullRequest ? 'Copy PR number' : 'Copy issue number',

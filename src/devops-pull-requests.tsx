@@ -68,8 +68,8 @@ interface DevOpsPullRequestResponse {
 }
 
 interface DevOpsPullRequestsProps {
-  config: DevOpsPullRequestsConfiguration;
   actions?: ReactNode;
+  config: DevOpsPullRequestsConfiguration;
 }
 
 export function DevopsPullRequests({ config, actions }: DevOpsPullRequestsProps) {
@@ -79,7 +79,8 @@ export function DevopsPullRequests({ config, actions }: DevOpsPullRequestsProps)
   const [pat] = useDevOpsPat();
   const [error, setError] = useState<unknown>(null);
   const [data, setData] = useState<DevOpsPullRequestResponse | null>(null);
-  const [page, setPage] = useState(0);
+  // TODO: support pagination
+  const [, setPage] = useState(0);
 
   useEffect(() => {
     fetch(

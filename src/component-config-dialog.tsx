@@ -10,18 +10,26 @@ export type ComponentType = 'github-search' | 'github-branches' | 'devops-prs' |
 export interface ComponentConfigDialogProps {
   initialConfig?: any;
   initialType?: ComponentType;
-  onClose(): void;
-  onSave(config: any): void;
+  onClose(this: void): void;
+  onSave(this: void, config: any): void;
 }
 
 function detectComponentType(config: any): ComponentType {
-  if (!config) {return 'github-search';}
+  if (!config) {
+    return 'github-search';
+  }
 
-  if ('variant' in config && 'markdown' in config) {return 'flash';}
+  if ('variant' in config && 'markdown' in config) {
+    return 'flash';
+  }
 
-  if ('organization' in config) {return 'devops-prs';}
+  if ('organization' in config) {
+    return 'devops-prs';
+  }
 
-  if ('type' in config && config.type === 'gh-branches') {return 'github-branches';}
+  if ('type' in config && config.type === 'gh-branches') {
+    return 'github-branches';
+  }
 
   return 'github-search';
 }
@@ -43,8 +51,6 @@ export function ComponentConfigDialog({
 
       const formData = getFormValues(event.currentTarget);
       let config: any;
-
-      console.log(formData.hideBranchNames);
 
       switch (componentType) {
         case 'github-search':

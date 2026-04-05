@@ -99,7 +99,7 @@ const COLUMNS: Array<Column<RefRow>> = [
           {data.target.author?.user && (
             <>
               {' '}
-              by <GitHubInlineUser user={data.target.author?.user} />
+              by <GitHubInlineUser user={data.target.author.user} />
             </>
           )}
         </span>
@@ -110,7 +110,7 @@ const COLUMNS: Array<Column<RefRow>> = [
     id: 'pr',
     header: 'Pull Request',
     renderCell(ref: RefRow) {
-      const associatedPrs = ref.associatedPullRequests?.nodes;
+      const associatedPrs = ref.associatedPullRequests.nodes;
 
       const hasOkPr = associatedPrs?.some(pr => pr?.state !== 'CLOSED');
 
@@ -144,8 +144,8 @@ export function GithubBranches({
   config,
   actions,
 }: {
-  config: GitHubBranchesConfiguration;
   actions?: ReactNode;
+  config: GitHubBranchesConfiguration;
 }) {
   const [urqlSearch, refresh] = useUrqlQuery({
     query: searchQuery,
@@ -159,7 +159,7 @@ export function GithubBranches({
   useOnGlobalRefresh(refresh);
 
   const error = urqlSearch.error;
-  const nodes = (urqlSearch.data?.search?.nodes ?? []) as SearchResult[];
+  const nodes = (urqlSearch.data?.search.nodes ?? []) as SearchResult[];
 
   const id = useId();
 

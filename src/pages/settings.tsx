@@ -370,6 +370,7 @@ interface NewTabActionProps {
 
 function NewTabDialog({ onClose }: NewTabActionProps) {
   const [appConfiguration, setAppConfiguration] = useAppConfiguration();
+  const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -381,19 +382,19 @@ function NewTabDialog({ onClose }: NewTabActionProps) {
       isString.assert(values.slug);
 
       if (values.slug.length === 0) {
-        alert('Slug is required');
+        enqueueSnackbar('Slug is required', { variant: 'error' });
 
         return;
       }
 
       if (values.name.length === 0) {
-        alert('Name is required');
+        enqueueSnackbar('Name is required', { variant: 'error' });
 
         return;
       }
 
       if (appConfiguration.tabs.some(t => t.slug === values.slug)) {
-        alert('Slug is already used');
+        enqueueSnackbar('Slug is already used', { variant: 'error' });
 
         return;
       }
@@ -412,7 +413,7 @@ function NewTabDialog({ onClose }: NewTabActionProps) {
 
       onClose();
     },
-    [appConfiguration, onClose, setAppConfiguration],
+    [appConfiguration, enqueueSnackbar, onClose, setAppConfiguration],
   );
 
   return (
@@ -457,6 +458,7 @@ function EditTabDialog(props: EditTabActionProps) {
   const [appConfiguration, setAppConfiguration] = useAppConfiguration();
   const { index, onClose } = props;
   const tab = appConfiguration.tabs[index];
+  const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -468,19 +470,19 @@ function EditTabDialog(props: EditTabActionProps) {
       isString.assert(values.slug);
 
       if (values.slug.length === 0) {
-        alert('Slug is required');
+        enqueueSnackbar('Slug is required', { variant: 'error' });
 
         return;
       }
 
       if (values.name.length === 0) {
-        alert('Name is required');
+        enqueueSnackbar('Name is required', { variant: 'error' });
 
         return;
       }
 
       if (appConfiguration.tabs.some((t, i) => i !== index && t.slug === values.slug)) {
-        alert('Slug is already used');
+        enqueueSnackbar('Slug is already used', { variant: 'error' });
 
         return;
       }
@@ -496,7 +498,7 @@ function EditTabDialog(props: EditTabActionProps) {
 
       onClose();
     },
-    [appConfiguration, index, onClose, setAppConfiguration, tab],
+    [appConfiguration, enqueueSnackbar, index, onClose, setAppConfiguration, tab],
   );
 
   return (

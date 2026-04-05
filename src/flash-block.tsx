@@ -12,9 +12,9 @@ export enum AlertVariant {
 }
 
 type AlertProps = {
+  actions?: ReactNode;
   markdown: string;
   variant: AlertVariant;
-  actions?: ReactNode;
 };
 
 export function FlashBlock(props: AlertProps) {

@@ -7,10 +7,10 @@ interface Props {
   className?: string;
   /** Text to copy to clipboard. Defaults to children. Mutually exclusive with href. */
   copyValue?: string;
-  /** Tooltip text. Auto-generated when omitted. */
-  title?: string;
   /** When set, renders as an anchor that navigates to this URL (e.g. IDE URI schemes). */
   href?: string;
+  /** Tooltip text. Auto-generated when omitted. */
+  title?: string;
 }
 
 export function BranchButton({ children, className, copyValue, title, href }: Props) {

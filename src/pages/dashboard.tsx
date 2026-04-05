@@ -51,7 +51,7 @@ export function Dashboard() {
     if (!tabSlug || !config.tabs.some(t => t.slug === tabSlug)) {
       const firstTab = config.tabs[0];
 
-      navigate(`/d/${firstTab.slug}`, { replace: true });
+      void navigate(`/d/${firstTab.slug}`, { replace: true });
     }
   }, [config.tabs, tabSlug, navigate]);
 
@@ -368,7 +368,7 @@ export function Dashboard() {
   const displayedComponents = currentPage?.components
     .map((component, index) => {
       const canMoveUp = index > 0;
-      const canMoveDown = index < (currentPage?.components.length ?? 0) - 1;
+      const canMoveDown = index < currentPage.components.length - 1;
       const actions = buildActions(index, canMoveUp, canMoveDown, component);
 
       if ('variant' in component) {
@@ -397,7 +397,7 @@ export function Dashboard() {
       } else if ('type' in component) {
         return <GithubBranches key={index} config={component} actions={actions} />;
       }
- 
+
         if (!githubPat) {
           hasHiddenGitHubComponents = true;
 
@@ -405,7 +405,7 @@ export function Dashboard() {
         }
 
         return <GithubIssueList key={index + component.query} list={component} actions={actions} />;
-      
+
     })
     .filter(isNotNullish);
 
