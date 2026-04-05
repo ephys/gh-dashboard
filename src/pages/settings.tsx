@@ -1,4 +1,4 @@
-import { KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-react';
+import { ChevronDownIcon, ChevronUpIcon, KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
@@ -179,12 +179,24 @@ export function Settings() {
 }
 
 function TabList() {
-  const [appConfiguration] = useAppConfiguration();
+  const [appConfiguration, setAppConfiguration] = useAppConfiguration();
   const [openModal, setOpenModal] = useState<['delete' | 'edit', index: number] | 'new' | null>(
     null,
   );
 
   const onCloseModal = useCallback(() => setOpenModal(null), []);
+
+  const onMoveTab = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      setAppConfiguration(oldConfig => {
+        const tabs = [...oldConfig.tabs];
+        const [removed] = tabs.splice(fromIndex, 1);
+        tabs.splice(toIndex, 0, removed);
+        return { ...oldConfig, tabs };
+      });
+    },
+    [setAppConfiguration],
+  );
 
   const tabCount = appConfiguration.tabs.length;
   const columns: Array<ListColumn<TabConfiguration>> = useMemo(() => {
@@ -206,6 +218,9 @@ function TabList() {
         align: 'right',
         id: 'actions',
         renderCell: (_data, index) => {
+          const canMoveUp = index > 0;
+          const canMoveDown = index < tabCount - 1;
+
           return (
             <ActionMenuIconButton icon={KebabHorizontalIcon} aria-label="Tab Actions">
               <ActionMenu.Overlay width="auto">
@@ -225,6 +240,23 @@ function TabList() {
                     </ActionList.LeadingVisual>
                     Delete
                   </ActionList.Item>
+                  <ActionList.Divider />
+                  <ActionList.Item
+                    onClick={canMoveUp ? () => onMoveTab(index, index - 1) : undefined}
+                    disabled={!canMoveUp}>
+                    <ActionList.LeadingVisual>
+                      <ChevronUpIcon />
+                    </ActionList.LeadingVisual>
+                    Move up
+                  </ActionList.Item>
+                  <ActionList.Item
+                    onClick={canMoveDown ? () => onMoveTab(index, index + 1) : undefined}
+                    disabled={!canMoveDown}>
+                    <ActionList.LeadingVisual>
+                      <ChevronDownIcon />
+                    </ActionList.LeadingVisual>
+                    Move down
+                  </ActionList.Item>
                 </ActionList>
               </ActionMenu.Overlay>
             </ActionMenuIconButton>
@@ -232,14 +264,13 @@ function TabList() {
         },
       },
     ];
-  }, [tabCount]);
+  }, [tabCount, onMoveTab]);
 
   return (
     <>
       <Heading as="h3" style={{ marginTop: 8, fontSize: 'var(--text-body-size-medium)' }}>
         Tabs
       </Heading>
-      {/* TODO: drag & drop re-order */}
       <List
         columns={columns}
         data={appConfiguration.tabs}
