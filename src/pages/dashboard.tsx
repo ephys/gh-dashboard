@@ -62,7 +62,7 @@ export function Dashboard() {
   }, []);
 
   const onConfirmDelete = useCallback(() => {
-    if (deletingIndex === null) return;
+    if (deletingIndex === null) {return;}
 
     setConfig(oldConfig => {
       return {
@@ -114,6 +114,7 @@ export function Dashboard() {
             }
 
             const position = insertPosition ?? tab.components.length;
+
             return {
               ...tab,
               components: tab.components.toSpliced(position, 0, component),
@@ -176,11 +177,13 @@ export function Dashboard() {
 
   const onPasteComponent = useCallback(
     (afterIndex: number) => {
-      if (!clipboard) return;
+      if (!clipboard) {return;}
+
       setConfig(oldConfig => ({
         ...oldConfig,
         tabs: oldConfig.tabs.map(tab => {
-          if (tab.slug !== tabSlug) return tab;
+          if (tab.slug !== tabSlug) {return tab;}
+
           return {
             ...tab,
             components: tab.components.toSpliced(afterIndex + 1, 0, clipboard),
@@ -196,7 +199,8 @@ export function Dashboard() {
       setConfig(oldConfig => ({
         ...oldConfig,
         tabs: oldConfig.tabs.map(tab => {
-          if (tab.slug !== tabSlug) return tab;
+          if (tab.slug !== tabSlug) {return tab;}
+
           return {
             ...tab,
             components: tab.components.toSpliced(index + 1, 0, component),
@@ -211,17 +215,21 @@ export function Dashboard() {
     (fromIndex: number, targetTabSlug: string) => {
       setConfig(oldConfig => {
         const sourceTab = oldConfig.tabs.find(t => t.slug === tabSlug);
-        if (!sourceTab) return oldConfig;
+        if (!sourceTab) {return oldConfig;}
+
         const component = sourceTab.components[fromIndex];
+
         return {
           ...oldConfig,
           tabs: oldConfig.tabs.map(tab => {
             if (tab.slug === tabSlug) {
               return { ...tab, components: tab.components.toSpliced(fromIndex, 1) };
             }
+
             if (tab.slug === targetTabSlug) {
               return { ...tab, components: [...tab.components, component] };
             }
+
             return tab;
           }),
         };
@@ -248,17 +256,22 @@ export function Dashboard() {
   }, []);
 
   const getComponentName = useCallback((component: any): string => {
-    if ('variant' in component && 'markdown' in component) return 'Flash Message';
-    if ('organization' in component) return component.name || 'DevOps Pull Requests';
+    if ('variant' in component && 'markdown' in component) {return 'Flash Message';}
+
+    if ('organization' in component) {return component.name || 'DevOps Pull Requests';}
+
     if ('type' in component && component.type === 'gh-branches')
-      return component.name || 'GitHub Branches';
-    if ('query' in component) return component.name || 'GitHub Search';
+      {return component.name || 'GitHub Branches';}
+
+    if ('query' in component) {return component.name || 'GitHub Search';}
+
     return 'Component';
   }, []);
 
   const buildActions = useCallback(
     (index: number, canMoveUp: boolean, canMoveDown: boolean, component: any) => {
       const otherTabs = config.tabs.filter(tab => tab.slug !== tabSlug);
+
       return (
         <>
           <ActionList.Item onSelect={() => onOpenEditDialog(index)}>
@@ -370,8 +383,10 @@ export function Dashboard() {
       } else if ('organization' in component) {
         if (!devOpsPat) {
           hasHiddenDevOpsComponents = true;
+
           return null;
         }
+
         return (
           <DevopsPullRequests
             key={index + component.organization}
@@ -381,13 +396,16 @@ export function Dashboard() {
         );
       } else if ('type' in component) {
         return <GithubBranches key={index} config={component} actions={actions} />;
-      } else {
+      }
+ 
         if (!githubPat) {
           hasHiddenGitHubComponents = true;
+
           return null;
         }
+
         return <GithubIssueList key={index + component.query} list={component} actions={actions} />;
-      }
+      
     })
     .filter(isNotNullish);
 

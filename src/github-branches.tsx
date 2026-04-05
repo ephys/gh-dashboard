@@ -8,8 +8,9 @@ import {
   RelativeTime,
   Text,
 } from '@primer/react';
-import { Column, DataTable, Table, UniqueRow } from '@primer/react/experimental';
-import { MakeNonNullish } from '@sequelize/utils';
+import type { Column, UniqueRow } from '@primer/react/experimental';
+import { DataTable, Table } from '@primer/react/experimental';
+import type { MakeNonNullish } from '@sequelize/utils';
 import type { ReactNode } from 'react';
 import { useId } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.js';

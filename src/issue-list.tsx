@@ -13,7 +13,12 @@ import { DataTable, Table, type Column } from '@primer/react/experimental';
 import { basicComparator } from '@sequelize/utils';
 import { useMemo, type ReactNode } from 'react';
 import { ActionMenuIconButton } from './action-menu-icon-button.tsx';
-import { UserNameStyle } from './app-configuration.js';
+import {
+  BranchClickAction,
+  PrNumberClickAction,
+  UserNameStyle,
+  useAppConfiguration,
+} from './app-configuration.js';
 import { BranchButton } from './branch-button.js';
 import { formatUserName } from './format-user-name.js';
 import type { InlineUserProps } from './inline-user.tsx';
@@ -48,6 +53,7 @@ export interface IssueListItem {
   branchName?: string;
   /** Owner/repo of the head (fork) repo, only set when different from the base repo */
   headRepositoryName?: string;
+  isPullRequest: boolean;
   checkStatus?: CheckStatus | undefined;
   checksUrl: string;
   commentCount?: number;
@@ -90,11 +96,80 @@ interface IssueListProps {
 
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
+/** Maps JetBrains product IDs to display names */
+const JETBRAINS_PRODUCT_NAMES: Record<string, string> = {
+  idea: 'IntelliJ IDEA',
+  webstorm: 'WebStorm',
+  rider: 'Rider',
+  goland: 'GoLand',
+  phpstorm: 'PhpStorm',
+  pycharm: 'PyCharm',
+};
+
+function buildJetBrainsProps(
+  product: string,
+  repoUrl: string,
+  branch: string,
+): { href: string; title: string } {
+  const href = `jetbrains://${product}/checkout?checkout.url=${encodeURIComponent(repoUrl)}&checkout.branch=${encodeURIComponent(branch)}`;
+
+  return { href, title: `Open in ${JETBRAINS_PRODUCT_NAMES[product] ?? product}` };
+}
+
 export function IssueList(props: IssueListProps) {
   const { totalCount, countPerPage, issues, defaultRepository, hideNumbers, hideBranchNames } =
     props;
+  const [{ branchClickAction, prNumberClickAction }] = useAppConfiguration();
 
   const COLUMNS: Array<Column<IssueListItem>> = useMemo(() => {
+    function getBranchButtonProps(data: IssueListItem): {
+      copyValue?: string;
+      href?: string;
+      title: string;
+    } {
+      const branch = data.branchName!;
+      const repoUrl = data.repository?.url ?? '';
+      switch (branchClickAction) {
+        case BranchClickAction.gitCheckout:
+          return { copyValue: `git switch -C ${branch}`, title: 'Copy git checkout command' };
+        case BranchClickAction.openIntellij:
+          return buildJetBrainsProps('idea', repoUrl, branch);
+        case BranchClickAction.openWebStorm:
+          return buildJetBrainsProps('webstorm', repoUrl, branch);
+        case BranchClickAction.openRider:
+          return buildJetBrainsProps('rider', repoUrl, branch);
+        case BranchClickAction.openGoLand:
+          return buildJetBrainsProps('goland', repoUrl, branch);
+        case BranchClickAction.openPhpStorm:
+          return buildJetBrainsProps('phpstorm', repoUrl, branch);
+        case BranchClickAction.openPyCharm:
+          return buildJetBrainsProps('pycharm', repoUrl, branch);
+        default: // copyBranch
+          return { copyValue: branch, title: 'Copy branch name' };
+      }
+    }
+
+    function getPrNumberButtonProps(data: IssueListItem): { copyValue?: string; title: string } {
+      const rawNumber = data.number.replace('#', '');
+      // PR-specific actions fall back to copy-number for issues
+      const effectiveAction =
+        !data.isPullRequest && prNumberClickAction !== PrNumberClickAction.doNothing
+          ? PrNumberClickAction.copyNumber
+          : prNumberClickAction;
+      switch (effectiveAction) {
+        case PrNumberClickAction.ghPrCheckout:
+          return {
+            copyValue: `gh pr checkout ${rawNumber} --force`,
+            title: 'Copy gh checkout command',
+          };
+        default: // copyNumber
+          return {
+            copyValue: data.number,
+            title: data.isPullRequest ? 'Copy PR number' : 'Copy issue number',
+          };
+      }
+    }
+
     return [
       {
         header: 'Results',
@@ -102,6 +177,11 @@ export function IssueList(props: IssueListProps) {
         width: 'auto',
         renderCell: data => {
           const { labels, failedChecks, viewerReviewWaitTimes = 0 } = data;
+          const branchDisplay = data.branchName
+            ? data.headRepositoryName
+              ? `${data.headRepositoryName}:${data.branchName}`
+              : data.branchName
+            : undefined;
 
           return (
             <div className={css.issueRow} data-unread={String(data.unread)}>
@@ -159,14 +239,22 @@ export function IssueList(props: IssueListProps) {
                       </PrimerLink>{' '}
                     </>
                   )}
-                  {!hideNumbers && <>{data.number} </>}
-                  {!hideBranchNames && data.branchName && (
+                  {!hideNumbers && (
                     <>
-                      <BranchButton>
-                        {data.headRepositoryName
-                          ? `${data.headRepositoryName}:${data.branchName}`
-                          : data.branchName}
-                      </BranchButton>{' '}
+                      {prNumberClickAction === PrNumberClickAction.doNothing ? (
+                        data.number
+                      ) : (
+                        <BranchButton {...getPrNumberButtonProps(data)}>{data.number}</BranchButton>
+                      )}{' '}
+                    </>
+                  )}
+                  {!hideBranchNames && branchDisplay && (
+                    <>
+                      {branchClickAction === BranchClickAction.doNothing ? (
+                        branchDisplay
+                      ) : (
+                        <BranchButton {...getBranchButtonProps(data)}>{branchDisplay}</BranchButton>
+                      )}{' '}
                     </>
                   )}
                   opened <RelativeTime datetime={data.createdAt} /> by{' '}
@@ -257,7 +345,7 @@ export function IssueList(props: IssueListProps) {
         },
       },
     ];
-  }, [defaultRepository, hideBranchNames, hideNumbers]);
+  }, [defaultRepository, hideBranchNames, hideNumbers, branchClickAction, prNumberClickAction]);
 
   return (
     <Table.Container>

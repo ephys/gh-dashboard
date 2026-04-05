@@ -530,6 +530,7 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
           };
         }),
         mergedAt: node.__typename === 'PullRequest' ? node.mergedAt : undefined,
+        isPullRequest: node.__typename === 'PullRequest',
         number: `#${node.number}`,
         repository: {
           name: node.repository.nameWithOwner,

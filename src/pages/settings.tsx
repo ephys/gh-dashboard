@@ -1,4 +1,10 @@
-import { ChevronDownIcon, ChevronUpIcon, KebabHorizontalIcon, PencilIcon, TrashIcon } from '@primer/octicons-react';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  KebabHorizontalIcon,
+  PencilIcon,
+  TrashIcon,
+} from '@primer/octicons-react';
 import {
   ActionList,
   ActionMenu,
@@ -20,7 +26,9 @@ import { Link } from 'react-router-dom';
 import { ActionMenuIconButton } from '../action-menu-icon-button.tsx';
 import {
   AppConfigurationSchema,
+  BranchClickAction,
   PrAuthorStyle,
+  PrNumberClickAction,
   UserNameStyle,
   useAppConfiguration,
   type TabConfiguration,
@@ -116,6 +124,26 @@ export function Settings() {
     [setAppConfiguration],
   );
 
+  const onBranchClickActionChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      setAppConfiguration(oldConfig => ({
+        ...oldConfig,
+        branchClickAction: event.currentTarget.value as BranchClickAction,
+      }));
+    },
+    [setAppConfiguration],
+  );
+
+  const onPrNumberClickActionChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      setAppConfiguration(oldConfig => ({
+        ...oldConfig,
+        prNumberClickAction: event.currentTarget.value as PrNumberClickAction,
+      }));
+    },
+    [setAppConfiguration],
+  );
+
   return (
     <PageLayout containerWidth="medium">
       <PageLayout.Header>
@@ -157,6 +185,45 @@ export function Settings() {
           </Select>
         </FormControl>
 
+        <FormControl style={{ marginTop: 8 }}>
+          <FormControl style={{ marginTop: 8 }}>
+            <FormControl.Label>PR number — click action</FormControl.Label>
+            <Select
+              block
+              onChange={onPrNumberClickActionChange}
+              value={appConfiguration.prNumberClickAction}>
+              <Select.Option value={PrNumberClickAction.doNothing}>Do nothing</Select.Option>
+              <Select.Option value={PrNumberClickAction.copyNumber}>Copy PR number</Select.Option>
+              <Select.Option value={PrNumberClickAction.ghPrCheckout}>
+                Copy: gh pr checkout {'<number>'} --force
+              </Select.Option>
+            </Select>
+            <FormControl.Caption>
+              The "git" option falls back to copying the issue number when no branch is available.
+            </FormControl.Caption>
+          </FormControl>
+
+          <FormControl.Label>Branch name — click action</FormControl.Label>
+          <Select
+            block
+            onChange={onBranchClickActionChange}
+            value={appConfiguration.branchClickAction}>
+            <Select.Option value={BranchClickAction.doNothing}>Do nothing</Select.Option>
+            <Select.Option value={BranchClickAction.copyBranch}>Copy branch name</Select.Option>
+            <Select.Option value={BranchClickAction.gitCheckout}>
+              Copy: git switch -C {'<branch>'}
+            </Select.Option>
+            <optgroup label="Open in JetBrains IDE">
+              <Select.Option value={BranchClickAction.openIntellij}>IntelliJ IDEA</Select.Option>
+              <Select.Option value={BranchClickAction.openWebStorm}>WebStorm</Select.Option>
+              <Select.Option value={BranchClickAction.openRider}>Rider</Select.Option>
+              <Select.Option value={BranchClickAction.openGoLand}>GoLand</Select.Option>
+              <Select.Option value={BranchClickAction.openPhpStorm}>PhpStorm</Select.Option>
+              <Select.Option value={BranchClickAction.openPyCharm}>PyCharm</Select.Option>
+            </optgroup>
+          </Select>
+        </FormControl>
+
         <TabList />
 
         <form onSubmit={onAppConfigurationChange}>
@@ -192,6 +259,7 @@ function TabList() {
         const tabs = [...oldConfig.tabs];
         const [removed] = tabs.splice(fromIndex, 1);
         tabs.splice(toIndex, 0, removed);
+
         return { ...oldConfig, tabs };
       });
     },

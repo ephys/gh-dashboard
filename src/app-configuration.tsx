@@ -97,10 +97,42 @@ export enum PrAuthorStyle {
   all = 'all',
 }
 
+export enum BranchClickAction {
+  /** Do not respond to clicks */
+  doNothing = 'do-nothing',
+  /** Copy the branch name to clipboard */
+  copyBranch = 'copyBranch',
+  /** Copy `git switch -C {branch}` to clipboard */
+  gitCheckout = 'gitCheckout',
+  /** Open branch checkout in IntelliJ IDEA */
+  openIntellij = 'openIntellij',
+  /** Open branch checkout in WebStorm */
+  openWebStorm = 'openWebStorm',
+  /** Open branch checkout in Rider */
+  openRider = 'openRider',
+  /** Open branch checkout in GoLand */
+  openGoLand = 'openGoLand',
+  /** Open branch checkout in PhpStorm */
+  openPhpStorm = 'openPhpStorm',
+  /** Open branch checkout in PyCharm */
+  openPyCharm = 'openPyCharm',
+}
+
+export enum PrNumberClickAction {
+  /** Do not respond to clicks */
+  doNothing = 'doNothing',
+  /** Copy the PR number (e.g. #123) to clipboard */
+  copyNumber = 'copyNumber',
+  /** Copy `gh pr checkout {number} --force` to clipboard */
+  ghPrCheckout = 'ghPrCheckout',
+}
+
 export const AppConfigurationSchema = z
   .object({
     userNameStyle: z.nativeEnum(UserNameStyle).default(UserNameStyle.login),
     prAuthorStyle: z.nativeEnum(PrAuthorStyle).default(PrAuthorStyle.assignees),
+    branchClickAction: z.nativeEnum(BranchClickAction).default(BranchClickAction.copyBranch),
+    prNumberClickAction: z.nativeEnum(PrNumberClickAction).default(PrNumberClickAction.copyNumber),
     tabs: z.array(TabConfigurationSchema).min(1),
   })
   .strict();
@@ -110,6 +142,8 @@ export type AppConfiguration = z.infer<typeof AppConfigurationSchema>;
 const DEFAULT_CONFIGURATION: AppConfiguration = freezeDeep({
   userNameStyle: UserNameStyle.login,
   prAuthorStyle: PrAuthorStyle.assignees,
+  branchClickAction: BranchClickAction.copyBranch,
+  prNumberClickAction: PrNumberClickAction.copyNumber,
   tabs: [
     {
       components: [

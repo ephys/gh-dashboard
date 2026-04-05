@@ -15,10 +15,14 @@ export interface ComponentConfigDialogProps {
 }
 
 function detectComponentType(config: any): ComponentType {
-  if (!config) return 'github-search';
-  if ('variant' in config && 'markdown' in config) return 'flash';
-  if ('organization' in config) return 'devops-prs';
-  if ('type' in config && config.type === 'gh-branches') return 'github-branches';
+  if (!config) {return 'github-search';}
+
+  if ('variant' in config && 'markdown' in config) {return 'flash';}
+
+  if ('organization' in config) {return 'devops-prs';}
+
+  if ('type' in config && config.type === 'gh-branches') {return 'github-branches';}
+
   return 'github-search';
 }
 
