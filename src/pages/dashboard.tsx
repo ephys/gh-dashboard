@@ -1,6 +1,10 @@
 import {
+  ArrowRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  CopyIcon,
+  DuplicateIcon,
+  PasteIcon,
   PencilIcon,
   PlusIcon,
   TrashIcon,
@@ -38,6 +42,7 @@ export function Dashboard() {
   const [insertPosition, setInsertPosition] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+  const [clipboard, setClipboard] = useState<any>(null);
 
   const navigate = useNavigate();
   const { tabSlug } = useParams();
@@ -165,6 +170,66 @@ export function Dashboard() {
     setComponentConfigIsOpen(true);
   }, []);
 
+  const onCopyComponent = useCallback((component: any) => {
+    setClipboard(component);
+  }, []);
+
+  const onPasteComponent = useCallback(
+    (afterIndex: number) => {
+      if (!clipboard) return;
+      setConfig(oldConfig => ({
+        ...oldConfig,
+        tabs: oldConfig.tabs.map(tab => {
+          if (tab.slug !== tabSlug) return tab;
+          return {
+            ...tab,
+            components: tab.components.toSpliced(afterIndex + 1, 0, clipboard),
+          };
+        }),
+      }));
+    },
+    [clipboard, setConfig, tabSlug],
+  );
+
+  const onDuplicateComponent = useCallback(
+    (index: number, component: any) => {
+      setConfig(oldConfig => ({
+        ...oldConfig,
+        tabs: oldConfig.tabs.map(tab => {
+          if (tab.slug !== tabSlug) return tab;
+          return {
+            ...tab,
+            components: tab.components.toSpliced(index + 1, 0, component),
+          };
+        }),
+      }));
+    },
+    [setConfig, tabSlug],
+  );
+
+  const onMoveToTab = useCallback(
+    (fromIndex: number, targetTabSlug: string) => {
+      setConfig(oldConfig => {
+        const sourceTab = oldConfig.tabs.find(t => t.slug === tabSlug);
+        if (!sourceTab) return oldConfig;
+        const component = sourceTab.components[fromIndex];
+        return {
+          ...oldConfig,
+          tabs: oldConfig.tabs.map(tab => {
+            if (tab.slug === tabSlug) {
+              return { ...tab, components: tab.components.toSpliced(fromIndex, 1) };
+            }
+            if (tab.slug === targetTabSlug) {
+              return { ...tab, components: [...tab.components, component] };
+            }
+            return tab;
+          }),
+        };
+      });
+    },
+    [setConfig, tabSlug],
+  );
+
   const onOpenAddDialog = useCallback(() => {
     setInsertPosition(null);
     setEditingIndex(null);
@@ -192,42 +257,92 @@ export function Dashboard() {
   }, []);
 
   const buildActions = useCallback(
-    (index: number, canMoveUp: boolean, canMoveDown: boolean) => (
-      <>
-        <ActionList.Item onSelect={() => onOpenEditDialog(index)}>
-          Edit
-          <ActionList.LeadingVisual>
-            <PencilIcon />
-          </ActionList.LeadingVisual>
-        </ActionList.Item>
-        <ActionList.Item onSelect={() => onDeleteComponent(index)} variant="danger">
-          Delete
-          <ActionList.LeadingVisual>
-            <TrashIcon />
-          </ActionList.LeadingVisual>
-        </ActionList.Item>
-        <ActionList.Divider />
-        <ActionList.Item onSelect={() => onOpenInsertDialog(index)}>
-          Insert above
-          <ActionList.LeadingVisual>
-            <PlusIcon />
-          </ActionList.LeadingVisual>
-        </ActionList.Item>
-        <ActionList.Item onSelect={() => onMoveComponent(index, index - 1)} disabled={!canMoveUp}>
-          Move up
-          <ActionList.LeadingVisual>
-            <ChevronUpIcon />
-          </ActionList.LeadingVisual>
-        </ActionList.Item>
-        <ActionList.Item onSelect={() => onMoveComponent(index, index + 1)} disabled={!canMoveDown}>
-          Move down
-          <ActionList.LeadingVisual>
-            <ChevronDownIcon />
-          </ActionList.LeadingVisual>
-        </ActionList.Item>
-      </>
-    ),
-    [onOpenEditDialog, onDeleteComponent, onOpenInsertDialog, onMoveComponent],
+    (index: number, canMoveUp: boolean, canMoveDown: boolean, component: any) => {
+      const otherTabs = config.tabs.filter(tab => tab.slug !== tabSlug);
+      return (
+        <>
+          <ActionList.Item onSelect={() => onOpenEditDialog(index)}>
+            Edit
+            <ActionList.LeadingVisual>
+              <PencilIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Item onSelect={() => onDeleteComponent(index)} variant="danger">
+            Delete
+            <ActionList.LeadingVisual>
+              <TrashIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Divider />
+          <ActionList.Item onSelect={() => onOpenInsertDialog(index)}>
+            Insert above
+            <ActionList.LeadingVisual>
+              <PlusIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Item onSelect={() => onMoveComponent(index, index - 1)} disabled={!canMoveUp}>
+            Move up
+            <ActionList.LeadingVisual>
+              <ChevronUpIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Item onSelect={() => onMoveComponent(index, index + 1)} disabled={!canMoveDown}>
+            Move down
+            <ActionList.LeadingVisual>
+              <ChevronDownIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Divider />
+          <ActionList.Item onSelect={() => onCopyComponent(component)}>
+            Copy
+            <ActionList.LeadingVisual>
+              <CopyIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Item onSelect={() => onPasteComponent(index)} disabled={!clipboard}>
+            Paste below
+            <ActionList.LeadingVisual>
+              <PasteIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          <ActionList.Item onSelect={() => onDuplicateComponent(index, component)}>
+            Duplicate
+            <ActionList.LeadingVisual>
+              <DuplicateIcon />
+            </ActionList.LeadingVisual>
+          </ActionList.Item>
+          {otherTabs.length > 0 && (
+            <>
+              <ActionList.Divider />
+              <ActionList.Group>
+                <ActionList.GroupHeading>Move to tab</ActionList.GroupHeading>
+                {otherTabs.map(tab => (
+                  <ActionList.Item key={tab.slug} onSelect={() => onMoveToTab(index, tab.slug)}>
+                    {tab.name}
+                    <ActionList.LeadingVisual>
+                      <ArrowRightIcon />
+                    </ActionList.LeadingVisual>
+                  </ActionList.Item>
+                ))}
+              </ActionList.Group>
+            </>
+          )}
+        </>
+      );
+    },
+    [
+      onOpenEditDialog,
+      onDeleteComponent,
+      onOpenInsertDialog,
+      onMoveComponent,
+      onCopyComponent,
+      onPasteComponent,
+      onDuplicateComponent,
+      onMoveToTab,
+      clipboard,
+      config.tabs,
+      tabSlug,
+    ],
   );
 
   if (!githubPat && !devOpsPat) {
@@ -241,7 +356,7 @@ export function Dashboard() {
     .map((component, index) => {
       const canMoveUp = index > 0;
       const canMoveDown = index < (currentPage?.components.length ?? 0) - 1;
-      const actions = buildActions(index, canMoveUp, canMoveDown);
+      const actions = buildActions(index, canMoveUp, canMoveDown, component);
 
       if ('variant' in component) {
         return (
@@ -335,18 +450,35 @@ export function Dashboard() {
                 <Button leadingVisual={PlusIcon} onClick={onOpenAddDialog} style={{ marginTop: 8 }}>
                   Add Component
                 </Button>
+                {clipboard && (
+                  <Button
+                    leadingVisual={PasteIcon}
+                    onClick={() => onPasteComponent((currentPage?.components.length ?? 1) - 1)}
+                    style={{ marginTop: 8 }}>
+                    Paste
+                  </Button>
+                )}
               </div>
             </>
           ) : (
-            <Blankslate>
-              <Blankslate.Heading>Add your first block</Blankslate.Heading>
-              <Blankslate.Description>
-                This page doesn't have any content yet. Add your first block to get started.
-              </Blankslate.Description>
-              <Blankslate.PrimaryAction onClick={onOpenAddDialog}>
-                Add a block
-              </Blankslate.PrimaryAction>
-            </Blankslate>
+            <>
+              <Blankslate>
+                <Blankslate.Heading>Add your first block</Blankslate.Heading>
+                <Blankslate.Description>
+                  This page doesn't have any content yet. Add your first block to get started.
+                </Blankslate.Description>
+                <Blankslate.PrimaryAction onClick={onOpenAddDialog}>
+                  Add a block
+                </Blankslate.PrimaryAction>
+              </Blankslate>
+              {clipboard && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                  <Button leadingVisual={PasteIcon} onClick={() => onPasteComponent(-1)}>
+                    Paste copied block
+                  </Button>
+                </div>
+              )}
+            </>
           )}
 
           {componentConfigIsOpen && (
