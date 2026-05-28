@@ -120,18 +120,28 @@ const searchQuery = graphql(/* GraphQL */ `
           # Used to display users that have been requested for review,
           reviewRequests(first: 10) {
             nodes {
+              asCodeOwner
               requestedReviewer {
                 ... on User {
+                  id
                   login
                 }
                 ... on Bot {
+                  id
                   login
                 }
                 ...InlineUser
               }
             }
           }
-          timelineItems(itemTypes: [REVIEW_REQUESTED_EVENT, READY_FOR_REVIEW_EVENT], last: 100) {
+          timelineItems(
+            itemTypes: [
+              REVIEW_REQUESTED_EVENT
+              REVIEW_REQUEST_REMOVED_EVENT
+              READY_FOR_REVIEW_EVENT
+            ]
+            last: 100
+          ) {
             nodes {
               ... on ReadyForReviewEvent {
                 createdAt
@@ -141,7 +151,16 @@ const searchQuery = graphql(/* GraphQL */ `
                 requestedReviewer {
                   ... on User {
                     id
+                    login
                   }
+                  ... on Team {
+                    id
+                  }
+                }
+              }
+              ... on ReviewRequestRemovedEvent {
+                createdAt
+                requestedReviewer {
                   ... on Team {
                     id
                   }
@@ -150,6 +169,7 @@ const searchQuery = graphql(/* GraphQL */ `
             }
           }
           viewerLatestReviewRequest {
+            asCodeOwner
             requestedReviewer {
               ... on User {
                 id
@@ -215,6 +235,11 @@ type SearchResult = MakeNonNullish<
   MakeNonNullish<SearchIssuesAndPullRequestsQuery['search']['nodes']>[number]
 >;
 
+type PullRequestNode = Extract<SearchResult, { __typename?: 'PullRequest' }>;
+type PullRequestTimelineNode = MakeNonNullish<
+  MakeNonNullish<PullRequestNode['timelineItems']['nodes']>[number]
+>;
+
 export interface IssueListProps {
   actions?: ReactNode;
   list: GitHubSearchConfiguration;
@@ -240,6 +265,7 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
   });
 
   const error = urqlSearch.error?.graphQLErrors[0];
+  const viewerId = urqlSearch.data?.viewer.id;
   const viewerLogin = urqlSearch.data?.viewer.login;
   const nodes = (urqlSearch.data?.search.nodes ?? []) as SearchResult[];
   const totalCount = urqlSearch.data?.search.issueCount ?? 0;
@@ -437,6 +463,45 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
       const viewerReview = viewerLogin != null ? reviews.get(viewerLogin) : undefined;
       let viewerReviewWaitTimes = 0;
 
+      const timelineNodes =
+        node.__typename === 'PullRequest'
+          ? (node.timelineItems.nodes?.filter(isNotNullish) as PullRequestTimelineNode[])
+          : [];
+
+      // Build a set of reviewer logins that were ever requested as code owner
+      const codeOwnerLogins = new Set<string>();
+      if (node.__typename === 'PullRequest') {
+        // Direct code-owner review requests still present
+        for (const reviewRequest of node.reviewRequests?.nodes ?? []) {
+          if (!reviewRequest?.asCodeOwner) continue;
+          const reviewer = reviewRequest.requestedReviewer;
+          if (reviewer && 'login' in reviewer) {
+            codeOwnerLogins.add(reviewer.login);
+          }
+        }
+
+        // Viewer's latest request may have been a code-owner request
+        if (node.viewerLatestReviewRequest?.asCodeOwner && viewerLogin != null) {
+          codeOwnerLogins.add(viewerLogin);
+        }
+
+        // Users assigned from a code-owner team (team request removed, user request added at same timestamp)
+        const usersFromCodeOwnerTeam = getUsersRequestedFromCodeOwnerTeam(timelineNodes);
+        for (const login of usersFromCodeOwnerTeam) {
+          codeOwnerLogins.add(login);
+        }
+      }
+
+      // Annotate reviews map with code-owner flag
+      for (const [login, review] of reviews) {
+        if (codeOwnerLogins.has(login)) {
+          review.codeOwner = true;
+        }
+      }
+
+      const wasViewerEverRequestedAsCodeOwner =
+        viewerLogin != null && codeOwnerLogins.has(viewerLogin);
+
       if (
         (!viewerReview || viewerReview.requested) &&
         node.__typename === 'PullRequest' &&
@@ -444,10 +509,10 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
         !node.isDraft &&
         // TODO: remove if assignee
         !node.viewerDidAuthor &&
-        node.viewerLatestReviewRequest
+        (node.viewerLatestReviewRequest || wasViewerEverRequestedAsCodeOwner)
       ) {
-        const latestReadyForReviewEvent = node.timelineItems.nodes!.findLast(
-          item => item!.__typename === 'ReadyForReviewEvent',
+        const latestReadyForReviewEvent = timelineNodes.findLast(
+          item => item.__typename === 'ReadyForReviewEvent',
         );
 
         if (
@@ -462,15 +527,17 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
           latestReadyForReviewEvent?.createdAt ?? node.createdAt,
         );
 
-        const requestedReviewer = node.viewerLatestReviewRequest.requestedReviewer;
+        const requestedReviewer = node.viewerLatestReviewRequest?.requestedReviewer;
         const latestReviewRequestId =
-          requestedReviewer && 'id' in requestedReviewer ? requestedReviewer.id : undefined;
-        const latestReviewRequestEvent = node.timelineItems.nodes!.findLast(item => {
-          if (item!.__typename !== 'ReviewRequestedEvent') {
+          viewerId ??
+          (requestedReviewer && 'id' in requestedReviewer ? requestedReviewer.id : undefined);
+
+        const latestReviewRequestEvent = timelineNodes.findLast(item => {
+          if (item.__typename !== 'ReviewRequestedEvent') {
             return false;
           }
 
-          const itemRequestedReviewer = item?.requestedReviewer;
+          const itemRequestedReviewer = item.requestedReviewer;
           if (
             !itemRequestedReviewer ||
             (itemRequestedReviewer.__typename !== 'User' &&
@@ -547,7 +614,7 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
         checksUrl: node.__typename !== 'PullRequest' ? node.url : `${node.url}/checks`,
       };
     });
-  }, [appConfiguration.prAuthorStyle, nodes, viewerLogin]);
+  }, [appConfiguration.prAuthorStyle, nodes, viewerId, viewerLogin]);
 
   return (
     <IssueList
@@ -589,4 +656,35 @@ function mapGitHubReviewState(state: PullRequestReviewState): ReviewState {
     case PullRequestReviewState.Dismissed:
       throw new Error('Unsupported state');
   }
+}
+
+function getUsersRequestedFromCodeOwnerTeam(
+  timelineNodes: readonly PullRequestTimelineNode[],
+): Set<string> {
+  // When a team is removed as a reviewer and individual users are added at the same timestamp,
+  // those users were assigned from a code-owner team.
+  const removedTeamReviewRequestTimes = new Set(
+    timelineNodes
+      .filter(
+        (
+          item,
+        ): item is Extract<PullRequestTimelineNode, { __typename?: 'ReviewRequestRemovedEvent' }> =>
+          item.__typename === 'ReviewRequestRemovedEvent',
+      )
+      .filter(item => item.requestedReviewer?.__typename === 'Team')
+      .map(item => item.createdAt),
+  );
+
+  const codeOwnerLogins = new Set<string>();
+
+  for (const item of timelineNodes) {
+    if (item.__typename !== 'ReviewRequestedEvent') continue;
+    if (!removedTeamReviewRequestTimes.has(item.createdAt)) continue;
+    const requestedReviewer = item.requestedReviewer;
+    if (requestedReviewer?.__typename === 'User' && 'login' in requestedReviewer) {
+      codeOwnerLogins.add(requestedReviewer.login);
+    }
+  }
+
+  return codeOwnerLogins;
 }

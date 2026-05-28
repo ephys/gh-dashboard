@@ -1,13 +1,16 @@
+import { ShieldLockIcon } from '@primer/octicons-react';
 import { Avatar, Link, Tooltip } from '@primer/react';
 import { useAppConfiguration } from './app-configuration.tsx';
 import { AvatarIcon } from './avatar-icon.tsx';
 import { formatUserName } from './format-user-name.tsx';
 import type { InlineUserProps } from './inline-user.tsx';
 import { PendingReviewIcon } from './pending-review-icon.tsx';
+import css from './review-avatar.module.scss';
 import { ReviewState, ReviewStateIcon } from './review-state-icon.tsx';
 
 export interface ReviewAvatarProps {
   blockingCommentCount?: number;
+  codeOwner?: boolean;
   pending: boolean;
   requested: boolean;
   reviewer: InlineUserProps;
@@ -15,36 +18,49 @@ export interface ReviewAvatarProps {
 }
 
 export function ReviewAvatar(props: ReviewAvatarProps) {
-  const { pending, requested, state, reviewer } = props;
+  const { pending, requested, state, reviewer, codeOwner } = props;
   const [appConfig] = useAppConfiguration();
 
   const formattedUserName = formatUserName({ ...reviewer, style: appConfig.userNameStyle });
 
+  const stateText = pending
+    ? 'You have a review in progress'
+    : requested
+      ? `Waiting for review from ${formattedUserName}`
+      : state === ReviewState.Commented
+        ? `Commented by ${formattedUserName}`
+        : state === ReviewState.Approved
+          ? `Approved by ${formattedUserName}${props.blockingCommentCount ? `, with ${props.blockingCommentCount} unresolved threads` : ''}`
+          : state === ReviewState.ChangesRequested
+            ? `Changes requested by ${formattedUserName}`
+            : state === ReviewState.Rejected
+              ? `Rejected by ${formattedUserName}`
+              : '';
+
   return (
-    <Tooltip
-      text={
-        pending
-          ? 'You have a review in progress'
-          : requested
-            ? `Waiting for review from ${formattedUserName}`
-            : state === ReviewState.Commented
-              ? `Commented by ${formattedUserName}`
-              : state === ReviewState.Approved
-                ? `Approved by ${formattedUserName}${props.blockingCommentCount ? `, with ${props.blockingCommentCount} unresolved threads` : ''}`
-                : state === ReviewState.ChangesRequested
-                  ? `Changes requested by ${formattedUserName}`
-                  : state === ReviewState.Rejected
-                    ? `Rejected by ${formattedUserName}`
-                    : ''
-      }
-      direction="nw">
-      <Link href={reviewer.avatarUrl} style={{ display: 'inline-flex' }}>
+    <Tooltip text={codeOwner ? `${stateText} (code owner)`.trimStart() : stateText} direction="nw">
+      <Link href={reviewer.avatarUrl} className={css.link}>
         <AvatarIcon
-          avatar={<Avatar src={reviewer.avatarUrl} size={32} />}
+          avatar={
+            <>
+              <Avatar src={reviewer.avatarUrl} size={32} />
+              {codeOwner && (
+                <span className={css.codeOwnerIconWrapper}>
+                  <span className={css.codeOwnerIconWrapper2}>
+                    <ShieldLockIcon size={12} className={css.codeOwnerIcon} />
+                  </span>
+                </span>
+              )}
+            </>
+          }
           topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
           bottomIcon={
             state ? (
-              <ReviewStateIcon state={state} blockingCommentCount={props.blockingCommentCount} />
+              <ReviewStateIcon
+                className={css.reviewStateIcon}
+                state={state}
+                blockingCommentCount={props.blockingCommentCount}
+              />
             ) : null
           }
         />

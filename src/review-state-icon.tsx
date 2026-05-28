@@ -1,4 +1,5 @@
 import { CheckIcon, DotFillIcon, EyeIcon, XIcon } from '@primer/octicons-react';
+import { clsx } from 'clsx';
 import type { ComponentType } from 'react';
 import css from './review-state-icon.module.scss';
 
@@ -14,6 +15,7 @@ export enum ReviewState {
 }
 
 interface ReviewStateIconProps {
+  className?: string;
   blockingCommentCount?: number;
   state: ReviewState;
 }
@@ -69,5 +71,5 @@ export function ReviewStateIcon(props: ReviewStateIconProps) {
       props.blockingCommentCount
     );
 
-  return <div className={`${css.badge} ${iconData.badgeClassName ?? ''}`}>{icon}</div>;
+  return <div className={clsx(css.badge, iconData.badgeClassName, props.className)}>{icon}</div>;
 }
