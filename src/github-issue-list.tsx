@@ -67,6 +67,9 @@ const searchQuery = graphql(/* GraphQL */ `
           repository {
             url
             nameWithOwner
+            defaultBranchRef {
+              name
+            }
           }
         }
         ... on PullRequest {
@@ -75,6 +78,7 @@ const searchQuery = graphql(/* GraphQL */ `
           isDraft
           prState: state
           title
+          baseRefName
           headRefName
           headRepository {
             nameWithOwner
@@ -572,6 +576,11 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
               }
             : undefined,
         branchName: node.__typename === 'PullRequest' ? node.headRefName : undefined,
+        targetBranch:
+          node.__typename === 'PullRequest' &&
+          node.baseRefName !== node.repository.defaultBranchRef?.name
+            ? node.baseRefName
+            : undefined,
         headRepositoryName:
           node.__typename === 'PullRequest' &&
           node.headRepository &&

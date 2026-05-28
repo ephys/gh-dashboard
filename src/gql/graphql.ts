@@ -1675,7 +1675,7 @@ export type BulkSponsorship = {
 };
 
 /** Types that can represent a repository ruleset bypass actor. */
-export type BypassActor = App | Team | User;
+export type BypassActor = App | EnterpriseTeam | Team | User;
 
 /** A user, team, or app who has the ability to bypass a force push requirement on a protected branch. */
 export type BypassForcePushAllowance = Node & {
@@ -3313,6 +3313,23 @@ export type ConnectedEvent = Node & {
   source: ReferencedSubject;
   /** Issue or pull request which was connected. */
   subject: ReferencedSubject;
+};
+
+/** The content warning for a repository */
+export type ContentWarning = {
+  __typename?: 'ContentWarning';
+  /** The content warning' category. E.g. 'mis_dis_information' */
+  category: Scalars['String']['output'];
+  /** The content warning's custom sub category text. E.g. 'dangerous stuff.' */
+  customSubCategory?: Maybe<Scalars['String']['output']>;
+  /** The content warning's sub category. E.g. 'medical_scientific' */
+  subCategory?: Maybe<Scalars['String']['output']>;
+  /** The content warning's sub title. E.g. 'The information contained in this page has not been verified.' */
+  subTitle?: Maybe<Scalars['String']['output']>;
+  /** The content warning's title. E.g. 'This page may contain false or misleading information.' */
+  title: Scalars['String']['output'];
+  /** The type of content warning. E.g. 'interstitial' */
+  type: Scalars['String']['output'];
 };
 
 /** The Contributing Guidelines for a repository. */
@@ -7015,6 +7032,10 @@ export type Enterprise = Node & {
   description?: Maybe<Scalars['String']['output']>;
   /** The description of the enterprise as HTML. */
   descriptionHTML: Scalars['HTML']['output'];
+  /** Find an enterprise team by its slug. */
+  enterpriseTeam?: Maybe<EnterpriseTeam>;
+  /** A list of enterprise teams in this enterprise. */
+  enterpriseTeams: EnterpriseTeamConnection;
   /** The Node ID of the Enterprise object */
   id: Scalars['ID']['output'];
   /** The location of the enterprise. */
@@ -7061,6 +7082,23 @@ export type Enterprise = Node & {
 /** An account to manage multiple organizations with consolidated policy and billing. */
 export type EnterpriseAvatarUrlArgs = {
   size?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** An account to manage multiple organizations with consolidated policy and billing. */
+export type EnterpriseEnterpriseTeamArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+/** An account to manage multiple organizations with consolidated policy and billing. */
+export type EnterpriseEnterpriseTeamsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<EnterpriseTeamOrder>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -7227,7 +7265,7 @@ export enum EnterpriseAllowPrivateRepositoryForkingPolicyValue {
   EnterpriseOrganizations = 'ENTERPRISE_ORGANIZATIONS',
   /** Members can fork a repository to their enterprise-managed user account or an organization inside this enterprise. */
   EnterpriseOrganizationsUserAccounts = 'ENTERPRISE_ORGANIZATIONS_USER_ACCOUNTS',
-  /** Members can fork a repository to their user account or an organization, either inside or outside of this enterprise. */
+  /** Members can fork a repository to their user account or an organization, either inside or outside of this enterprise. Internal repositories can only be forked inside of this enterprise. */
   Everywhere = 'EVERYWHERE',
   /** Members can fork a repository only within the same organization (intra-org). */
   SameOrganization = 'SAME_ORGANIZATION',
@@ -7252,7 +7290,10 @@ export type EnterpriseBillingInfo = {
   __typename?: 'EnterpriseBillingInfo';
   /** The number of licenseable users/emails across the enterprise. */
   allLicensableUsersCount: Scalars['Int']['output'];
-  /** The number of data packs used by all organizations owned by the enterprise. */
+  /**
+   * The number of data packs used by all organizations owned by the enterprise. Data packs are deprecated, always returns 0.
+   * @deprecated LFS data packs have been removed. Always returns 0.
+   */
   assetPacks: Scalars['Int']['output'];
   /** The bandwidth quota in GB for all organizations owned by the enterprise. */
   bandwidthQuota: Scalars['Float']['output'];
@@ -8357,6 +8398,192 @@ export enum EnterpriseServerUserAccountsUploadSyncState {
   Pending = 'PENDING',
   /** The synchronization of the upload succeeded. */
   Success = 'SUCCESS'
+}
+
+/** A team that belongs to an enterprise and can be assigned to multiple organizations. */
+export type EnterpriseTeam = Node & TeamReviewRequestable & {
+  __typename?: 'EnterpriseTeam';
+  /** Organizations this team is assigned to. */
+  assignedOrganizations: EnterpriseTeamAssignedOrganizationConnection;
+  /** The human-readable, unique identifier for the enterprise and team. */
+  combinedSlug: Scalars['String']['output'];
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  /** The description of the team. */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The enterprise this team belongs to. */
+  enterprise?: Maybe<Enterprise>;
+  /** A list of users who are members of this enterprise team. */
+  enterpriseTeamMembers: EnterpriseTeamMemberConnection;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
+  /** The Node ID of the EnterpriseTeam object */
+  id: Scalars['ID']['output'];
+  /** Whether the viewer is a member of this team. */
+  isViewerMember: Scalars['Boolean']['output'];
+  /** The name of the team. */
+  name: Scalars['String']['output'];
+  /** Whether the team will receive notifications when mentioned. */
+  notificationSetting: TeamNotificationSetting;
+  /** How this team selects its associated organizations. */
+  organizationSelectionType: EnterpriseTeamOrganizationSelectionType;
+  /** The level of privacy the team has. */
+  privacy: TeamPrivacy;
+  /** The slug corresponding to the team. */
+  slug: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+  /** Whether the viewer can administer this team. */
+  viewerCanAdminister: Scalars['Boolean']['output'];
+};
+
+
+/** A team that belongs to an enterprise and can be assigned to multiple organizations. */
+export type EnterpriseTeamAssignedOrganizationsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<EnterpriseTeamOrganizationOrder>;
+};
+
+
+/** A team that belongs to an enterprise and can be assigned to multiple organizations. */
+export type EnterpriseTeamEnterpriseTeamMembersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<EnterpriseTeamMemberOrder>;
+  query?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The connection type for Organization. */
+export type EnterpriseTeamAssignedOrganizationConnection = {
+  __typename?: 'EnterpriseTeamAssignedOrganizationConnection';
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<EnterpriseTeamAssignedOrganizationEdge>>>;
+  /** A list of nodes. */
+  nodes?: Maybe<Array<Maybe<Organization>>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Represents an organization that an enterprise team is assigned to. */
+export type EnterpriseTeamAssignedOrganizationEdge = {
+  __typename?: 'EnterpriseTeamAssignedOrganizationEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Organization>;
+};
+
+/** A list of enterprise teams owned by the enterprise. */
+export type EnterpriseTeamConnection = {
+  __typename?: 'EnterpriseTeamConnection';
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<EnterpriseTeamEdge>>>;
+  /** A list of nodes. */
+  nodes?: Maybe<Array<Maybe<EnterpriseTeam>>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** An edge in a connection. */
+export type EnterpriseTeamEdge = {
+  __typename?: 'EnterpriseTeamEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of the edge. */
+  node?: Maybe<EnterpriseTeam>;
+};
+
+/** The connection type for User. */
+export type EnterpriseTeamMemberConnection = {
+  __typename?: 'EnterpriseTeamMemberConnection';
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<EnterpriseTeamMemberEdge>>>;
+  /** A list of nodes. */
+  nodes?: Maybe<Array<Maybe<User>>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Represents a user who is a member of an enterprise team. */
+export type EnterpriseTeamMemberEdge = {
+  __typename?: 'EnterpriseTeamMemberEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String']['output'];
+  node?: Maybe<User>;
+};
+
+/** Ordering options for enterprise team member connections. */
+export type EnterpriseTeamMemberOrder = {
+  /** The ordering direction. */
+  direction: OrderDirection;
+  /** The field to order enterprise team members by. */
+  field: EnterpriseTeamMemberOrderField;
+};
+
+/** Properties by which enterprise team member connections can be ordered. */
+export enum EnterpriseTeamMemberOrderField {
+  /** Order enterprise team members by creation time. */
+  CreatedAt = 'CREATED_AT',
+  /** Order enterprise team members by ID. */
+  Id = 'ID',
+  /** Order enterprise team members by login. */
+  Login = 'LOGIN'
+}
+
+/** Ordering options for enterprise team connections. */
+export type EnterpriseTeamOrder = {
+  /** The ordering direction. */
+  direction: OrderDirection;
+  /** The field to order enterprise teams by. */
+  field: EnterpriseTeamOrderField;
+};
+
+/** Properties by which enterprise team connections can be ordered. */
+export enum EnterpriseTeamOrderField {
+  /** Order enterprise teams by creation time. */
+  CreatedAt = 'CREATED_AT',
+  /** Order enterprise teams by ID. */
+  Id = 'ID',
+  /** Order enterprise teams by name. */
+  Name = 'NAME'
+}
+
+/** Ordering options for enterprise team organization connections. */
+export type EnterpriseTeamOrganizationOrder = {
+  /** The ordering direction. */
+  direction: OrderDirection;
+  /** The field to order organizations by. */
+  field: EnterpriseTeamOrganizationOrderField;
+};
+
+/** Properties by which enterprise team organization connections can be ordered. */
+export enum EnterpriseTeamOrganizationOrderField {
+  /** Order enterprise team organizations by creation time. */
+  CreatedAt = 'CREATED_AT',
+  /** Order enterprise team organizations by ID. */
+  Id = 'ID',
+  /** Order enterprise team organizations by login. */
+  Login = 'LOGIN'
+}
+
+/** The possible organization selection types for an enterprise team. */
+export enum EnterpriseTeamOrganizationSelectionType {
+  /** The team is associated with all organizations in the enterprise. */
+  All = 'ALL',
+  /** The team is not associated with any organizations. */
+  Disabled = 'DISABLED',
+  /** The team is associated with selected organizations. */
+  Selected = 'SELECTED'
 }
 
 /** An account for a user who is an admin of an enterprise or a member of an enterprise through one or more organizations. */
@@ -10237,6 +10464,8 @@ export type IssueFieldCommon = {
   dataType: IssueFieldDataType;
   /** The issue field's description. */
   description?: Maybe<Scalars['String']['output']>;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
   /** The issue field's name. */
   name: Scalars['String']['output'];
   /** The issue field's visibility. */
@@ -10263,6 +10492,8 @@ export type IssueFieldCreateOrUpdateInput = {
 export enum IssueFieldDataType {
   /** Date */
   Date = 'DATE',
+  /** Multi Select */
+  MultiSelect = 'MULTI_SELECT',
   /** Number */
   Number = 'NUMBER',
   /** Single Select */
@@ -10280,6 +10511,8 @@ export type IssueFieldDate = IssueFieldCommon & Node & {
   dataType: IssueFieldDataType;
   /** The issue field's description. */
   description?: Maybe<Scalars['String']['output']>;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
   /** The Node ID of the IssueFieldDate object */
   id: Scalars['ID']['output'];
   /** The issue field's name. */
@@ -10308,6 +10541,8 @@ export type IssueFieldNumber = IssueFieldCommon & Node & {
   dataType: IssueFieldDataType;
   /** The issue field's description. */
   description?: Maybe<Scalars['String']['output']>;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
   /** The Node ID of the IssueFieldNumber object */
   id: Scalars['ID']['output'];
   /** The issue field's name. */
@@ -10365,6 +10600,8 @@ export type IssueFieldSingleSelect = IssueFieldCommon & Node & {
   dataType: IssueFieldDataType;
   /** The issue field's description. */
   description?: Maybe<Scalars['String']['output']>;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
   /** The Node ID of the IssueFieldSingleSelect object */
   id: Scalars['ID']['output'];
   /** The issue field's name. */
@@ -10380,8 +10617,12 @@ export type IssueFieldSingleSelectOption = Node & {
   __typename?: 'IssueFieldSingleSelectOption';
   /** The option's display color. */
   color: IssueFieldSingleSelectOptionColor;
+  /** Identifies the primary key from the database. */
+  databaseId?: Maybe<Scalars['Int']['output']>;
   /** The option's plain-text description. */
   description?: Maybe<Scalars['String']['output']>;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
   /** The Node ID of the IssueFieldSingleSelectOption object */
   id: Scalars['ID']['output'];
   /** The option's name. */
@@ -10450,6 +10691,8 @@ export type IssueFieldText = IssueFieldCommon & Node & {
   dataType: IssueFieldDataType;
   /** The issue field's description. */
   description?: Maybe<Scalars['String']['output']>;
+  /** Identifies the primary key from the database as a BigInt. */
+  fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
   /** The Node ID of the IssueFieldText object */
   id: Scalars['ID']['output'];
   /** The issue field's name. */
@@ -19507,7 +19750,7 @@ export enum PatchStatus {
 }
 
 /** Types that can grant permissions on a repository to a user */
-export type PermissionGranter = Organization | Repository | Team;
+export type PermissionGranter = EnterpriseTeam | Organization | Repository | Team;
 
 /** A level of permission and source for a user's access to a repository. */
 export type PermissionSource = {
@@ -20967,6 +21210,10 @@ export enum ProjectV2FieldOrderField {
 export enum ProjectV2FieldType {
   /** Assignees */
   Assignees = 'ASSIGNEES',
+  /** Closed */
+  Closed = 'CLOSED',
+  /** Created */
+  Created = 'CREATED',
   /** Date */
   Date = 'DATE',
   /** Issue type */
@@ -20998,7 +21245,9 @@ export enum ProjectV2FieldType {
   /** Tracked by */
   TrackedBy = 'TRACKED_BY',
   /** Tracks */
-  Tracks = 'TRACKS'
+  Tracks = 'TRACKS',
+  /** Updated */
+  Updated = 'UPDATED'
 }
 
 /** The values that can be used to update a field of an item inside a Project. Only 1 value can be updated at a time. */
@@ -27055,6 +27304,8 @@ export enum ReportedContentClassifiers {
   Abuse = 'ABUSE',
   /** A duplicated piece of content */
   Duplicate = 'DUPLICATE',
+  /** A low quality piece of content */
+  LowQuality = 'LOW_QUALITY',
   /** An irrelevant piece of content */
   OffTopic = 'OFF_TOPIC',
   /** An outdated piece of content */
@@ -27176,6 +27427,8 @@ export type Repository = Node & PackageOwner & ProjectOwner & ProjectV2Recent & 
   isUserConfigurationRepository: Scalars['Boolean']['output'];
   /** Returns a single issue from the current repository by number. */
   issue?: Maybe<Issue>;
+  /** A list of the repository's issue fields, inherited from the organization */
+  issueFields?: Maybe<IssueFieldsConnection>;
   /** Returns a single issue-like object from the current repository by number. */
   issueOrPullRequest?: Maybe<IssueOrPullRequest>;
   /** Returns a list of issue templates associated to the repository */
@@ -27341,6 +27594,8 @@ export type Repository = Node & PackageOwner & ProjectOwner & ProjectV2Recent & 
   viewerCanSubscribe: Scalars['Boolean']['output'];
   /** Indicates whether the viewer can update the topics of this repository. */
   viewerCanUpdateTopics: Scalars['Boolean']['output'];
+  /** The content warning for this repository for the viewer. */
+  viewerContentWarning?: Maybe<ContentWarning>;
   /** The last commit email for the viewer. */
   viewerDefaultCommitEmail?: Maybe<Scalars['String']['output']>;
   /** The last used merge method by the viewer or the default for the repository. */
@@ -27516,6 +27771,16 @@ export type RepositoryForksArgs = {
 /** A repository contains the content for a project. */
 export type RepositoryIssueArgs = {
   number: Scalars['Int']['input'];
+};
+
+
+/** A repository contains the content for a project. */
+export type RepositoryIssueFieldsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<IssueFieldOrder>;
 };
 
 
@@ -28750,7 +29015,7 @@ export type RepositoryRulesetRulesArgs = {
   type?: InputMaybe<RepositoryRuleType>;
 };
 
-/** A team or app that has the ability to bypass a rules defined on a ruleset */
+/** A team, app or user that has the ability to bypass rules defined on a ruleset */
 export type RepositoryRulesetBypassActor = Node & {
   __typename?: 'RepositoryRulesetBypassActor';
   /** The actor that can bypass rules. */
@@ -28761,6 +29026,8 @@ export type RepositoryRulesetBypassActor = Node & {
   deployKey: Scalars['Boolean']['output'];
   /** This actor represents the ability for an enterprise owner to bypass */
   enterpriseOwner: Scalars['Boolean']['output'];
+  /** This actor represents the ability for an enterprise role to bypass */
+  enterpriseRole: Scalars['Boolean']['output'];
   /** The Node ID of the RepositoryRulesetBypassActor object */
   id: Scalars['ID']['output'];
   /** This actor represents the ability for an organization owner to bypass */
@@ -28805,9 +29072,9 @@ export type RepositoryRulesetBypassActorEdge = {
   node?: Maybe<RepositoryRulesetBypassActor>;
 };
 
-/** Specifies the attributes for a new or updated ruleset bypass actor. Only one of `actor_id`, `repository_role_database_id`, `organization_admin`, or `deploy_key` should be specified. */
+/** Specifies the attributes for a new or updated ruleset bypass actor. Only one of `actor_id`, `repository_role_database_id`, `organization_admin`, `enterprise_owner`, or `deploy_key` should be specified. */
 export type RepositoryRulesetBypassActorInput = {
-  /** For Team and Integration bypasses, the Team or Integration ID */
+  /** For Team, Integration and User bypasses, the Team, Integration, or User ID */
   actorId?: InputMaybe<Scalars['ID']['input']>;
   /** The bypass mode for this actor. */
   bypassMode: RepositoryRulesetBypassActorBypassMode;
@@ -28815,6 +29082,8 @@ export type RepositoryRulesetBypassActorInput = {
   deployKey?: InputMaybe<Scalars['Boolean']['input']>;
   /** For enterprise owner bypasses, true */
   enterpriseOwner?: InputMaybe<Scalars['Boolean']['input']>;
+  /** For enterprise role bypasses, true. NOTE: This bypass actor is in beta. */
+  enterpriseRole?: InputMaybe<Scalars['Boolean']['input']>;
   /** For organization owner bypasses, true */
   organizationAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   /** For role bypasses, the role database ID */
@@ -29297,7 +29566,7 @@ export enum RequestableCheckStatusState {
 }
 
 /** Types that can be requested reviewers. */
-export type RequestedReviewer = Bot | Mannequin | Team | User;
+export type RequestedReviewer = Bot | EnterpriseTeam | Mannequin | Team | User;
 
 /** The connection type for RequestedReviewer. */
 export type RequestedReviewerConnection = {
@@ -30109,7 +30378,9 @@ export enum SecurityAdvisorySeverity {
   /** Low. */
   Low = 'LOW',
   /** Moderate. */
-  Moderate = 'MODERATE'
+  Moderate = 'MODERATE',
+  /** Unknown. */
+  Unknown = 'UNKNOWN'
 }
 
 /** An individual vulnerability within an Advisory */
@@ -32226,7 +32497,7 @@ export type TagNamePatternParametersInput = {
 };
 
 /** A team of users in an organization. */
-export type Team = MemberStatusable & Node & Subscribable & {
+export type Team = MemberStatusable & Node & Subscribable & TeamReviewRequestable & {
   __typename?: 'Team';
   /** A list of teams that are ancestors of this team. */
   ancestors: TeamConnection;
@@ -33165,6 +33436,16 @@ export enum TeamReviewAssignmentAlgorithm {
   /** Alternate reviews between each team member */
   RoundRobin = 'ROUND_ROBIN'
 }
+
+/** Represents a team that can be requested to review a pull request. */
+export type TeamReviewRequestable = {
+  /** The Node ID of the TeamReviewRequestable object */
+  id: Scalars['ID']['output'];
+  /** The name of the team. */
+  name: Scalars['String']['output'];
+  /** A unique, human-readable identifier for the team. */
+  slug: Scalars['String']['output'];
+};
 
 /** The role of a user on a team. */
 export enum TeamRole {
@@ -36790,7 +37071,7 @@ export type WorkflowsParametersInput = {
   workflows: Array<WorkflowFileReferenceInput>;
 };
 
-export type _Entity = AddedToMergeQueueEvent | AddedToProjectEvent | AddedToProjectV2Event | App | AssignedEvent | AutoMergeDisabledEvent | AutoMergeEnabledEvent | AutoRebaseEnabledEvent | AutoSquashEnabledEvent | AutomaticBaseChangeFailedEvent | AutomaticBaseChangeSucceededEvent | BaseRefChangedEvent | BaseRefDeletedEvent | BaseRefForcePushedEvent | Blob | BlockedByAddedEvent | BlockedByRemovedEvent | BlockingAddedEvent | BlockingRemovedEvent | Bot | BranchProtectionRule | BypassForcePushAllowance | BypassPullRequestAllowance | Cwe | CheckRun | CheckSuite | ClosedEvent | CodeOfConduct | CommentDeletedEvent | Commit | CommitComment | CommitCommentThread | Comparison | ConnectedEvent | ConvertToDraftEvent | ConvertedFromDraftEvent | ConvertedNoteToIssueEvent | ConvertedToDiscussionEvent | CrossReferencedEvent | DemilestonedEvent | DependencyGraphManifest | DeployKey | DeployedEvent | Deployment | DeploymentEnvironmentChangedEvent | DeploymentReview | DeploymentStatus | DisconnectedEvent | Discussion | DiscussionCategory | DiscussionComment | DiscussionPoll | DiscussionPollOption | DraftIssue | Enterprise | EnterpriseAdministratorInvitation | EnterpriseIdentityProvider | EnterpriseMemberInvitation | EnterpriseRepositoryInfo | EnterpriseServerInstallation | EnterpriseServerUserAccount | EnterpriseServerUserAccountEmail | EnterpriseServerUserAccountsUpload | EnterpriseUserAccount | Environment | ExternalIdentity | Gist | GistComment | HeadRefDeletedEvent | HeadRefForcePushedEvent | HeadRefRestoredEvent | IpAllowListEntry | Issue | IssueComment | IssueCommentPinnedEvent | IssueCommentUnpinnedEvent | IssueFieldAddedEvent | IssueFieldChangedEvent | IssueFieldDate | IssueFieldDateValue | IssueFieldNumber | IssueFieldNumberValue | IssueFieldRemovedEvent | IssueFieldSingleSelect | IssueFieldSingleSelectOption | IssueFieldSingleSelectValue | IssueFieldText | IssueFieldTextValue | IssueType | IssueTypeAddedEvent | IssueTypeChangedEvent | IssueTypeRemovedEvent | Label | LabeledEvent | Language | License | LinkedBranch | LockedEvent | Mannequin | MarkedAsDuplicateEvent | MarketplaceCategory | MarketplaceListing | MemberFeatureRequestNotification | MembersCanDeleteReposClearAuditEntry | MembersCanDeleteReposDisableAuditEntry | MembersCanDeleteReposEnableAuditEntry | MentionedEvent | MergeQueue | MergeQueueEntry | MergedEvent | MigrationSource | Milestone | MilestonedEvent | MovedColumnsInProjectEvent | OidcProvider | OauthApplicationCreateAuditEntry | OrgAddBillingManagerAuditEntry | OrgAddMemberAuditEntry | OrgBlockUserAuditEntry | OrgConfigDisableCollaboratorsOnlyAuditEntry | OrgConfigEnableCollaboratorsOnlyAuditEntry | OrgCreateAuditEntry | OrgDisableOauthAppRestrictionsAuditEntry | OrgDisableSamlAuditEntry | OrgDisableTwoFactorRequirementAuditEntry | OrgEnableOauthAppRestrictionsAuditEntry | OrgEnableSamlAuditEntry | OrgEnableTwoFactorRequirementAuditEntry | OrgInviteMemberAuditEntry | OrgInviteToBusinessAuditEntry | OrgOauthAppAccessApprovedAuditEntry | OrgOauthAppAccessBlockedAuditEntry | OrgOauthAppAccessDeniedAuditEntry | OrgOauthAppAccessRequestedAuditEntry | OrgOauthAppAccessUnblockedAuditEntry | OrgRemoveBillingManagerAuditEntry | OrgRemoveMemberAuditEntry | OrgRemoveOutsideCollaboratorAuditEntry | OrgRestoreMemberAuditEntry | OrgUnblockUserAuditEntry | OrgUpdateDefaultRepositoryPermissionAuditEntry | OrgUpdateMemberAuditEntry | OrgUpdateMemberRepositoryCreationPermissionAuditEntry | OrgUpdateMemberRepositoryInvitationPermissionAuditEntry | Organization | OrganizationIdentityProvider | OrganizationInvitation | Package | PackageFile | PackageTag | PackageVersion | ParentIssueAddedEvent | ParentIssueRemovedEvent | PinnedDiscussion | PinnedEnvironment | PinnedEvent | PinnedIssue | PinnedIssueComment | PrivateRepositoryForkingDisableAuditEntry | PrivateRepositoryForkingEnableAuditEntry | Project | ProjectCard | ProjectColumn | ProjectV2 | ProjectV2Field | ProjectV2Item | ProjectV2ItemFieldDateValue | ProjectV2ItemFieldIterationValue | ProjectV2ItemFieldNumberValue | ProjectV2ItemFieldSingleSelectValue | ProjectV2ItemFieldTextValue | ProjectV2ItemStatusChangedEvent | ProjectV2IterationField | ProjectV2SingleSelectField | ProjectV2StatusUpdate | ProjectV2View | ProjectV2Workflow | PublicKey | PullRequest | PullRequestCommit | PullRequestCommitCommentThread | PullRequestReview | PullRequestReviewComment | PullRequestReviewThread | PullRequestThread | Push | PushAllowance | Query | Reaction | ReadyForReviewEvent | Ref | ReferencedEvent | Release | ReleaseAsset | RemovedFromMergeQueueEvent | RemovedFromProjectEvent | RemovedFromProjectV2Event | RenamedTitleEvent | ReopenedEvent | RepoAccessAuditEntry | RepoAddMemberAuditEntry | RepoAddTopicAuditEntry | RepoArchivedAuditEntry | RepoChangeMergeSettingAuditEntry | RepoConfigDisableAnonymousGitAccessAuditEntry | RepoConfigDisableCollaboratorsOnlyAuditEntry | RepoConfigDisableContributorsOnlyAuditEntry | RepoConfigDisableSockpuppetDisallowedAuditEntry | RepoConfigEnableAnonymousGitAccessAuditEntry | RepoConfigEnableCollaboratorsOnlyAuditEntry | RepoConfigEnableContributorsOnlyAuditEntry | RepoConfigEnableSockpuppetDisallowedAuditEntry | RepoConfigLockAnonymousGitAccessAuditEntry | RepoConfigUnlockAnonymousGitAccessAuditEntry | RepoCreateAuditEntry | RepoDestroyAuditEntry | RepoRemoveMemberAuditEntry | RepoRemoveTopicAuditEntry | Repository | RepositoryCustomProperty | RepositoryInvitation | RepositoryMigration | RepositoryRule | RepositoryRuleset | RepositoryRulesetBypassActor | RepositoryTopic | RepositoryVisibilityChangeDisableAuditEntry | RepositoryVisibilityChangeEnableAuditEntry | RepositoryVulnerabilityAlert | ReviewDismissalAllowance | ReviewDismissedEvent | ReviewRequest | ReviewRequestRemovedEvent | ReviewRequestedEvent | SavedReply | SecurityAdvisory | SponsorsActivity | SponsorsListing | SponsorsListingFeaturedItem | SponsorsTier | Sponsorship | SponsorshipNewsletter | Status | StatusCheckRollup | StatusContext | SubIssueAddedEvent | SubIssueRemovedEvent | SubscribedEvent | Team | TeamAddMemberAuditEntry | TeamAddRepositoryAuditEntry | TeamChangeParentTeamAuditEntry | TeamRemoveMemberAuditEntry | TeamRemoveRepositoryAuditEntry | Topic | TransferredEvent | Tree | UnassignedEvent | UnlabeledEvent | UnlockedEvent | UnmarkedAsDuplicateEvent | UnpinnedEvent | UnsubscribedEvent | User | UserBlockedEvent | UserContentEdit | UserList | UserNamespaceRepository | UserStatus | VerifiableDomain | Workflow | WorkflowRun | WorkflowRunFile;
+export type _Entity = AddedToMergeQueueEvent | AddedToProjectEvent | AddedToProjectV2Event | App | AssignedEvent | AutoMergeDisabledEvent | AutoMergeEnabledEvent | AutoRebaseEnabledEvent | AutoSquashEnabledEvent | AutomaticBaseChangeFailedEvent | AutomaticBaseChangeSucceededEvent | BaseRefChangedEvent | BaseRefDeletedEvent | BaseRefForcePushedEvent | Blob | BlockedByAddedEvent | BlockedByRemovedEvent | BlockingAddedEvent | BlockingRemovedEvent | Bot | BranchProtectionRule | BypassForcePushAllowance | BypassPullRequestAllowance | Cwe | CheckRun | CheckSuite | ClosedEvent | CodeOfConduct | CommentDeletedEvent | Commit | CommitComment | CommitCommentThread | Comparison | ConnectedEvent | ConvertToDraftEvent | ConvertedFromDraftEvent | ConvertedNoteToIssueEvent | ConvertedToDiscussionEvent | CrossReferencedEvent | DemilestonedEvent | DependencyGraphManifest | DeployKey | DeployedEvent | Deployment | DeploymentEnvironmentChangedEvent | DeploymentReview | DeploymentStatus | DisconnectedEvent | Discussion | DiscussionCategory | DiscussionComment | DiscussionPoll | DiscussionPollOption | DraftIssue | Enterprise | EnterpriseAdministratorInvitation | EnterpriseIdentityProvider | EnterpriseMemberInvitation | EnterpriseRepositoryInfo | EnterpriseServerInstallation | EnterpriseServerUserAccount | EnterpriseServerUserAccountEmail | EnterpriseServerUserAccountsUpload | EnterpriseTeam | EnterpriseUserAccount | Environment | ExternalIdentity | Gist | GistComment | HeadRefDeletedEvent | HeadRefForcePushedEvent | HeadRefRestoredEvent | IpAllowListEntry | Issue | IssueComment | IssueCommentPinnedEvent | IssueCommentUnpinnedEvent | IssueFieldAddedEvent | IssueFieldChangedEvent | IssueFieldDate | IssueFieldDateValue | IssueFieldNumber | IssueFieldNumberValue | IssueFieldRemovedEvent | IssueFieldSingleSelect | IssueFieldSingleSelectOption | IssueFieldSingleSelectValue | IssueFieldText | IssueFieldTextValue | IssueType | IssueTypeAddedEvent | IssueTypeChangedEvent | IssueTypeRemovedEvent | Label | LabeledEvent | Language | License | LinkedBranch | LockedEvent | Mannequin | MarkedAsDuplicateEvent | MarketplaceCategory | MarketplaceListing | MemberFeatureRequestNotification | MembersCanDeleteReposClearAuditEntry | MembersCanDeleteReposDisableAuditEntry | MembersCanDeleteReposEnableAuditEntry | MentionedEvent | MergeQueue | MergeQueueEntry | MergedEvent | MigrationSource | Milestone | MilestonedEvent | MovedColumnsInProjectEvent | OidcProvider | OauthApplicationCreateAuditEntry | OrgAddBillingManagerAuditEntry | OrgAddMemberAuditEntry | OrgBlockUserAuditEntry | OrgConfigDisableCollaboratorsOnlyAuditEntry | OrgConfigEnableCollaboratorsOnlyAuditEntry | OrgCreateAuditEntry | OrgDisableOauthAppRestrictionsAuditEntry | OrgDisableSamlAuditEntry | OrgDisableTwoFactorRequirementAuditEntry | OrgEnableOauthAppRestrictionsAuditEntry | OrgEnableSamlAuditEntry | OrgEnableTwoFactorRequirementAuditEntry | OrgInviteMemberAuditEntry | OrgInviteToBusinessAuditEntry | OrgOauthAppAccessApprovedAuditEntry | OrgOauthAppAccessBlockedAuditEntry | OrgOauthAppAccessDeniedAuditEntry | OrgOauthAppAccessRequestedAuditEntry | OrgOauthAppAccessUnblockedAuditEntry | OrgRemoveBillingManagerAuditEntry | OrgRemoveMemberAuditEntry | OrgRemoveOutsideCollaboratorAuditEntry | OrgRestoreMemberAuditEntry | OrgUnblockUserAuditEntry | OrgUpdateDefaultRepositoryPermissionAuditEntry | OrgUpdateMemberAuditEntry | OrgUpdateMemberRepositoryCreationPermissionAuditEntry | OrgUpdateMemberRepositoryInvitationPermissionAuditEntry | Organization | OrganizationIdentityProvider | OrganizationInvitation | Package | PackageFile | PackageTag | PackageVersion | ParentIssueAddedEvent | ParentIssueRemovedEvent | PinnedDiscussion | PinnedEnvironment | PinnedEvent | PinnedIssue | PinnedIssueComment | PrivateRepositoryForkingDisableAuditEntry | PrivateRepositoryForkingEnableAuditEntry | Project | ProjectCard | ProjectColumn | ProjectV2 | ProjectV2Field | ProjectV2Item | ProjectV2ItemFieldDateValue | ProjectV2ItemFieldIterationValue | ProjectV2ItemFieldNumberValue | ProjectV2ItemFieldSingleSelectValue | ProjectV2ItemFieldTextValue | ProjectV2ItemStatusChangedEvent | ProjectV2IterationField | ProjectV2SingleSelectField | ProjectV2StatusUpdate | ProjectV2View | ProjectV2Workflow | PublicKey | PullRequest | PullRequestCommit | PullRequestCommitCommentThread | PullRequestReview | PullRequestReviewComment | PullRequestReviewThread | PullRequestThread | Push | PushAllowance | Query | Reaction | ReadyForReviewEvent | Ref | ReferencedEvent | Release | ReleaseAsset | RemovedFromMergeQueueEvent | RemovedFromProjectEvent | RemovedFromProjectV2Event | RenamedTitleEvent | ReopenedEvent | RepoAccessAuditEntry | RepoAddMemberAuditEntry | RepoAddTopicAuditEntry | RepoArchivedAuditEntry | RepoChangeMergeSettingAuditEntry | RepoConfigDisableAnonymousGitAccessAuditEntry | RepoConfigDisableCollaboratorsOnlyAuditEntry | RepoConfigDisableContributorsOnlyAuditEntry | RepoConfigDisableSockpuppetDisallowedAuditEntry | RepoConfigEnableAnonymousGitAccessAuditEntry | RepoConfigEnableCollaboratorsOnlyAuditEntry | RepoConfigEnableContributorsOnlyAuditEntry | RepoConfigEnableSockpuppetDisallowedAuditEntry | RepoConfigLockAnonymousGitAccessAuditEntry | RepoConfigUnlockAnonymousGitAccessAuditEntry | RepoCreateAuditEntry | RepoDestroyAuditEntry | RepoRemoveMemberAuditEntry | RepoRemoveTopicAuditEntry | Repository | RepositoryCustomProperty | RepositoryInvitation | RepositoryMigration | RepositoryRule | RepositoryRuleset | RepositoryRulesetBypassActor | RepositoryTopic | RepositoryVisibilityChangeDisableAuditEntry | RepositoryVisibilityChangeEnableAuditEntry | RepositoryVulnerabilityAlert | ReviewDismissalAllowance | ReviewDismissedEvent | ReviewRequest | ReviewRequestRemovedEvent | ReviewRequestedEvent | SavedReply | SecurityAdvisory | SponsorsActivity | SponsorsListing | SponsorsListingFeaturedItem | SponsorsTier | Sponsorship | SponsorshipNewsletter | Status | StatusCheckRollup | StatusContext | SubIssueAddedEvent | SubIssueRemovedEvent | SubscribedEvent | Team | TeamAddMemberAuditEntry | TeamAddRepositoryAuditEntry | TeamChangeParentTeamAuditEntry | TeamRemoveMemberAuditEntry | TeamRemoveRepositoryAuditEntry | Topic | TransferredEvent | Tree | UnassignedEvent | UnlabeledEvent | UnlockedEvent | UnmarkedAsDuplicateEvent | UnpinnedEvent | UnsubscribedEvent | User | UserBlockedEvent | UserContentEdit | UserList | UserNamespaceRepository | UserStatus | VerifiableDomain | Workflow | WorkflowRun | WorkflowRunFile;
 
 export type RefFragment = { __typename?: 'Ref', name: string, target?:
     | { __typename?: 'Blob' }
@@ -36969,6 +37250,8 @@ type IssueIcon_EnterpriseServerUserAccount_Fragment = { __typename?: 'Enterprise
 type IssueIcon_EnterpriseServerUserAccountEmail_Fragment = { __typename?: 'EnterpriseServerUserAccountEmail' } & { ' $fragmentName'?: 'IssueIcon_EnterpriseServerUserAccountEmail_Fragment' };
 
 type IssueIcon_EnterpriseServerUserAccountsUpload_Fragment = { __typename?: 'EnterpriseServerUserAccountsUpload' } & { ' $fragmentName'?: 'IssueIcon_EnterpriseServerUserAccountsUpload_Fragment' };
+
+type IssueIcon_EnterpriseTeam_Fragment = { __typename?: 'EnterpriseTeam' } & { ' $fragmentName'?: 'IssueIcon_EnterpriseTeam_Fragment' };
 
 type IssueIcon_EnterpriseUserAccount_Fragment = { __typename?: 'EnterpriseUserAccount' } & { ' $fragmentName'?: 'IssueIcon_EnterpriseUserAccount_Fragment' };
 
@@ -37458,6 +37741,7 @@ export type IssueIconFragment =
   | IssueIcon_EnterpriseServerUserAccount_Fragment
   | IssueIcon_EnterpriseServerUserAccountEmail_Fragment
   | IssueIcon_EnterpriseServerUserAccountsUpload_Fragment
+  | IssueIcon_EnterpriseTeam_Fragment
   | IssueIcon_EnterpriseUserAccount_Fragment
   | IssueIcon_Environment_Fragment
   | IssueIcon_ExternalIdentity_Fragment
@@ -37706,7 +37990,7 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
             { __typename?: 'User' }
             & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
           )
-         | null, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string } }
+         | null, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string, defaultBranchRef?: { __typename?: 'Ref', name: string } | null } }
         & { ' $fragmentRefs'?: { 'IssueIcon_Discussion_Fragment': IssueIcon_Discussion_Fragment } }
       )
       | (
@@ -37734,7 +38018,7 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
          | null, assignees: { __typename?: 'UserConnection', nodes?: Array<(
             { __typename?: 'User' }
             & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-          ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string }, comments: { __typename?: 'IssueCommentConnection', totalCount: number } }
+          ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string, defaultBranchRef?: { __typename?: 'Ref', name: string } | null }, comments: { __typename?: 'IssueCommentConnection', totalCount: number } }
         & { ' $fragmentRefs'?: { 'IssueIcon_Issue_Fragment': IssueIcon_Issue_Fragment } }
       )
       | (
@@ -37746,7 +38030,7 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
         & { ' $fragmentRefs'?: { 'IssueIcon_Organization_Fragment': IssueIcon_Organization_Fragment } }
       )
       | (
-        { __typename?: 'PullRequest', id: string, createdAt: any, viewerDidAuthor: boolean, isDraft: boolean, title: string, headRefName: string, isReadByViewer?: boolean | null, url: any, number: number, mergedAt?: any | null, prState: PullRequestState, author?:
+        { __typename?: 'PullRequest', id: string, createdAt: any, viewerDidAuthor: boolean, isDraft: boolean, title: string, baseRefName: string, headRefName: string, isReadByViewer?: boolean | null, url: any, number: number, mergedAt?: any | null, prState: PullRequestState, author?:
           | (
             { __typename?: 'Bot' }
             & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
@@ -37770,7 +38054,7 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
          | null, assignees: { __typename?: 'UserConnection', nodes?: Array<(
             { __typename?: 'User' }
             & { ' $fragmentRefs'?: { 'InlineUser_User_Fragment': InlineUser_User_Fragment } }
-          ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string }, headRepository?: { __typename?: 'Repository', nameWithOwner: string } | null, autoMergeRequest?: { __typename?: 'AutoMergeRequest', enabledAt?: any | null, enabledBy?:
+          ) | null> | null }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', id: string, name: string, color: string } | null> | null } | null, repository: { __typename?: 'Repository', url: any, nameWithOwner: string, defaultBranchRef?: { __typename?: 'Ref', name: string } | null }, headRepository?: { __typename?: 'Repository', nameWithOwner: string } | null, autoMergeRequest?: { __typename?: 'AutoMergeRequest', enabledAt?: any | null, enabledBy?:
             | (
               { __typename?: 'Bot' }
               & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
@@ -37805,6 +38089,7 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
                 { __typename?: 'Bot', id: string, login: string }
                 & { ' $fragmentRefs'?: { 'InlineUser_Bot_Fragment': InlineUser_Bot_Fragment } }
               )
+              | { __typename?: 'EnterpriseTeam' }
               | (
                 { __typename?: 'Mannequin' }
                 & { ' $fragmentRefs'?: { 'InlineUser_Mannequin_Fragment': InlineUser_Mannequin_Fragment } }
@@ -37882,12 +38167,14 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
             | { __typename?: 'ReviewDismissedEvent' }
             | { __typename?: 'ReviewRequestRemovedEvent', createdAt: any, requestedReviewer?:
                 | { __typename?: 'Bot' }
+                | { __typename?: 'EnterpriseTeam' }
                 | { __typename?: 'Mannequin' }
                 | { __typename?: 'Team', id: string }
                 | { __typename?: 'User' }
                | null }
             | { __typename?: 'ReviewRequestedEvent', createdAt: any, requestedReviewer?:
                 | { __typename?: 'Bot' }
+                | { __typename?: 'EnterpriseTeam' }
                 | { __typename?: 'Mannequin' }
                 | { __typename?: 'Team', id: string }
                 | { __typename?: 'User', id: string, login: string }
@@ -37905,6 +38192,7 @@ export type SearchIssuesAndPullRequestsQuery = { __typename?: 'Query', viewer: {
             | { __typename?: 'UserBlockedEvent' }
            | null> | null }, viewerLatestReviewRequest?: { __typename?: 'ReviewRequest', asCodeOwner: boolean, requestedReviewer?:
             | { __typename?: 'Bot' }
+            | { __typename?: 'EnterpriseTeam' }
             | { __typename?: 'Mannequin' }
             | { __typename?: 'Team', id: string }
             | { __typename?: 'User', id: string }
@@ -37988,4 +38276,4 @@ export const InlineUserFragmentDoc = {"kind":"Document","definitions":[{"kind":"
 export const IssueIconFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<IssueIconFragment, unknown>;
 export const RefFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Ref"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Ref"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Commit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"committedDate"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"associatedPullRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<RefFragment, unknown>;
 export const SearchBranchesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchBranches"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repo"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"branch"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repoCount"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repo"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"REPOSITORY"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repoCount"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Repository"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"defaultBranchRef"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"refs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"refPrefix"},"value":{"kind":"StringValue","value":"refs/heads/","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"branch"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Ref"}}]}}]}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Ref"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Ref"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Commit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"committedDate"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"associatedPullRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}}]} as unknown as DocumentNode<SearchBranchesQuery, SearchBranchesQueryVariables>;
-export const SearchIssuesAndPullRequestsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchIssuesAndPullRequests"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"viewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"ISSUE_ADVANCED"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"issueCount"}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Assignable"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"assignees"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Labelable"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labels"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RepositoryNode"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repository"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"viewerDidAuthor"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}},{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"headRefName"}},{"kind":"Field","name":{"kind":"Name","value":"headRepository"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isReadByViewer"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"mergedAt"}},{"kind":"Field","name":{"kind":"Name","value":"autoMergeRequest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"enabledAt"}},{"kind":"Field","name":{"kind":"Name","value":"enabledBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviewThreads"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isCollapsed"}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"statusCheckRollup"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"contexts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CheckRun"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"conclusion"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"detailsUrl"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviewRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asCodeOwner"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Bot"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"timelineItems"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"itemTypes"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"REVIEW_REQUESTED_EVENT"},{"kind":"EnumValue","value":"REVIEW_REQUEST_REMOVED_EVENT"},{"kind":"EnumValue","value":"READY_FOR_REVIEW_EVENT"}]}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReadyForReviewEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReviewRequestedEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReviewRequestRemovedEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"viewerLatestReviewRequest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asCodeOwner"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"latestOpinionatedReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}},{"kind":"Argument","name":{"kind":"Name","value":"writersOnly"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"pendingReviews"},"name":{"kind":"Name","value":"reviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"states"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"PENDING"}]}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"commentReviews"},"name":{"kind":"Name","value":"latestReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorCanPushToRepository"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isReadByViewer"}},{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<SearchIssuesAndPullRequestsQuery, SearchIssuesAndPullRequestsQueryVariables>;
+export const SearchIssuesAndPullRequestsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchIssuesAndPullRequests"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"viewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"ISSUE_ADVANCED"}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"issueCount"}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Assignable"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"assignees"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Labelable"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labels"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RepositoryNode"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repository"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}},{"kind":"Field","name":{"kind":"Name","value":"defaultBranchRef"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"viewerDidAuthor"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}},{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"baseRefName"}},{"kind":"Field","name":{"kind":"Name","value":"headRefName"}},{"kind":"Field","name":{"kind":"Name","value":"headRepository"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameWithOwner"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isReadByViewer"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"mergedAt"}},{"kind":"Field","name":{"kind":"Name","value":"autoMergeRequest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"enabledAt"}},{"kind":"Field","name":{"kind":"Name","value":"enabledBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviewThreads"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isCollapsed"}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"statusCheckRollup"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"contexts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CheckRun"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"conclusion"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"detailsUrl"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviewRequests"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asCodeOwner"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Bot"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"timelineItems"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"itemTypes"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"REVIEW_REQUESTED_EVENT"},{"kind":"EnumValue","value":"REVIEW_REQUEST_REMOVED_EVENT"},{"kind":"EnumValue","value":"READY_FOR_REVIEW_EVENT"}]}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReadyForReviewEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReviewRequestedEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ReviewRequestRemovedEvent"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"viewerLatestReviewRequest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asCodeOwner"}},{"kind":"Field","name":{"kind":"Name","value":"requestedReviewer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Team"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"latestOpinionatedReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}},{"kind":"Argument","name":{"kind":"Name","value":"writersOnly"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"pendingReviews"},"name":{"kind":"Name","value":"reviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"states"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"PENDING"}]}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"commentReviews"},"name":{"kind":"Name","value":"latestReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorCanPushToRepository"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"InlineUser"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isReadByViewer"}},{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"IssueIcon"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InlineUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Actor"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IssueIcon"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Node"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Issue"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"issueState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","alias":{"kind":"Name","value":"issueStateReason"},"name":{"kind":"Name","value":"stateReason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PullRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"prState"},"name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"isDraft"}}]}}]}}]} as unknown as DocumentNode<SearchIssuesAndPullRequestsQuery, SearchIssuesAndPullRequestsQueryVariables>;

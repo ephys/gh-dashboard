@@ -74,6 +74,8 @@ export interface IssueListItem {
   url: string;
   /** For how long the viewer has been requested to review */
   viewerReviewWaitTimes?: number;
+  /** The branch this PR targets, only set when different from the repository's default branch */
+  targetBranch?: string | undefined;
 }
 
 interface IssueListProps {
@@ -259,6 +261,16 @@ export function IssueList(props: IssueListProps) {
                       ) : (
                         <BranchButton {...getBranchButtonProps(data)}>{branchDisplay}</BranchButton>
                       )}{' '}
+                    </>
+                  )}
+                  {data.targetBranch && (
+                    <>
+                      {'→'}{' '}
+                      <PrimerLink
+                        href={`${data.repository?.url}/tree/${data.targetBranch}`}
+                        className={css.targetBranchBadge}>
+                        {data.targetBranch}
+                      </PrimerLink>{' '}
                     </>
                   )}
                   opened <RelativeTime datetime={data.createdAt} /> by{' '}
