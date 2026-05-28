@@ -1,4 +1,3 @@
-import { ShieldLockIcon } from '@primer/octicons-react';
 import { Avatar, Link, Tooltip } from '@primer/react';
 import { useAppConfiguration } from './app-configuration.tsx';
 import { AvatarIcon } from './avatar-icon.tsx';
@@ -44,13 +43,13 @@ export function ReviewAvatar(props: ReviewAvatarProps) {
           avatar={
             <>
               <Avatar src={reviewer.avatarUrl} size={32} />
-              {codeOwner && (
-                <span className={css.codeOwnerIconWrapper}>
-                  <span className={css.codeOwnerIconWrapper2}>
-                    <ShieldLockIcon size={12} className={css.codeOwnerIcon} />
-                  </span>
-                </span>
-              )}
+              {/* {codeOwner && ( */}
+              {/*  <span className={css.codeOwnerIconWrapper}> */}
+              {/*    <span className={css.codeOwnerIconWrapper2}> */}
+              {/*      <ShieldLockIcon size={12} className={css.codeOwnerIcon} /> */}
+              {/*    </span> */}
+              {/*  </span> */}
+              {/* )} */}
             </>
           }
           topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
