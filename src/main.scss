@@ -22,6 +22,7 @@
 
 :root {
   background-color: var(--bgColor-default);
+  --borderRadius-medium: 4px;
 }
 
 [class^='Header-sc']:not(:has(~ nav)) {

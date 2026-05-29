@@ -11,16 +11,25 @@ interface Props {
   href?: string;
   /** Tooltip text. Auto-generated when omitted. */
   title?: string;
+  /** Visual variant. Defaults to 'default' (accent colors). Use 'attention' for warning/attention colors. */
+  variant?: 'accent' | 'attention';
 }
 
-export function BranchButton({ children, className, copyValue, title, href }: Props) {
+export function BranchButton({
+  children,
+  className,
+  copyValue,
+  title,
+  href,
+  variant = 'accent',
+}: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
   if (href) {
     return (
       <a
         href={href}
-        className={clsx(className, css.branchButton)}
+        className={clsx(className, css.branchButton, css[variant])}
         title={title ?? 'Open in IDE'}
         // Prevent navigation for custom URI schemes; let the OS handle it
         onClick={e => {
@@ -37,7 +46,7 @@ export function BranchButton({ children, className, copyValue, title, href }: Pr
   return (
     <button
       type="button"
-      className={clsx(className, css.branchButton)}
+      className={clsx(className, css.branchButton, css[variant])}
       title={title ?? 'Copy to clipboard'}
       onClick={() => {
         navigator.clipboard

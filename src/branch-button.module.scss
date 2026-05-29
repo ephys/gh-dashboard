@@ -2,25 +2,41 @@
   position: relative;
   display: inline-block;
   padding: 0 var(--base-size-4);
-  font: 0.85em/1.8
-    var(
-      --fontStack-monospace,
-      ui-monospace,
-      SFMono-Regular,
-      SF Mono,
-      Menlo,
-      Consolas,
-      Liberation Mono,
-      monospace
-    );
-  color: var(--fgColor-muted, var(--color-fg-muted));
+  font: 0.85em/1.8 var(
+    --fontStack-monospace,
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace
+  );
+
   white-space: nowrap;
-  background-color: var(--bgColor-accent-muted, var(--color-accent-subtle));
+
   border-radius: var(--borderRadius-medium);
   border: none;
   cursor: pointer;
 
-  &:hover {
-    color: var(--fgColor-accent, var(--color-accent-fg));
+  &.accent {
+    color: var(--fgColor-muted);
+    border: 1px solid var(--bgColor-accent-muted);
+    background-color: var(--bgColor-accent-muted);
+
+    &:hover {
+      color: var(--fgColor-accent);
+    }
+  }
+
+  &.attention {
+    background-color: var(--bgColor-attention-muted);
+    border: 1px solid var(--borderColor-attention-muted);
+    color: var(--fgColor-attention);
+
+    &:hover {
+      color: var(--fgColor-attention);
+      filter: brightness(0.85);
+    }
   }
 }

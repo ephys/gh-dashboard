@@ -124,12 +124,14 @@ export function IssueList(props: IssueListProps) {
   const [{ branchClickAction, prNumberClickAction }] = useAppConfiguration();
 
   const COLUMNS: Array<Column<IssueListItem>> = useMemo(() => {
-    function getBranchButtonProps(data: IssueListItem): {
+    function getBranchButtonProps(
+      data: IssueListItem,
+      branch: string,
+    ): {
       copyValue?: string;
       href?: string;
       title: string;
     } {
-      const branch = data.branchName!;
       const repoUrl = data.repository?.url ?? '';
       switch (branchClickAction) {
         case BranchClickAction.gitCheckout:
@@ -259,18 +261,24 @@ export function IssueList(props: IssueListProps) {
                       {branchClickAction === BranchClickAction.doNothing ? (
                         branchDisplay
                       ) : (
-                        <BranchButton {...getBranchButtonProps(data)}>{branchDisplay}</BranchButton>
+                        <BranchButton {...getBranchButtonProps(data, data.branchName!)}>
+                          {branchDisplay}
+                        </BranchButton>
                       )}{' '}
                     </>
                   )}
                   {data.targetBranch && (
                     <>
-                      {'→'}{' '}
-                      <PrimerLink
-                        href={`${data.repository?.url}/tree/${data.targetBranch}`}
-                        className={css.targetBranchBadge}>
-                        {data.targetBranch}
-                      </PrimerLink>{' '}
+                      →{' '}
+                      {branchClickAction === BranchClickAction.doNothing ? (
+                        data.targetBranch
+                      ) : (
+                        <BranchButton
+                          variant="attention"
+                          {...getBranchButtonProps(data, data.targetBranch)}>
+                          {data.targetBranch}
+                        </BranchButton>
+                      )}{' '}
                     </>
                   )}
                   opened <RelativeTime datetime={data.createdAt} /> by{' '}
