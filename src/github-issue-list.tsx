@@ -1,12 +1,12 @@
 import { Text } from '@primer/react';
 import type { MakeNonNullish } from '@sequelize/utils';
 import { EMPTY_ARRAY, isNotNullish } from '@sequelize/utils';
-import { useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
 import {
+  type GitHubSearchConfiguration,
   PrAuthorStyle,
   useAppConfiguration,
-  type GitHubSearchConfiguration,
 } from './app-configuration.tsx';
 import { getGitHubInlineUser } from './github-inline-user.tsx';
 import { GithubIssueIcon } from './github-issue-icon.tsx';
@@ -14,12 +14,12 @@ import css from './github-issue-list.module.scss';
 import {
   CheckConclusionState,
   PullRequestReviewState,
-  StatusState,
   type SearchIssuesAndPullRequestsQuery,
+  StatusState,
 } from './gql/graphql.ts';
 import { graphql } from './gql/index.ts';
 import type { InlineUserProps } from './inline-user.js';
-import { CheckStatus, IssueList, type FailedCheck, type IssueListItem } from './issue-list.tsx';
+import { CheckStatus, type FailedCheck, IssueList, type IssueListItem } from './issue-list.tsx';
 import { InlineCode } from './markdown-components.js';
 import type { ReviewAvatarProps } from './review-avatar.tsx';
 import { ReviewState } from './review-state-icon.tsx';
@@ -102,7 +102,7 @@ const searchQuery = graphql(/* GraphQL */ `
               comments(first: 1) {
                 nodes {
                   author {
-                    login
+                    ...InlineUser
                   }
                 }
               }
@@ -385,16 +385,26 @@ export function GithubIssueList({ list, actions }: IssueListProps) {
               continue;
             }
 
-            const threadAuthor = reviewThread.comments.nodes?.[0]?.author?.login;
-            if (!threadAuthor) {
+            const threadAuthor = reviewThread.comments.nodes?.[0]?.author;
+            if (!threadAuthor || threadAuthor.login === node.author?.login) {
               continue;
             }
 
-            const review = reviews.get(threadAuthor);
+            let review = reviews.get(threadAuthor.login);
             if (!review) {
-              continue;
+              review = {
+                reviewer: getGitHubInlineUser(threadAuthor),
+                state: ReviewState.Commented,
+                pending: false,
+                requested: false,
+                blockingCommentCount: 1,
+              };
+
+              // add reviewer
+              reviews.set(threadAuthor.login, review);
             }
 
+            review.state ??= ReviewState.Commented;
             review.blockingCommentCount ??= 0;
             review.blockingCommentCount++;
           }
