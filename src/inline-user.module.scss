@@ -1,0 +1,19 @@
+.textLink {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.avatarLink {
+  color: inherit;
+  display: inline-flex;
+  text-decoration: none;
+  vertical-align: middle;
+
+  &:hover {
+    text-decoration: none;
+  }
+}

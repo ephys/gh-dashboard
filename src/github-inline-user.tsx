@@ -9,6 +9,7 @@ export const InlineUserFragment = graphql(/* GraphQL */ `
   fragment InlineUser on Actor {
     login
     avatarUrl
+    url
     ... on User {
       name
     }
@@ -45,5 +46,6 @@ export function getGitHubInlineUser(
     displayName: 'name' in user && user.name ? user.name : '',
     isBot,
     username: isBot ? `app/${user.login}` : user.login,
+    profileUrl: user.url,
   };
 }

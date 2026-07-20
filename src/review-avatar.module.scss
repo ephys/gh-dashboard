@@ -1,6 +1,12 @@
 .link {
+  color: inherit;
   display: inline-flex;
   position: relative;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .codeOwnerIconWrapper {

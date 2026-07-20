@@ -36,34 +36,31 @@ export function ReviewAvatar(props: ReviewAvatarProps) {
               ? `Rejected by ${formattedUserName}`
               : '';
 
+  const avatarIcon = (
+    <AvatarIcon
+      avatar={<Avatar src={reviewer.avatarUrl} size={32} />}
+      topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
+      bottomIcon={
+        state ? (
+          <ReviewStateIcon
+            className={css.reviewStateIcon}
+            state={state}
+            blockingCommentCount={props.blockingCommentCount}
+          />
+        ) : null
+      }
+    />
+  );
+
   return (
     <Tooltip text={codeOwner ? `${stateText} (code owner)`.trimStart() : stateText} direction="nw">
-      <Link href={reviewer.avatarUrl} className={css.link}>
-        <AvatarIcon
-          avatar={
-            <>
-              <Avatar src={reviewer.avatarUrl} size={32} />
-              {/* {codeOwner && ( */}
-              {/*  <span className={css.codeOwnerIconWrapper}> */}
-              {/*    <span className={css.codeOwnerIconWrapper2}> */}
-              {/*      <ShieldLockIcon size={12} className={css.codeOwnerIcon} /> */}
-              {/*    </span> */}
-              {/*  </span> */}
-              {/* )} */}
-            </>
-          }
-          topIcon={pending || requested ? <PendingReviewIcon inProgress={pending} /> : null}
-          bottomIcon={
-            state ? (
-              <ReviewStateIcon
-                className={css.reviewStateIcon}
-                state={state}
-                blockingCommentCount={props.blockingCommentCount}
-              />
-            ) : null
-          }
-        />
-      </Link>
+      {reviewer.profileUrl ? (
+        <Link href={reviewer.profileUrl} className={css.link}>
+          {avatarIcon}
+        </Link>
+      ) : (
+        <span className={css.link}>{avatarIcon}</span>
+      )}
     </Tooltip>
   );
 }
